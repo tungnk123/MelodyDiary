@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
@@ -21,10 +22,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.melodydiary.ui.diary.DiaryScreen
 import com.example.melodydiary.ui.theme.MelodyDiaryTheme
 
 @Composable
@@ -43,11 +47,7 @@ fun MelodyDiaryApp() {
                 },
                 floatingActionButtonPosition = FabPosition.Center,
             ) { paddingValues ->
-                Box(
-                    modifier = Modifier.padding(paddingValues)
-                ) {
-                    Text("hello world")
-                }
+                DiaryScreen(Modifier.padding(paddingValues))
             }
         }
     }
@@ -59,7 +59,7 @@ fun BottomNavigationWithFab(
     onFabClick: () -> Unit
 ) {
     NavigationBar(
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = Color.White,
         modifier = modifier
     ) {
         NavigationBarItem(
@@ -70,8 +70,9 @@ fun BottomNavigationWithFab(
             },
             icon = {
                 Icon(
-                    imageVector = Icons.Default.AccountCircle,
-                    contentDescription = null
+                    painter = painterResource(R.drawable.ic_diary),
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp)
                 )
             },
             selected = true,
@@ -87,7 +88,7 @@ fun BottomNavigationWithFab(
             },
             icon = {
                 Icon(
-                    imageVector = Icons.Default.AccountCircle,
+                    painter = painterResource(R.drawable.library_music),
                     contentDescription = null
                 )
             },
@@ -106,7 +107,7 @@ fun BottomNavigationWithFab(
             },
             icon = {
                 Icon(
-                    imageVector = Icons.Default.AccountCircle,
+                    painter = painterResource(R.drawable.bar_chart_24px),
                     contentDescription = null
                 )
             },
@@ -123,7 +124,7 @@ fun BottomNavigationWithFab(
             },
             icon = {
                 Icon(
-                    imageVector = Icons.Default.AccountCircle,
+                    painter = painterResource(R.drawable.person),
                     contentDescription = null
                 )
             },
@@ -180,98 +181,14 @@ fun PreviewNavBar(
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewScaffold() {
+fun PreviewApp() {
     MelodyDiaryTheme {
         // A surface container using the 'background' color from the theme
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            Scaffold(
-                bottomBar = {
-                    BottomAppBar(
-                        actions = {
-                            NavigationBarItem(
-                                label = {
-                                    Text(
-                                        text = stringResource(R.string.bottom_navigation_diary)
-                                    )
-                                },
-                                icon = {
-                                    Icon(
-                                        imageVector = Icons.Default.AccountCircle,
-                                        contentDescription = null
-                                    )
-                                },
-                                selected = true,
-                                onClick = {
-
-                                }
-                            )
-                            NavigationBarItem(
-                                label = {
-                                    Text(
-                                        text = stringResource(R.string.bottom_navigation_music)
-                                    )
-                                },
-                                icon = {
-                                    Icon(
-                                        imageVector = Icons.Default.AccountCircle,
-                                        contentDescription = null
-                                    )
-                                },
-                                selected = false,
-                                onClick = {
-
-                                }
-                            )
-                            DiamondFab()
-                            NavigationBarItem(
-                                label = {
-                                    Text(
-                                        text = stringResource(R.string.bottom_navigation_report)
-                                    )
-                                },
-                                icon = {
-                                    Icon(
-                                        imageVector = Icons.Default.AccountCircle,
-                                        contentDescription = null
-                                    )
-                                },
-                                selected = false,
-                                onClick = {
-
-                                }
-                            )
-                            NavigationBarItem(
-                                label = {
-                                    Text(
-                                        text = stringResource(R.string.bottom_navigation_profile)
-                                    )
-                                },
-                                icon = {
-                                    Icon(
-                                        imageVector = Icons.Default.AccountCircle,
-                                        contentDescription = null
-                                    )
-                                },
-                                selected = false,
-                                onClick = {
-
-                                }
-                            )
-                        },
-
-                        )
-                },
-                floatingActionButtonPosition = FabPosition.Center,
-            ) { paddingValues ->
-                Box(
-                    modifier = Modifier.padding(paddingValues)
-                ) {
-                    Text("hello world")
-                }
-            }
+            DiaryScreen()
         }
     }
 }
