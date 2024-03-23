@@ -1,5 +1,6 @@
 package com.example.melodydiary
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -20,6 +21,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,11 +33,28 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.melodydiary.ui.diary.DiaryScreen
+import com.example.melodydiary.ui.music.MusicScreen
+import com.example.melodydiary.ui.profile.ProfileScreen
+import com.example.melodydiary.ui.report.ReportScreen
 import com.example.melodydiary.ui.theme.MelodyDiaryTheme
 
+
+enum class MelodyDiaryApp(@StringRes val title: Int) {
+    DiaryScreen(title = R.string.diary_route),
+    MusicScreen(title = R.string.music_route),
+    ReportScreen(title = R.string.profile_route),
+    ProfileScreen(title = R.string.profile_route)
+}
+
 @Composable
-fun MelodyDiaryApp() {
+fun MelodyDiaryApp(
+    navController: NavHostController = rememberNavController()
+) {
     MelodyDiaryTheme {
         // A surface container using the 'background' color from the theme
         Surface(
@@ -42,12 +64,34 @@ fun MelodyDiaryApp() {
             Scaffold(
                 bottomBar = {
                     BottomNavigationWithFab(
-                        onFabClick = {}
+                        navController = navController
                     )
                 },
                 floatingActionButtonPosition = FabPosition.Center,
-            ) { paddingValues ->
-                DiaryScreen(Modifier.padding(paddingValues))
+            ) { innerPadding ->
+                NavHost(
+                    navController = navController,
+                    startDestination = MelodyDiaryApp.DiaryScreen.name,
+                    modifier = Modifier.padding(innerPadding)
+                ) {
+
+                    composable(route = MelodyDiaryApp.DiaryScreen.name
+                    ) {
+                        DiaryScreen()
+                    }
+
+                    composable(route = MelodyDiaryApp.MusicScreen.name) {
+                        MusicScreen()
+                    }
+
+                    composable(route = MelodyDiaryApp.ReportScreen.name) {
+                        ReportScreen()
+                    }
+                    composable(route = MelodyDiaryApp.ProfileScreen.name) {
+                        ProfileScreen()
+                    }
+
+                }
             }
         }
     }
@@ -56,12 +100,16 @@ fun MelodyDiaryApp() {
 @Composable
 fun BottomNavigationWithFab(
     modifier: Modifier = Modifier,
-    onFabClick: () -> Unit
+    navController: NavHostController
 ) {
+    var selectedNavBarItem by remember {
+        mutableStateOf(MelodyDiaryApp.DiaryScreen.name)
+    }
     NavigationBar(
         containerColor = Color.White,
         modifier = modifier
     ) {
+//        val isSelected
         NavigationBarItem(
             label = {
                 Text(
@@ -75,8 +123,10 @@ fun BottomNavigationWithFab(
                     modifier = Modifier.size(24.dp)
                 )
             },
-            selected = true,
+            selected = selectedNavBarItem == MelodyDiaryApp.DiaryScreen.name,
             onClick = {
+                selectedNavBarItem = MelodyDiaryApp.DiaryScreen.name
+                navController.navigate(MelodyDiaryApp.DiaryScreen.name)
 
             }
         )
@@ -92,9 +142,10 @@ fun BottomNavigationWithFab(
                     contentDescription = null
                 )
             },
-            selected = false,
+            selected = selectedNavBarItem == MelodyDiaryApp.MusicScreen.name,
             onClick = {
-
+                selectedNavBarItem = MelodyDiaryApp.MusicScreen.name
+                navController.navigate(MelodyDiaryApp.MusicScreen.name)
             }
         )
 
@@ -111,9 +162,10 @@ fun BottomNavigationWithFab(
                     contentDescription = null
                 )
             },
-            selected = false,
+            selected = selectedNavBarItem == MelodyDiaryApp.ReportScreen.name,
             onClick = {
-
+                selectedNavBarItem = MelodyDiaryApp.ReportScreen.name
+                navController.navigate(MelodyDiaryApp.ReportScreen.name)
             }
         )
         NavigationBarItem(
@@ -128,9 +180,10 @@ fun BottomNavigationWithFab(
                     contentDescription = null
                 )
             },
-            selected = false,
+            selected = selectedNavBarItem == MelodyDiaryApp.ProfileScreen.name,
             onClick = {
-
+                selectedNavBarItem = MelodyDiaryApp.ProfileScreen.name
+                navController.navigate(MelodyDiaryApp.ProfileScreen.name)
             }
         )
     }
@@ -174,7 +227,7 @@ fun DiamondFabPreview() {
 fun PreviewNavBar(
 ) {
     MelodyDiaryTheme {
-        BottomNavigationWithFab(Modifier.padding(16.dp), {})
+        BottomNavigationWithFab(Modifier.padding(16.dp), rememberNavController())
     }
 
 }

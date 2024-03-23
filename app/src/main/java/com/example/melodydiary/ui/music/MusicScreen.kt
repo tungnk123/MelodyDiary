@@ -1,4 +1,5 @@
-package com.example.melodydiary.ui.diary
+package com.example.melodydiary.ui.music
+
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -11,10 +12,11 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.melodydiary.MelodyDiaryApp
 import com.example.melodydiary.R
+import com.example.melodydiary.ui.diary.DiaryScreen
 import com.example.melodydiary.ui.theme.MelodyDiaryTheme
 
 @Composable
-fun DiaryScreen(
+fun MusicScreen(
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -23,7 +25,7 @@ fun DiaryScreen(
             .padding(dimensionResource(R.dimen.padding_small))
     ) {
         Text(
-            text = "Diary Screen",
+            text = "Music Screen",
             style = MaterialTheme.typography.bodyLarge
         )
     }
@@ -31,8 +33,8 @@ fun DiaryScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewDiaryScreen() {
+fun PreviewMusicScreen() {
     MelodyDiaryTheme {
-        DiaryScreen()
+        MusicScreen()
     }
 }
