@@ -37,6 +37,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.melodydiary.ui.addDiary.AddDiaryScreen
 import com.example.melodydiary.ui.diary.DiaryScreen
 import com.example.melodydiary.ui.music.MusicScreen
 import com.example.melodydiary.ui.profile.ProfileScreen
@@ -48,7 +49,8 @@ enum class MelodyDiaryApp(@StringRes val title: Int) {
     DiaryScreen(title = R.string.diary_route),
     MusicScreen(title = R.string.music_route),
     ReportScreen(title = R.string.profile_route),
-    ProfileScreen(title = R.string.profile_route)
+    ProfileScreen(title = R.string.profile_route),
+    AddDiaryScreen(title =R.string.add_diary_route)
 }
 
 @Composable
@@ -84,6 +86,9 @@ fun MelodyDiaryApp(
                         MusicScreen()
                     }
 
+                    composable(route = MelodyDiaryApp.AddDiaryScreen.name) {
+                        AddDiaryScreen()
+                    }
                     composable(route = MelodyDiaryApp.ReportScreen.name) {
                         ReportScreen()
                     }
@@ -149,7 +154,12 @@ fun BottomNavigationWithFab(
             }
         )
 
-        DiamondFab()
+        DiamondFab(
+            onClick = {
+                selectedNavBarItem = MelodyDiaryApp.AddDiaryScreen.name
+                navController.navigate(MelodyDiaryApp.AddDiaryScreen.name)
+            }
+        )
         NavigationBarItem(
             label = {
                 Text(
@@ -189,13 +199,15 @@ fun BottomNavigationWithFab(
     }
 }
 @Composable
-fun DiamondFab(modifier: Modifier = Modifier) {
+fun DiamondFab(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier) {
     Box(
         modifier = modifier.height(100.dp),
         contentAlignment = Alignment.CenterEnd
     ) {
         FloatingActionButton(
-            onClick = { /* Handle FAB click */ },
+            onClick = onClick,
             shape = RoundedCornerShape(10.dp),
             modifier = Modifier
                 .graphicsLayer {
@@ -219,7 +231,7 @@ fun DiamondFab(modifier: Modifier = Modifier) {
 @Preview
 @Composable
 fun DiamondFabPreview() {
-    DiamondFab(Modifier.padding(bottom = 30.dp))
+    DiamondFab(onClick = {}, Modifier.padding(bottom = 30.dp),)
 }
 
 @Preview(showBackground = true, backgroundColor = 0xFFF5F0EE)

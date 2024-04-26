@@ -24,6 +24,15 @@
     <string name="music_route">music</string>
     <string name="report_route">report</string>
     <string name="profile_route">profile</string>
+    <string name="add_diary_route">add_diary</string>
 
+    <string name="title_diary">My Dairy</string>
+    <string name="tab_name_danh_sach">Danh sách</string>
+    <string name="tab_name_lich">Lịch</string>
+    
+    <string name="title_example">Sad day</string>
+    <string name="description_example">Lorem Ipsum is simply dummy text of the printing and typesetting industry.</string>
+
+    <string name="title_viet_nhat_ky">Viết nhật ký</string>
 
 </resources>
