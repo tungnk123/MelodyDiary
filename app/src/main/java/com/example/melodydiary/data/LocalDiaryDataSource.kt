@@ -6,4 +6,5 @@ import kotlinx.coroutines.flow.Flow
 class LocalDiaryDataSource(
     private val diaryDao: DiaryDao
 ) {
+
 }

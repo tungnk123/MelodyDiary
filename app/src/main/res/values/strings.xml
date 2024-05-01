@@ -34,5 +34,10 @@
     <string name="description_example">Lorem Ipsum is simply dummy text of the printing and typesetting industry.</string>
 
     <string name="title_viet_nhat_ky">Viết nhật ký</string>
+    <string name="title_tao_nhac">Tạo nhạc</string>
+    <string name="title_thu_vien_nhac">Thư viện nhạc</string>
 
+    <string name="ban_hom_nay_the_nao">Bạn hôm nay thế nào?</string>
+    <string name="btn_xac_nhan">Xác nhận</string>
+    <string name="btn_them_tam_trang">Thêm tâm trạng</string>
 </resources>
