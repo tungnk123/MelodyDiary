@@ -1,7 +1,6 @@
 package com.example.melodydiary.ui.addDiary
 
 import android.os.Build
-import android.widget.GridLayout
 import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
@@ -20,9 +19,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.BottomSheetScaffold
-import androidx.compose.material.BottomSheetState
-import androidx.compose.material.BottomSheetValue
 import androidx.compose.material.Button
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.IconButton
@@ -33,7 +29,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.rememberBottomSheetState
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -43,9 +38,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -57,11 +52,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.melodydiary.R
-import com.example.melodydiary.data.DiaryRepository
 import com.example.melodydiary.model.Diary
 import com.example.melodydiary.ui.diary.DiaryViewModel
 import com.example.melodydiary.ui.theme.MelodyDiaryTheme
-import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -81,6 +74,10 @@ fun AddDiaryScreen(
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(true) }
+
+    var logo by remember {
+        mutableStateOf(R.drawable.ic_pick)
+    }
 
     Scaffold(
         modifier = modifier,
@@ -120,7 +117,7 @@ fun AddDiaryScreen(
                                     content = content,
                                     mood = "Happy",
                                     imageIdList = listOf("image1", "image2"),
-                                    logo = R.drawable.ic_fear, // Thay thế R.drawable.logo bằng resource id thích hợp
+                                    logo = logo, // Thay thế R.drawable.logo bằng resource id thích hợp
                                     createdAt = LocalDateTime.now() // Sử dụng thời gian hiện tại
                                 )
                                 diaryViewModel.addDiary(newDiary)
@@ -148,7 +145,7 @@ fun AddDiaryScreen(
                 date = "3/10",
                 time = "12:30",
                 thu = "Thu 3",
-                R.drawable.ic_pick,
+                logo,
                 onPickEmoteClick = {
                     showBottomSheet = !showBottomSheet
                 }
@@ -193,7 +190,10 @@ fun AddDiaryScreen(
                     ) {
                         item {
                             IconButton(
-                                onClick = {},
+                                onClick = {
+                                    showBottomSheet = false
+                                    logo = R.drawable.ic_face
+                                },
                             ) {
                                 Image(
                                     painter = painterResource(R.drawable.ic_face),
@@ -204,7 +204,10 @@ fun AddDiaryScreen(
                         }
                         item {
                             IconButton(
-                                onClick = {},
+                                onClick = {
+                                    showBottomSheet = false
+                                    logo = R.drawable.ic_cry
+                                },
                             ) {
                                 Image(
                                     painter = painterResource(R.drawable.ic_cry),
@@ -215,7 +218,10 @@ fun AddDiaryScreen(
                         }
                         item {
                             IconButton(
-                                onClick = {},
+                                onClick = {
+                                    showBottomSheet = false
+                                    logo = R.drawable.ic_neutral
+                                },
                             ) {
                                 Image(
                                     painter = painterResource(R.drawable.ic_neutral),
@@ -226,7 +232,10 @@ fun AddDiaryScreen(
                         }
                         item {
                             IconButton(
-                                onClick = {},
+                                onClick = {
+                                    showBottomSheet = false
+                                    logo = R.drawable.ic_fear
+                                },
                             ) {
                                 Image(
                                     painter = painterResource(R.drawable.ic_fear),
@@ -237,7 +246,10 @@ fun AddDiaryScreen(
                         }
                         item {
                             IconButton(
-                                onClick = {},
+                                onClick = {
+                                    showBottomSheet = false
+                                    logo = R.drawable.ic_disgust
+                                },
                             ) {
                                 Image(
                                     painter = painterResource(R.drawable.ic_disgust),
@@ -248,7 +260,10 @@ fun AddDiaryScreen(
                         }
                         item {
                             IconButton(
-                                onClick = {},
+                                onClick = {
+                                    showBottomSheet = false
+                                    logo = R.drawable.ic_angry
+                                },
                             ) {
                                 Image(
                                     painter = painterResource(R.drawable.ic_angry),
@@ -260,19 +275,7 @@ fun AddDiaryScreen(
                         
                     }
                     Spacer(modifier = Modifier.height(10.dp))
-                    Button(
-                        onClick = {
-                                  showBottomSheet = false
-                        },
-                        modifier = Modifier.width(150.dp)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.btn_xac_nhan),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = Color.White
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(10.dp))
+
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                         verticalAlignment = Alignment.CenterVertically
@@ -287,7 +290,8 @@ fun AddDiaryScreen(
                         }
                         Image(
                             painter = painterResource(R.drawable.ic_groupface),
-                            contentDescription = "Group face for new status"
+                            contentDescription = "Group face for new status",
+                            modifier = Modifier.size(32.dp)
                         )
                     }
 
