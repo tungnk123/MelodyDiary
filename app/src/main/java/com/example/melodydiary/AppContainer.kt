@@ -15,7 +15,7 @@ import retrofit2.Retrofit
 import retrofit2.create
 
 class AppContainer(private val context: Context) {
-    private val baseUrl = ""
+    private val baseUrl = "https://android-kotlin-fun-mars-server.appspot.com/"
     private val retrofit: Retrofit = Retrofit.Builder()
         .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
         .baseUrl(baseUrl)
@@ -25,6 +25,7 @@ class AppContainer(private val context: Context) {
     val database by lazy {
         DiaryRoomDatabase.getDatabase(context, applicationScope)
     }
+
     val localDiaryDataSource: LocalDiaryDataSource by lazy {
         LocalDiaryDataSource(database.diaryDao())
     }

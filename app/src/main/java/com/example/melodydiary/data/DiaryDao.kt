@@ -9,11 +9,11 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface DiaryDao {
     @Query("SELECT * FROM diary_table ")
-    suspend fun getAllDiary(): Flow<List<Diary>>
+    fun getAllDiary(): Flow<List<Diary>>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(word: Diary)
+    fun insertDiary(diary: Diary)
 
     @Query("DELETE FROM diary_table")
-    suspend fun deleteAll()
+    fun deleteAllDiary()
 }

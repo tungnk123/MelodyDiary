@@ -1,11 +1,12 @@
 package com.example.melodydiary.ui.diary
 
 import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,18 +16,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,18 +39,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.melodydiary.R
+import com.example.melodydiary.model.Diary
 import com.example.melodydiary.ui.theme.MelodyDiaryTheme
 import com.example.melodydiary.ui.theme.mygreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DiaryScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    diaryViewModel: DiaryViewModel
 ) {
+    val diaryList = diaryViewModel.diaryList.collectAsState()
     Scaffold(
         topBar = {
             TopAppBar(
@@ -62,14 +68,15 @@ fun DiaryScreen(
         }
     ) { innerPadding ->
 
-        DiaryTab(modifier = Modifier.padding(innerPadding))
+        DiaryTab(modifier = Modifier.padding(innerPadding), diaryList.value)
 
     }
 }
 
 @Composable
 fun DiaryTab(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    diaryList: List<Diary>
 ) {
     var selectedTabIndex by remember { mutableStateOf(0) }
 
@@ -108,27 +115,32 @@ fun DiaryTab(
         // Content for each tab
         when (selectedTabIndex) {
             0 -> {
-                Column(
-                    modifier = Modifier.padding(20.dp ),
-                ) {
-                    DiaryItem(
-                        R.string.title_example,
-                        R.string.description_example,
-                        R.drawable.ic_face,
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-                    DiaryItem(
-                        R.string.title_example,
-                        R.string.description_example,
-                        R.drawable.ic_face,
-                    )
-                }
+                DiaryList(
+                    diaryList = diaryList
+                )
             }
 
             1 -> {
                 TabContent(text = "Content for Tab 2")
             }
             // Add more content for additional tabs
+        }
+    }
+}
+
+@Composable
+fun DiaryList(
+    diaryList: List<Diary>,
+    modifier: Modifier = Modifier
+) {
+    LazyColumn(
+        modifier = Modifier.padding(20.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        items(diaryList, key = { it.diaryId }) { item ->
+            DiaryItem(
+                item = item
+            )
         }
     }
 }
@@ -144,9 +156,7 @@ fun TabContent(text: String) {
 
 @Composable
 fun DiaryItem(
-    @StringRes titleResId: Int,
-    @StringRes descriptionRes: Int,
-    @DrawableRes statusLogoRes: Int,
+    item: Diary,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -173,15 +183,15 @@ fun DiaryItem(
                 date = "03/10",
                 time = "11:05",
                 thu = "Thu 3",
-                statusLogoRes = statusLogoRes
+                statusLogoRes = item.logo
             )
             Text(
-                text = stringResource(titleResId),
+                text = item.title,
                 style = MaterialTheme.typography.titleLarge,
             )
 
             Text(
-                text = stringResource(descriptionRes),
+                text = item.content,
                 color = Color.Gray,
                 )
         }
@@ -231,6 +241,7 @@ fun DateDetailInDiary(
 @Composable
 fun PreviewDiaryScreen() {
     MelodyDiaryTheme {
-        DiaryScreen()
+        val diaryViewModel: DiaryViewModel = viewModel(factory = DiaryViewModel.Factory)
+        DiaryScreen(diaryViewModel = diaryViewModel)
     }
 }

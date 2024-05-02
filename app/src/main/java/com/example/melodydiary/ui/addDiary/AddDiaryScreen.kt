@@ -1,7 +1,9 @@
 package com.example.melodydiary.ui.addDiary
 
+import android.os.Build
 import android.widget.GridLayout
 import androidx.annotation.DrawableRes
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -53,12 +55,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.melodydiary.R
 import com.example.melodydiary.data.DiaryRepository
+import com.example.melodydiary.model.Diary
 import com.example.melodydiary.ui.diary.DiaryViewModel
 import com.example.melodydiary.ui.theme.MelodyDiaryTheme
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun AddDiaryScreen(
@@ -107,7 +113,18 @@ fun AddDiaryScreen(
                         }
                         Spacer(modifier = Modifier.width(5.dp))
                         Button(
-                            onClick = {}
+                            onClick = {
+                                val newDiary = Diary(
+                                    diaryId = 0,
+                                    title = title,
+                                    content = content,
+                                    mood = "Happy",
+                                    imageIdList = listOf("image1", "image2"),
+                                    logo = R.drawable.ic_fear, // Thay thế R.drawable.logo bằng resource id thích hợp
+                                    createdAt = LocalDateTime.now() // Sử dụng thời gian hiện tại
+                                )
+                                diaryViewModel.addDiary(newDiary)
+                            }
                         ) {
                             Text(
                                 text = "Lưu",
@@ -398,9 +415,10 @@ fun DateDetailInDiaryWithSelection(
 @Preview(showBackground = true)
 @Composable
 fun PreviewMusicScreen() {
+    val diaryViewModel: DiaryViewModel = viewModel(factory = DiaryViewModel.Factory)
     MelodyDiaryTheme {
-        AddDiaryScreen(
-            diaryViewModel = DiaryViewModel()
-        )
+//        AddDiaryScreen(
+//            diaryViewModel = diaryViewModel
+//        )
     }
 }

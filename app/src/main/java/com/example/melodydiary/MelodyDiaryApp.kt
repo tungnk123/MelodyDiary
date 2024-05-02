@@ -84,7 +84,7 @@ fun MelodyDiaryApp(
 
                     composable(route = MelodyDiaryApp.DiaryScreen.name
                     ) {
-                        DiaryScreen()
+                        DiaryScreen(diaryViewModel = diaryViewModel)
                     }
 
                     composable(route = MelodyDiaryApp.MusicScreen.name) {
@@ -258,7 +258,8 @@ fun PreviewApp() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            DiaryScreen()
+            val diaryViewModel: DiaryViewModel = viewModel(factory = DiaryViewModel.Factory)
+            DiaryScreen(diaryViewModel = diaryViewModel)
         }
     }
 }
