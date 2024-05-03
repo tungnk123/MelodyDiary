@@ -64,6 +64,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import com.example.melodydiary.R
 import com.example.melodydiary.model.Diary
 import com.example.melodydiary.ui.diary.DiaryViewModel
@@ -80,7 +81,8 @@ import java.util.Calendar
 @Composable
 fun AddDiaryScreen(
     modifier: Modifier = Modifier,
-    diaryViewModel: DiaryViewModel
+    diaryViewModel: DiaryViewModel,
+    navController: NavHostController
 ) {
 
     var title by remember {
@@ -163,12 +165,19 @@ fun AddDiaryScreen(
         modifier = modifier,
         topBar = {
             CenterAlignedTopAppBar(
-                modifier = Modifier.padding(end = 20.dp),
+                modifier = Modifier.padding(end = 20.dp, start = 10.dp),
                 navigationIcon = {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = null
-                    )
+
+                    IconButton(
+                        onClick = {
+                            navController.popBackStack()
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = null
+                        )
+                    }
                 },
                 title = {
                     Text(
@@ -203,6 +212,7 @@ fun AddDiaryScreen(
                                     createdAt = datetime
                                 )
                                 diaryViewModel.addDiary(newDiary)
+                                navController.popBackStack()
                             }
                         ) {
                             Text(

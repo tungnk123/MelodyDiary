@@ -1,5 +1,7 @@
 package com.example.melodydiary
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -56,6 +58,7 @@ enum class MelodyDiaryApp(@StringRes val title: Int) {
     AddDiaryScreen(title =R.string.add_diary_route)
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MelodyDiaryApp(
     navController: NavHostController = rememberNavController()
@@ -84,7 +87,7 @@ fun MelodyDiaryApp(
 
                     composable(route = MelodyDiaryApp.DiaryScreen.name
                     ) {
-                        DiaryScreen(diaryViewModel = diaryViewModel)
+                        DiaryScreen(diaryViewModel = diaryViewModel, navController = navController)
                     }
 
                     composable(route = MelodyDiaryApp.MusicScreen.name) {
@@ -92,7 +95,7 @@ fun MelodyDiaryApp(
                     }
 
                     composable(route = MelodyDiaryApp.AddDiaryScreen.name) {
-                        AddDiaryScreen(diaryViewModel = diaryViewModel)
+                        AddDiaryScreen(diaryViewModel = diaryViewModel , navController = navController)
                     }
                     composable(route = MelodyDiaryApp.ReportScreen.name) {
                         ReportScreen()
@@ -249,6 +252,7 @@ fun PreviewNavBar(
 
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true)
 @Composable
 fun PreviewApp() {
@@ -259,7 +263,7 @@ fun PreviewApp() {
             color = MaterialTheme.colorScheme.background
         ) {
             val diaryViewModel: DiaryViewModel = viewModel(factory = DiaryViewModel.Factory)
-            DiaryScreen(diaryViewModel = diaryViewModel)
+            DiaryScreen(diaryViewModel = diaryViewModel , navController = rememberNavController())
         }
     }
 }

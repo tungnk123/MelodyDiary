@@ -44,6 +44,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.melodydiary.R
 import com.example.melodydiary.model.Diary
 import com.example.melodydiary.ui.theme.MelodyDiaryTheme
@@ -51,11 +53,13 @@ import com.example.melodydiary.ui.theme.mygreen
 import com.example.melodydiary.utils.DayOfWeekConverter
 import java.time.format.DateTimeFormatter
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DiaryScreen(
     modifier: Modifier = Modifier,
-    diaryViewModel: DiaryViewModel
+    diaryViewModel: DiaryViewModel,
+    navController: NavHostController
 ) {
     val diaryList = diaryViewModel.diaryList.collectAsState()
     Scaffold(
@@ -72,7 +76,7 @@ fun DiaryScreen(
         }
     ) { innerPadding ->
 
-        DiaryTab(modifier = Modifier.padding(innerPadding), diaryList.value)
+        DiaryTab(modifier = Modifier.padding(innerPadding), diaryList.value.sortedByDescending { it.createdAt })
 
     }
 }
@@ -247,11 +251,12 @@ fun DateDetailInDiary(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true)
 @Composable
 fun PreviewDiaryScreen() {
     MelodyDiaryTheme {
         val diaryViewModel: DiaryViewModel = viewModel(factory = DiaryViewModel.Factory)
-        DiaryScreen(diaryViewModel = diaryViewModel)
+        DiaryScreen(diaryViewModel = diaryViewModel , navController = rememberNavController())
     }
 }
