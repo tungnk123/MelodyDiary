@@ -1,5 +1,7 @@
 package com.example.melodydiary.ui.addDiary
 
+
+import android.app.TimePickerDialog
 import android.os.Build
 import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresApi
@@ -9,6 +11,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,14 +33,22 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TimeInput
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,12 +61,19 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.melodydiary.R
 import com.example.melodydiary.model.Diary
 import com.example.melodydiary.ui.diary.DiaryViewModel
 import com.example.melodydiary.ui.theme.MelodyDiaryTheme
+import com.example.melodydiary.utils.DayOfWeekConverter
+import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Calendar
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
@@ -77,6 +95,68 @@ fun AddDiaryScreen(
 
     var logo by remember {
         mutableStateOf(R.drawable.ic_pick)
+    }
+
+    var datetime by remember {
+        mutableStateOf(LocalDateTime.now())
+    }
+    val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM")
+    val timeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+
+    var openDialog by remember { mutableStateOf(false) }
+    var openTimeDialog by remember { mutableStateOf(false) }
+    var datePickerState = rememberDatePickerState()
+    var timePickerState = rememberTimePickerState()
+
+    if (openDialog) {
+        DatePickerDialog(
+            onDismissRequest = {
+                openDialog = false
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        openDialog = false
+                        openTimeDialog = true
+                    },
+                    enabled = datePickerState.selectedDateMillis != null
+                ) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        openDialog = false
+                    }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
+
+    if (openTimeDialog) {
+        TimePickerDialog(
+            onCancel = {
+                openTimeDialog = false
+            },
+            onConfirm = {
+                openTimeDialog = false
+                val selectedDateMillis = datePickerState.selectedDateMillis ?: 0
+                val selectedHour = timePickerState.hour
+                val selectedMinute = timePickerState.minute
+                datetime = Instant.ofEpochMilli(selectedDateMillis)
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDateTime()
+                    .withHour(selectedHour)
+                    .withMinute(selectedMinute)
+            }
+        ) {
+            TimePicker(state = timePickerState)
+        }
     }
 
     Scaffold(
@@ -101,7 +181,9 @@ fun AddDiaryScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         IconButton(
-                            onClick = {}
+                            onClick = {
+
+                            }
                         ) {
                             Icon(
                                 imageVector = Icons.Default.MoreVert,
@@ -118,7 +200,7 @@ fun AddDiaryScreen(
                                     mood = "Happy",
                                     imageIdList = listOf("image1", "image2"),
                                     logo = logo, // Thay thế R.drawable.logo bằng resource id thích hợp
-                                    createdAt = LocalDateTime.now() // Sử dụng thời gian hiện tại
+                                    createdAt = datetime
                                 )
                                 diaryViewModel.addDiary(newDiary)
                             }
@@ -134,20 +216,21 @@ fun AddDiaryScreen(
         },
 
     ) { paddingValue ->
-
-
         Column(
             modifier = modifier
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValue)
         ) {
             DateDetailInDiaryWithSelection(
-                date = "3/10",
-                time = "12:30",
-                thu = "Thu 3",
+                date = datetime.format(formatter),
+                time = datetime.format(timeFormatter),
+                thu = DayOfWeekConverter.convertToThu(datetime.dayOfWeek.toString()),
                 logo,
                 onPickEmoteClick = {
                     showBottomSheet = !showBottomSheet
+                },
+                onDateTimePickerClick = {
+                    openDialog = true
                 }
             )
             BorderlessTextField(
@@ -365,12 +448,68 @@ fun DiaryTextField(
 }
 
 @Composable
+fun TimePickerDialog(
+    title: String = "Select Time",
+    onCancel: () -> Unit,
+    onConfirm: () -> Unit,
+    toggle: @Composable () -> Unit = {},
+    content: @Composable () -> Unit,
+) {
+    Dialog(
+        onDismissRequest = onCancel,
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false
+        ),
+    ) {
+        Surface(
+            shape = MaterialTheme.shapes.extraLarge,
+            tonalElevation = 6.dp,
+            modifier = Modifier
+                .width(IntrinsicSize.Min)
+                .height(IntrinsicSize.Min)
+                .background(
+                    shape = MaterialTheme.shapes.extraLarge,
+                    color = MaterialTheme.colorScheme.surface
+                ),
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 20.dp),
+                    text = title,
+                    style = MaterialTheme.typography.labelMedium
+                )
+                content()
+                Row(
+                    modifier = Modifier
+                        .height(40.dp)
+                        .fillMaxWidth()
+                ) {
+                    toggle()
+                    Spacer(modifier = Modifier.weight(1f))
+                    TextButton(
+                        onClick = onCancel
+                    ) { Text("Cancel") }
+                    TextButton(
+                        onClick = onConfirm
+                    ) { Text("OK") }
+                }
+            }
+        }
+    }
+}
+@Composable
 fun DateDetailInDiaryWithSelection(
     date: String,
     time: String,
     thu: String,
     @DrawableRes statusLogoRes: Int,
     onPickEmoteClick: () -> Unit,
+    onDateTimePickerClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -396,7 +535,7 @@ fun DateDetailInDiaryWithSelection(
         }
         Spacer(modifier = Modifier.width(5.dp))
         IconButton(
-            onClick = {}
+            onClick = onDateTimePickerClick
         ) {
             Icon(
                 imageVector = Icons.Default.ArrowDropDown,

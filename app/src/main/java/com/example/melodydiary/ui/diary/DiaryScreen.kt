@@ -1,6 +1,8 @@
 package com.example.melodydiary.ui.diary
 
+import android.os.Build
 import androidx.annotation.DrawableRes
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -46,6 +48,8 @@ import com.example.melodydiary.R
 import com.example.melodydiary.model.Diary
 import com.example.melodydiary.ui.theme.MelodyDiaryTheme
 import com.example.melodydiary.ui.theme.mygreen
+import com.example.melodydiary.utils.DayOfWeekConverter
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,6 +77,7 @@ fun DiaryScreen(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DiaryTab(
     modifier: Modifier = Modifier,
@@ -116,7 +121,8 @@ fun DiaryTab(
         when (selectedTabIndex) {
             0 -> {
                 DiaryList(
-                    diaryList = diaryList
+                    diaryList = diaryList,
+
                 )
             }
 
@@ -128,6 +134,7 @@ fun DiaryTab(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DiaryList(
     diaryList: List<Diary>,
@@ -135,11 +142,11 @@ fun DiaryList(
 ) {
     LazyColumn(
         modifier = Modifier.padding(20.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         items(diaryList, key = { it.diaryId }) { item ->
             DiaryItem(
-                item = item
+                item = item,
+                modifier = Modifier.padding(vertical = 10.dp)
             )
         }
     }
@@ -154,11 +161,14 @@ fun TabContent(text: String) {
 }
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DiaryItem(
     item: Diary,
     modifier: Modifier = Modifier
 ) {
+    val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM")
+    val timeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -180,9 +190,9 @@ fun DiaryItem(
             modifier = Modifier.padding(20.dp).background(Color.Transparent)
         ) {
             DateDetailInDiary(
-                date = "03/10",
-                time = "11:05",
-                thu = "Thu 3",
+                date = item.createdAt.format(formatter),
+                time = item.createdAt.format(timeFormatter),
+                thu = DayOfWeekConverter.convertToThu(item.createdAt.dayOfWeek.toString()),
                 statusLogoRes = item.logo
             )
             Text(

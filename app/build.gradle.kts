@@ -3,7 +3,6 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinAndroid)
     id("kotlin-kapt")
 }
-
 android {
     namespace = "com.example.melodydiary"
     compileSdk = 34
@@ -97,5 +96,6 @@ dependencies {
 
     // Coil
     implementation("io.coil-kt:coil-compose:2.4.0")
+
 
 }
