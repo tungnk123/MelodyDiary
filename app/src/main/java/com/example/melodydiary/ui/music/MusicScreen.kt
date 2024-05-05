@@ -9,8 +9,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,6 +30,7 @@ import com.example.melodydiary.R
 import com.example.melodydiary.ui.diary.DiaryItem
 import com.example.melodydiary.ui.diary.DiaryScreen
 import com.example.melodydiary.ui.theme.MelodyDiaryTheme
+import java.util.Calendar
 
 @Composable
 fun MusicScreen(
@@ -79,6 +83,8 @@ fun MusicScreen(
         }
     }
 }
+
+
 
 @Composable
 fun TabContent(text: String) {

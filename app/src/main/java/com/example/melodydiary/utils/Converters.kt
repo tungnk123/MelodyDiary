@@ -8,6 +8,7 @@ import com.google.gson.reflect.TypeToken
 
 import com.google.type.DateTime
 import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 class Converters {
@@ -22,15 +23,26 @@ class Converters {
         return Gson().toJson(list)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    @TypeConverter
-    fun fromTimestamp(value: String?): LocalDateTime? {
-        return value?.let { LocalDateTime.parse(it) }
-    }
+//    @RequiresApi(Build.VERSION_CODES.O)
+//    @TypeConverter
+//    fun fromTimestamp(value: String?): LocalDateTime? {
+//        return value?.let { LocalDateTime.parse(it) }
+//    }
+//
+//    @TypeConverter
+//    fun dateToTimestamp(date: LocalDateTime?): String? {
+//        return date?.toString()
+//    }
 
     @TypeConverter
-    fun dateToTimestamp(date: LocalDateTime?): String? {
-        return date?.toString()
+    fun fromLocalDateTime(date: LocalDateTime): String {
+        return date.toString()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @TypeConverter
+    fun toLocalDateTime(dateString: String): LocalDateTime {
+        return LocalDateTime.parse(dateString)
     }
 
 

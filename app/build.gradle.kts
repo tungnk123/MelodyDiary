@@ -97,5 +97,8 @@ dependencies {
     // Coil
     implementation("io.coil-kt:coil-compose:2.4.0")
 
+    // The compose calendar library
+    implementation ("com.kizitonwose.calendar:compose:2.5.0")
+
 
 }

@@ -65,6 +65,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.melodydiary.MelodyDiaryApp
 import com.example.melodydiary.R
 import com.example.melodydiary.model.Diary
 import com.example.melodydiary.ui.diary.DiaryViewModel
@@ -212,7 +213,7 @@ fun AddDiaryScreen(
                                     createdAt = datetime
                                 )
                                 diaryViewModel.addDiary(newDiary)
-                                navController.popBackStack()
+                                navController.navigate(MelodyDiaryApp.DiaryScreen.name)
                             }
                         ) {
                             Text(

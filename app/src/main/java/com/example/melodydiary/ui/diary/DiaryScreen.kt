@@ -5,10 +5,11 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
@@ -33,12 +35,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key.Companion.D
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -48,10 +55,28 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.melodydiary.R
 import com.example.melodydiary.model.Diary
+import com.example.melodydiary.ui.components.Day
+import com.example.melodydiary.ui.components.MonthHeader
+import com.example.melodydiary.ui.components.NoDiaryInfo
+import com.example.melodydiary.ui.components.SimpleCalendarTitle
 import com.example.melodydiary.ui.theme.MelodyDiaryTheme
 import com.example.melodydiary.ui.theme.mygreen
 import com.example.melodydiary.utils.DayOfWeekConverter
+import com.example.melodydiary.utils.hasDiaryOnDay
+import com.example.melodydiary.utils.rememberFirstMostVisibleMonth
+import com.kizitonwose.calendar.compose.HorizontalCalendar
+import com.kizitonwose.calendar.compose.rememberCalendarState
+import com.kizitonwose.calendar.core.CalendarDay
+import com.kizitonwose.calendar.core.DayPosition
+import com.kizitonwose.calendar.core.daysOfWeek
+import com.kizitonwose.calendar.core.nextMonth
+import com.kizitonwose.calendar.core.previousMonth
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.YearMonth
 import java.time.format.DateTimeFormatter
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,6 +86,7 @@ fun DiaryScreen(
     diaryViewModel: DiaryViewModel,
     navController: NavHostController
 ) {
+    diaryViewModel.getDiaryFromDatabase()
     val diaryList = diaryViewModel.diaryList.collectAsState()
     Scaffold(
         topBar = {
@@ -76,7 +102,7 @@ fun DiaryScreen(
         }
     ) { innerPadding ->
 
-        DiaryTab(modifier = Modifier.padding(innerPadding), diaryList.value.sortedByDescending { it.createdAt })
+        DiaryTab(modifier = Modifier.padding(innerPadding), diaryList.value.sortedByDescending { it.createdAt }, diaryViewModel)
 
     }
 }
@@ -85,7 +111,8 @@ fun DiaryScreen(
 @Composable
 fun DiaryTab(
     modifier: Modifier = Modifier,
-    diaryList: List<Diary>
+    diaryList: List<Diary>,
+    viewModel: DiaryViewModel
 ) {
     var selectedTabIndex by remember { mutableStateOf(0) }
 
@@ -118,7 +145,6 @@ fun DiaryTab(
                     style = MaterialTheme.typography.labelLarge
                 )
             }
-            // Add more tabs as needed
         }
 
         // Content for each tab
@@ -126,14 +152,11 @@ fun DiaryTab(
             0 -> {
                 DiaryList(
                     diaryList = diaryList,
-
                 )
             }
-
             1 -> {
-                TabContent(text = "Content for Tab 2")
+                Calendar(diaryList = diaryList, diaryViewModel = viewModel)
             }
-            // Add more content for additional tabs
         }
     }
 }
@@ -163,6 +186,116 @@ fun TabContent(text: String) {
         modifier = Modifier.padding(16.dp)
     )
 }
+
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun Calendar(
+    modifier: Modifier = Modifier,
+    diaryList: List<Diary>,
+    diaryViewModel: DiaryViewModel
+) {
+    var currentDateSelected by remember {
+        mutableStateOf(LocalDate.now())
+    }
+
+    var diaryListAtDate by remember {
+        mutableStateOf(listOf<Diary>())
+    }
+    val selections = remember { mutableStateListOf<LocalDate>() }
+    LaunchedEffect(currentDateSelected) {
+        diaryListAtDate = diaryViewModel.getDiaryAtDateFromDatabase(currentDateSelected.toString())
+    }
+    Column(
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.scrollable(
+            orientation = Orientation.Vertical,
+            state = rememberScrollState()
+        )
+    ) {
+
+        CalendarVer2(
+            diaryList = diaryList, onDateSelected = { localDate ->
+                currentDateSelected = localDate
+                if (selections.size > 0) {
+                    if (selections.contains(localDate)) {
+                        selections.remove(localDate)
+                    } else {
+                        selections.clear()
+                        selections.add(localDate)
+                    }
+                } else {
+                    selections.add(localDate)
+                }
+                diaryListAtDate = diaryViewModel.getDiaryAtDateFromDatabase(localDate.toString())
+            },
+            selections = selections
+        )
+        Spacer(modifier = Modifier.height(5.dp))
+        if (!hasDiaryOnDay(diaryList, currentDateSelected)) {
+            NoDiaryInfo()
+        } else {
+            diaryListAtDate = diaryViewModel.getDiaryAtDateFromDatabase(currentDateSelected.toString())
+            DiaryList(diaryList = diaryListAtDate)
+        }
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun CalendarVer2(
+    adjacentMonths: Long = 500,
+    diaryList: List<Diary>,
+    onDateSelected: (LocalDate) -> Unit,
+    selections: SnapshotStateList<LocalDate>
+) {
+    val currentMonth = remember { YearMonth.now() }
+    val startMonth = remember { currentMonth.minusMonths(adjacentMonths) }
+    val endMonth = remember { currentMonth.plusMonths(adjacentMonths) }
+    val daysOfWeek = remember { daysOfWeek() }
+    val state = rememberCalendarState(
+        startMonth = startMonth,
+        endMonth = endMonth,
+        firstVisibleMonth = currentMonth,
+        firstDayOfWeek = daysOfWeek.first(),
+    )
+    val coroutineScope = rememberCoroutineScope()
+    val visibleMonth = rememberFirstMostVisibleMonth(state, viewportPercent = 90f)
+    SimpleCalendarTitle(
+        modifier = Modifier.padding(vertical = 10.dp, horizontal = 8.dp),
+        currentMonth = visibleMonth.yearMonth,
+        goToPrevious = {
+            coroutineScope.launch {
+                state.animateScrollToMonth(state.firstVisibleMonth.yearMonth.previousMonth)
+            }
+        },
+        goToNext = {
+            coroutineScope.launch {
+                state.animateScrollToMonth(state.firstVisibleMonth.yearMonth.nextMonth)
+            }
+        },
+    )
+    HorizontalCalendar(
+        modifier = Modifier.testTag("Calendar"),
+        state = state,
+        dayContent = { day ->
+            Day(
+                day,
+                isSelected = selections.contains(day.date),
+                today = CalendarDay(date = LocalDate.now(), position = DayPosition.InDate),
+                hasDiary = hasDiaryOnDay(diaryList, day.date)
+            ) { clicked ->
+                onDateSelected(clicked.date)
+            }
+        },
+        monthHeader = {
+            MonthHeader(daysOfWeek = daysOfWeek)
+        },
+    )
+
+}
+
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -251,6 +384,14 @@ fun DateDetailInDiary(
     }
 }
 
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewCalendar() {
+    MelodyDiaryTheme {
+//        Calendar()
+    }
+}
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true)
 @Composable

@@ -40,4 +40,6 @@
     <string name="ban_hom_nay_the_nao">Bạn hôm nay thế nào?</string>
     <string name="btn_xac_nhan">Xác nhận</string>
     <string name="btn_them_tam_trang">Thêm tâm trạng</string>
+    <string name="text_chua_co_nhat_ky">Chưa có nhật ký</string>
+    <string name="text_viet_nhat_ky_bay_gio">Viết nhật ký của bạn ngay bây giờ</string>
 </resources>
