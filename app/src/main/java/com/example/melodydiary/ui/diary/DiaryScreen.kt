@@ -317,7 +317,7 @@ fun DiaryItem(
             bottomEnd = 5.dp
         ),
         elevation = CardDefaults.cardElevation(
-            5.dp
+            2.dp
         ),
         colors = CardDefaults.cardColors(
             containerColor = mygreen,

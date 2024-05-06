@@ -70,6 +70,8 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation("androidx.compose.material:material:1.6.3")
     implementation("androidx.compose.ui:ui-text-google-fonts:1.6.1")
+    implementation("androidx.compose.material3:material3:1.2.1")
+
 
     val nav_version = "2.7.7"
 

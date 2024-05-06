@@ -38,11 +38,17 @@
 
     <string name="title_viet_nhat_ky">Viết nhật ký</string>
     <string name="title_tao_nhac">Tạo nhạc</string>
+    <string name="title_xuat_ban">Xuất bản</string>
     <string name="title_thu_vien_nhac">Thư viện nhạc</string>
+    <string name="title_the_loai">Thể loại</string>
+    <string name="title_nhac_cu">Nhạc cụ</string>
+    <string name="title_chon_nhat_ky">Chọn nhật ký</string>
 
     <string name="ban_hom_nay_the_nao">Bạn hôm nay thế nào?</string>
     <string name="btn_xac_nhan">Xác nhận</string>
     <string name="btn_them_tam_trang">Thêm tâm trạng</string>
     <string name="text_chua_co_nhat_ky">Chưa có nhật ký</string>
     <string name="text_viet_nhat_ky_bay_gio">Viết nhật ký của bạn ngay bây giờ</string>
+    <string name="text_danh_sach_giai_dieu_trong">Danh sách giai điệu đang trống</string>
+
 </resources>
