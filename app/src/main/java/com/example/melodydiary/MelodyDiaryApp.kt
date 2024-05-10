@@ -10,9 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -35,7 +33,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.findViewTreeViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -45,6 +42,7 @@ import com.example.melodydiary.ui.addDiary.AddDiaryScreen
 import com.example.melodydiary.ui.diary.DiaryScreen
 import com.example.melodydiary.ui.diary.DiaryViewModel
 import com.example.melodydiary.ui.music.MusicScreen
+import com.example.melodydiary.ui.music.MusicViewModel
 import com.example.melodydiary.ui.profile.ProfileScreen
 import com.example.melodydiary.ui.report.ReportScreen
 import com.example.melodydiary.ui.theme.MelodyDiaryTheme
@@ -65,6 +63,7 @@ fun MelodyDiaryApp(
 ) {
 
     val diaryViewModel: DiaryViewModel = viewModel(factory = DiaryViewModel.Factory)
+    val musicViewModel: MusicViewModel = viewModel(factory = MusicViewModel.Factory)
     MelodyDiaryTheme {
         // A surface container using the 'background' color from the theme
         Surface(
@@ -91,7 +90,7 @@ fun MelodyDiaryApp(
                     }
 
                     composable(route = MelodyDiaryApp.MusicScreen.name) {
-                        MusicScreen()
+                        MusicScreen(musicViewModel = musicViewModel, navController = navController)
                     }
 
                     composable(route = MelodyDiaryApp.AddDiaryScreen.name) {

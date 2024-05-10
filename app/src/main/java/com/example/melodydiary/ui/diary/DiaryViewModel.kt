@@ -18,20 +18,12 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 
-data class DiaryUiState(
-    var diaryList: List<Diary> = mutableListOf(),
-    val diaryListAtDate: List<Diary> = mutableListOf()
-)
 
 class DiaryViewModel(private val diaryRepository: DiaryRepository): ViewModel() {
 
-    //    lateinit var diaryList: StateFlow<List<Diary>>
     var diaryList: StateFlow<List<Diary>> = MutableStateFlow(mutableListOf())
     var diaryListAtDate: List<Diary> = mutableListOf()
 
-    //    init {
-//        getDiaryFromDatabase()
-//    }
     fun getDiaryFromDatabase(){
         viewModelScope.launch {
             diaryList =  diaryRepository.getDiary().stateIn(

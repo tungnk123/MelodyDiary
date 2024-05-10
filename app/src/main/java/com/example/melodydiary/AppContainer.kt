@@ -4,21 +4,31 @@ import android.content.Context
 import com.example.melodydiary.data.DiaryRepository
 import com.example.melodydiary.data.DiaryRoomDatabase
 import com.example.melodydiary.data.LocalDiaryDataSource
+import com.example.melodydiary.data.MusicRepository
 import com.example.melodydiary.data.RemoteDiaryDataSource
 import com.example.melodydiary.network.DiaryApiService
+import com.example.melodydiary.network.MusicApiService
+import com.example.melodydiary.utils.AuthInterceptor
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
 
 class AppContainer(private val context: Context) {
-    private val baseUrl = "https://android-kotlin-fun-mars-server.appspot.com/"
+    val authToken = "eyJhbGciOiJSUzI1NiIsImtpZCI6Ilg1ZVhrNHh5b2pORnVtMWtsMll0djhkbE5QNC1jNTdkTzZRR1RWQndhTmsiLCJ0eXAiOiJKV1QifQ.eyJnaXZlbl9uYW1lIjoiVMO5bmciLCJmYW1pbHlfbmFtZSI6IsSQb8OgbiIsIm5hbWUiOiJUw7luZyDEkG_DoG4iLCJpZHAiOiJnb29nbGUuY29tIiwib2lkIjoiZDViMDYyMWItYzI3OC00MDFmLWIwMGYtOGU4ODhkZDY0NTY3Iiwic3ViIjoiZDViMDYyMWItYzI3OC00MDFmLWIwMGYtOGU4ODhkZDY0NTY3IiwiZW1haWxzIjpbImRvYW50aGFuaHR1bmduazEyM0BnbWFpbC5jb20iXSwidGZwIjoiQjJDXzFfc2lnbnVwc2lnbmluMSIsInNjcCI6IkFwaS5SZWFkQW5kV3JpdGUiLCJhenAiOiIzYTQ3YTBkMS0yNTJmLTRkY2MtYWJhZC0wNjIzZjBmOTgzZDMiLCJ2ZXIiOiIxLjAiLCJpYXQiOjE3MTUyMjQ2MzUsImF1ZCI6ImJjYjU3ZmE2LTQ1ODktNDgwZC04OTg5LWI4NzNhY2M4YTAyYiIsImV4cCI6MTcxNTIyODIzNSwiaXNzIjoiaHR0cHM6Ly91bnNpbGVudC5iMmNsb2dpbi5jb20vZTMwYTM4ZTgtNTM5OS00ZTdlLThjOWEtOWQyNWMwMjRlMjc5L3YyLjAvIiwibmJmIjoxNzE1MjI0NjM1fQ.bv0Xn-01j6dBu4NxmZENtmOJGsht01dU0Tzjd1Oe6iujBiloyLSY3pSQY5MtLr7icpW9V_PPgSHTKB55NZF1kOmitGgfPxGaZR9qnJfnBUdjI71E5qpqjd_Tc8NsbpEzxv3FQI_5G4gawohtW36mslq15Zciiit8M9NXNivFbxWbMm51aw6uy4DI37Ab4guV3JypEese55lGPu9z5zcxZFaoz-RMKTSf58Eq9HrLKNL2HbvQ76vf_XXCBYalgucKAffOhaAtn2rgvjevZXcC5-5aWzQRNY6M1LapGymjn4G-lyTzneb6bIudKarfavcFVN2sx7rOYj_Yx3ApfvQT7w"
+    val okHttpClient = OkHttpClient.Builder()
+        .addInterceptor(AuthInterceptor("Bearer $authToken"))
+        .build()
+    private val baseUrl = "https://un-silent-backend-develop-2.azurewebsites.net/api/v2/"
     private val retrofit: Retrofit = Retrofit.Builder()
-        .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
+        .addConverterFactory(GsonConverterFactory.create())
         .baseUrl(baseUrl)
+        .client(okHttpClient)
         .build()
 
     val applicationScope = CoroutineScope(SupervisorJob())
@@ -36,6 +46,10 @@ class AppContainer(private val context: Context) {
 
     val diaryRepository: DiaryRepository by lazy {
         DiaryRepository(localDiaryDataSource, remoteDiaryDataSource)
+    }
+
+    val musicRepository: MusicRepository by lazy {
+        MusicRepository(retrofit.create(MusicApiService::class.java))
     }
 
 }
