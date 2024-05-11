@@ -2,14 +2,13 @@ package com.example.melodydiary.ui.diary
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.melodydiary.MelodyDiaryApplication
-import com.example.melodydiary.data.DiaryRepository
+import com.example.melodydiary.data.repository.DiaryRepository
 import com.example.melodydiary.model.Diary
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted

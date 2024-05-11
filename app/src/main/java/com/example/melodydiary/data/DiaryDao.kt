@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.example.melodydiary.model.Album
 import com.example.melodydiary.model.Diary
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
@@ -15,9 +16,6 @@ interface DiaryDao {
     @Query("SELECT * FROM diary_table ")
     fun getAllDiary(): Flow<List<Diary>>
 
-//    @Query("SELECT * FROM diary_table WHERE created_at = :date")
-//    fun getDiaryAtDate(date: String): Flow<List<Diary>>
-
 
     @Query("SELECT * FROM diary_table WHERE created_at >= :startOfDay AND created_at < :endOfDay")
     fun getDiaryAtDate(startOfDay: String, endOfDay: String): Flow<List<Diary>>
@@ -28,4 +26,10 @@ interface DiaryDao {
 
     @Query("DELETE FROM diary_table")
     fun deleteAllDiary()
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun insertAlbum(album: Album)
+
+    @Query("SELECT * FROM album_table ")
+    fun getAllAlbum(): Flow<List<Album>>
 }

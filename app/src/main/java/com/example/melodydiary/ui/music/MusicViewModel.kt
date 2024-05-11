@@ -7,29 +7,25 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.melodydiary.MelodyDiaryApplication
-import com.example.melodydiary.data.MusicRepository
-import com.example.melodydiary.model.GeneratedMusicDto
-import com.example.melodydiary.model.GeneratedMusicInfo
-import com.example.melodydiary.model.MusicInfoDto
+import com.example.melodydiary.data.repository.AlbumRepository
+import com.example.melodydiary.data.repository.MusicRepository
+import com.example.melodydiary.model.Album
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody.Companion.toRequestBody
-import org.json.JSONObject
+
 
 
 class MusicViewModel(
-    private val musicRepository: MusicRepository
+    private val musicRepository: MusicRepository,
+    private val albumRepository: AlbumRepository
 ) : ViewModel() {
 
+    var albumList: StateFlow<List<Album>> = MutableStateFlow(mutableListOf())
     suspend fun fetchMusic(lyric: String): String {
         try {
             val musicResponse = withContext(Dispatchers.IO) {
@@ -42,6 +38,23 @@ class MusicViewModel(
         }
     }
 
+    fun insertAlbum(album: Album) {
+
+        viewModelScope.launch(Dispatchers.IO) {
+            albumRepository.insertAlbum(album)
+        }
+    }
+
+    fun getAllAlbum() {
+        viewModelScope.launch {
+            albumList = albumRepository.getAlbum().stateIn(
+                scope = viewModelScope,
+                initialValue = listOf<Album>(),
+                started = SharingStarted.WhileSubscribed(1_000)
+            )
+        }
+    }
+
 
 
     companion object {
@@ -50,7 +63,8 @@ class MusicViewModel(
                 val application =
                     (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as MelodyDiaryApplication)
                 val musicRepository = application.container.musicRepository
-                MusicViewModel(musicRepository)
+                val albumRepository = application.container.albumRepository
+                MusicViewModel(musicRepository, albumRepository)
             }
         }
     }

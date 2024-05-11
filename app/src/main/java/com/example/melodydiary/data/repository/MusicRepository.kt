@@ -1,4 +1,4 @@
-package com.example.melodydiary.data
+package com.example.melodydiary.data.repository
 
 import android.util.Log
 import com.example.melodydiary.model.GeneratedMusicDto
