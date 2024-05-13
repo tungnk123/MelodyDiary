@@ -48,6 +48,8 @@
     <string name="btn_xac_nhan">Xác nhận</string>
     <string name="btn_close">Hủy</string>
     <string name="btn_them_tam_trang">Thêm tâm trạng</string>
+    <string name="btn_phat_tuan_tu">Phát tuần tự</string>
+    <string name="btn_phat_ngau_nhien">Phát ngẫu nhiên</string>
     <string name="text_chua_co_nhat_ky">Chưa có nhật ký</string>
     <string name="text_them_album">Thêm Album</string>
     <string name="text_viet_nhat_ky_bay_gio">Viết nhật ký của bạn ngay bây giờ</string>

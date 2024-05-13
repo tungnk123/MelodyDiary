@@ -35,12 +35,14 @@ import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
 import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -53,7 +55,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -63,20 +64,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toFile
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
 import com.example.melodydiary.R
 import com.example.melodydiary.model.Album
 import com.example.melodydiary.model.Diary
@@ -129,16 +126,13 @@ fun DiaryTab(
     albumList: List<Album>
 ) {
     var selectedTabIndex by remember { mutableStateOf(0) }
-    var musicList by remember {
-        mutableStateOf(mutableListOf<MusicSmall>())
-    }
-
+    var musicList by remember { mutableStateOf(mutableListOf<MusicSmall>()) }
     val diaryList = diaryViewModel.diaryList.collectAsState()
-
     val scope = rememberCoroutineScope()
+    var selectedAlbum by remember { mutableStateOf<Album?>(null) }
+
     Column(
-        modifier = modifier
-            .fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         TabRow(
             selectedTabIndex = selectedTabIndex,
@@ -157,7 +151,11 @@ fun DiaryTab(
             }
             Tab(
                 selected = selectedTabIndex == 1,
-                onClick = { selectedTabIndex = 1 },
+                onClick = {
+                    selectedTabIndex = 1
+                    // Reset selectedAlbum when switching to PlaylistTab
+                    selectedAlbum = null
+                },
                 modifier = Modifier.background(Color.White)
             ) {
                 Text(
@@ -188,13 +186,25 @@ fun DiaryTab(
             }
             1 -> {
                 PlaylistTab(
+                    modifier = Modifier.weight(1f),
                     musicViewModel = musicViewModel,
-                    albumList = albumList
+                    albumList = albumList,
+                    showAlbumList = true,
+                    selectedAlbum = selectedAlbum,
+                    onAlbumSelected = { album -> selectedAlbum = album }
                 )
             }
         }
+
+        selectedAlbum?.let { album ->
+            AlbumDetailScreen(
+                album = album,
+                onClose = { selectedAlbum = null }
+            )
+        }
     }
 }
+
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -556,14 +566,30 @@ fun MusicList(
         }
     }
     else {
+        var selectedItem by remember {
+            mutableStateOf<MusicSmall?>(null)
+        }
         LazyColumn {
             items(musicList) {
+                var isPlayState by remember {
+                    mutableStateOf(it.isPlay)
+                }
+
                 MusicItem(musicItem = it,
                     onClickPlay = {
-                        togglePlayback(it.url)
+                        isPlayState = true
+                        togglePlayback(it.url) {
+                            isPlayState = false
+                        }
                     }, onClickPause = {
-
-                    })
+                        isPlayState = false
+                    },
+                    isPlay = isPlayState,
+                    isSelected = selectedItem == it,
+                    onItemSelected = {
+                        selectedItem = it
+                    }
+                )
             }
         }
     }
@@ -574,23 +600,31 @@ fun MusicList(
 @Composable
 fun MusicItem(
     musicItem: MusicSmall,
+    isPlay: Boolean,
     onClickPlay: () -> Unit,
     onClickPause: () -> Unit,
+    isSelected: Boolean,
+    onItemSelected: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var progress by remember {
         mutableFloatStateOf(0f)
     }
+
     Card(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp, vertical = 10.dp),
+        onClick = {
+            onItemSelected()
+        },
         shape = RoundedCornerShape(
             topEnd = 20.dp,
             bottomStart = 20.dp,
             topStart = 5.dp,
             bottomEnd = 5.dp
         ),
+        border = if (isSelected) BorderStroke(2.dp, Color.Blue) else ButtonDefaults.outlinedBorder,
         elevation = CardDefaults.cardElevation(
             2.dp
         ),
@@ -619,7 +653,7 @@ fun MusicItem(
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.weight(1f)
                 )
-                if (musicItem.isPlay) {
+                if (isPlay) {
                     IconButton(
                         onClick = onClickPause
                     ) {
@@ -756,37 +790,51 @@ fun AddAlbum(
 fun PlaylistTab(
     modifier: Modifier = Modifier,
     musicViewModel: MusicViewModel,
-    albumList: List<Album>
+    albumList: List<Album>,
+    showAlbumList: Boolean,
+    selectedAlbum: Album? = null,
+    onAlbumSelected: (Album) -> Unit
 ) {
 
     var isCreateAlbumDialogOpen by remember { mutableStateOf(false) }
 
-    Column(
-        modifier = modifier.fillMaxSize().padding(20.dp)
-    ) {
-        AddAlbum(
-            onAddAlbumClick = {
-                isCreateAlbumDialogOpen = true
-            }
-        )
-        AlbumItemList(
-            albumList = albumList
-        )
-        CreateAlbumScreen(
-            onAlbumCreated = {
-                musicViewModel.insertAlbum(it)
-            },
-            isCreateAlbumDialogOpen = isCreateAlbumDialogOpen,
-            onCloseDialog = {
-                isCreateAlbumDialogOpen = false
-            }
-        )
+    if (showAlbumList) {
+        Column(
+            modifier = modifier.fillMaxSize().padding(20.dp)
+        ) {
+            AddAlbum(
+                onAddAlbumClick = {
+                    isCreateAlbumDialogOpen = true
+                }
+            )
+            AlbumItemList(
+                albumList = albumList,
+                onItemClick = { album -> onAlbumSelected(album) }
+            )
+            CreateAlbumScreen(
+                onAlbumCreated = {
+                    musicViewModel.insertAlbum(it)
+                },
+                isCreateAlbumDialogOpen = isCreateAlbumDialogOpen,
+                onCloseDialog = {
+                    isCreateAlbumDialogOpen = false
+                }
+            )
+        }
+    } else {
+        selectedAlbum?.let {
+            AlbumDetailScreen(
+                album = it,
+                onClose = { onAlbumSelected(it) }
+            )
+        }
     }
 }
 
 @Composable
 fun AlbumItemList(
     albumList: List<Album>,
+    onItemClick: (Album) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -802,14 +850,10 @@ fun AlbumItemList(
         }
     } else {
         LazyColumn {
-            items(albumList) {
+            items(albumList) { album ->
                 AlbumItem(
-                    logo = it.logo,
-                    title = it.title,
-                    description = it.description,
-                    onAlbumItemClick = {
-
-                    }
+                    album = album,
+                    onItemClick = { onItemClick(album) }
                 )
             }
         }
@@ -821,14 +865,12 @@ fun AlbumItemList(
 
 @Composable
 fun AlbumItem(
-    logo: ByteArray,
-    title: String,
-    description: String,
+    album: Album,
     modifier: Modifier = Modifier,
-    onAlbumItemClick: () -> Unit
+    onItemClick: (Album) -> Unit
 ) {
     val bitmap = BitmapFactory.decodeByteArray(
-        logo,0, logo.size
+        album.logo, 0, album.logo.size
     )
     Card(
         modifier = modifier.fillMaxWidth().padding(top = 10.dp),
@@ -836,7 +878,8 @@ fun AlbumItem(
         shape = RoundedCornerShape(10.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White
-        )
+        ),
+        onClick = { onItemClick(album) }
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(10.dp),
@@ -851,18 +894,111 @@ fun AlbumItem(
 
             Column {
                 Text(
-                    text = title,
+                    text = album.title,
                     style = MaterialTheme.typography.titleLarge
                 )
                 Spacer(modifier = Modifier.height(5.dp))
                 Text(
-                    text = description,
+                    text = album.description,
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray
                 )
             }
 
         }
+    }
+}
+
+@Composable
+fun AlbumDetailScreen(
+    album: Album,
+    onClose: () -> Unit,
+) {
+    val musicList: List<MusicSmall> = mutableListOf(
+        MusicSmall(
+            title = "Giai điệu 1"
+        ),
+        MusicSmall(
+            title = "Giai điệu 2"
+        ),
+
+        )
+    val bitmap = BitmapFactory.decodeByteArray(
+        album.logo, 0, album.logo.size
+    )
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            IconButton(
+                onClick = onClose,
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = null
+                )
+            }
+        }
+
+        Image(
+            bitmap = bitmap.asImageBitmap(),
+            contentDescription = null,
+            modifier = Modifier.width(122.dp).height(90.dp),
+            contentScale = ContentScale.Crop
+        )
+
+        Spacer(modifier = Modifier.height(5.dp))
+        Text(
+            text = album.title,
+            style = MaterialTheme.typography.titleLarge
+        )
+        Spacer(modifier = Modifier.height(3.dp))
+        Text(
+            text = "${album.count} đoạn nhạc",
+            style = MaterialTheme.typography.titleMedium
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 10.dp),
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(
+                onClick = {},
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = MaterialTheme.colorScheme.primary
+                ),
+                shape = RoundedCornerShape(20.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.btn_phat_tuan_tu),
+                    color = Color.White
+                )
+            }
+            Spacer(modifier = Modifier.width(20.dp))
+            Button(
+                onClick = {},
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = mygreen
+                ),
+                shape = RoundedCornerShape(20.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.btn_phat_ngau_nhien),
+                    color = Color.Black
+                )
+            }
+        }
+
+        MusicList(
+            musicList = musicList
+        )
     }
 }
 
