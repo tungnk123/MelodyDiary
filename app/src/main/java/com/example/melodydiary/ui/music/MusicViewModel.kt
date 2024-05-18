@@ -38,6 +38,23 @@ class MusicViewModel(
         }
     }
 
+    suspend fun fetchMusicList(lyric: String): List<String> {
+        try {
+            val musicList: MutableList<String> = mutableListOf()
+            repeat(3) {
+                val musicResponse = withContext(Dispatchers.IO) {
+                    musicRepository.getGeneratedMusicByLyric(lyric)
+                }
+                musicList.add(musicResponse.value.fileContentUrl)
+
+            }
+            return musicList
+        } catch (e: Exception) {
+            Log.e("fetchMusic", "Error fetching music: ${e.message}", e)
+            throw e
+        }
+    }
+
     fun insertAlbum(album: Album) {
 
         viewModelScope.launch(Dispatchers.IO) {

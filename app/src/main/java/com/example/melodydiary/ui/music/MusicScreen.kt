@@ -82,7 +82,6 @@ import com.example.melodydiary.ui.diary.DiaryViewModel
 import com.example.melodydiary.ui.theme.MelodyDiaryTheme
 import com.example.melodydiary.ui.theme.musicItemColor
 import com.example.melodydiary.ui.theme.mygreen
-import com.example.melodydiary.utils.togglePlayback
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
@@ -172,7 +171,7 @@ fun DiaryTab(
                     musicList = musicList,
                     onTaoNhacClick = {
                         scope.launch {
-                            val result = musicViewModel.fetchMusic("fun")
+                            val result = musicViewModel.fetchMusic("sadness")
                             val size = musicList.size + 1
                             musicList = musicList.toMutableList()
                                 .apply { add(MusicSmall(title = "Giai điệu $size", url = result)) }
@@ -578,7 +577,7 @@ fun MusicList(
                 MusicItem(musicItem = it,
                     onClickPlay = {
                         isPlayState = true
-                        togglePlayback(it.url) {
+                        MusicHelper.togglePlayback(it.url) {
                             isPlayState = false
                         }
                     }, onClickPause = {

@@ -1,6 +1,7 @@
 package com.example.melodydiary.ui.addDiary
 
 
+import MusicHelper
 import android.app.TimePickerDialog
 import android.os.Build
 import androidx.annotation.DrawableRes
@@ -69,8 +70,10 @@ import com.example.melodydiary.MelodyDiaryApp
 import com.example.melodydiary.R
 import com.example.melodydiary.model.Diary
 import com.example.melodydiary.ui.diary.DiaryViewModel
+import com.example.melodydiary.ui.music.MusicViewModel
 import com.example.melodydiary.ui.theme.MelodyDiaryTheme
 import com.example.melodydiary.utils.DayOfWeekConverter
+import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -83,6 +86,7 @@ import java.util.Calendar
 fun AddDiaryScreen(
     modifier: Modifier = Modifier,
     diaryViewModel: DiaryViewModel,
+    musicViewModel: MusicViewModel,
     navController: NavHostController
 ) {
 
@@ -110,7 +114,7 @@ fun AddDiaryScreen(
     var openTimeDialog by remember { mutableStateOf(false) }
     var datePickerState = rememberDatePickerState()
     var timePickerState = rememberTimePickerState()
-
+    var musicListString: List<String> = mutableListOf()
     if (openDialog) {
         DatePickerDialog(
             onDismissRequest = {
@@ -172,6 +176,7 @@ fun AddDiaryScreen(
                     IconButton(
                         onClick = {
                             navController.popBackStack()
+                            MusicHelper.pause()
                         }
                     ) {
                         Icon(
@@ -214,6 +219,7 @@ fun AddDiaryScreen(
                                 )
                                 diaryViewModel.addDiary(newDiary)
                                 navController.navigate(MelodyDiaryApp.DiaryScreen.name)
+                                MusicHelper.pause()
                             }
                         ) {
                             Text(
@@ -287,6 +293,11 @@ fun AddDiaryScreen(
                                 onClick = {
                                     showBottomSheet = false
                                     logo = R.drawable.ic_face
+                                    scope.launch {
+                                        MusicHelper.pause()
+                                        musicListString = musicViewModel.fetchMusicList("fun")
+                                        MusicHelper.playSequential(urls = musicListString, onPlaybackCompleted = {})
+                                    }
                                 },
                             ) {
                                 Image(
@@ -301,6 +312,11 @@ fun AddDiaryScreen(
                                 onClick = {
                                     showBottomSheet = false
                                     logo = R.drawable.ic_cry
+                                    scope.launch {
+                                        MusicHelper.pause()
+                                        musicListString = musicViewModel.fetchMusicList("sadnees, cry music")
+                                        MusicHelper.playSequential(urls = musicListString, onPlaybackCompleted = {})
+                                    }
                                 },
                             ) {
                                 Image(
@@ -315,6 +331,11 @@ fun AddDiaryScreen(
                                 onClick = {
                                     showBottomSheet = false
                                     logo = R.drawable.ic_neutral
+                                    scope.launch {
+                                        MusicHelper.pause()
+                                        musicListString = musicViewModel.fetchMusicList("sad")
+                                        MusicHelper.playSequential(urls = musicListString, onPlaybackCompleted = {})
+                                    }
                                 },
                             ) {
                                 Image(
@@ -329,6 +350,11 @@ fun AddDiaryScreen(
                                 onClick = {
                                     showBottomSheet = false
                                     logo = R.drawable.ic_fear
+                                    scope.launch {
+                                        MusicHelper.pause()
+                                        musicListString = musicViewModel.fetchMusicList("fear")
+                                        MusicHelper.playSequential(urls = musicListString, onPlaybackCompleted = {})
+                                    }
                                 },
                             ) {
                                 Image(
@@ -343,6 +369,11 @@ fun AddDiaryScreen(
                                 onClick = {
                                     showBottomSheet = false
                                     logo = R.drawable.ic_disgust
+                                    scope.launch {
+                                        MusicHelper.pause()
+                                        musicListString = musicViewModel.fetchMusicList("disgust")
+                                        MusicHelper.playSequential(urls = musicListString, onPlaybackCompleted = {})
+                                    }
                                 },
                             ) {
                                 Image(
@@ -357,6 +388,11 @@ fun AddDiaryScreen(
                                 onClick = {
                                     showBottomSheet = false
                                     logo = R.drawable.ic_angry
+                                    scope.launch {
+                                        MusicHelper.pause()
+                                        musicListString = musicViewModel.fetchMusicList("angry")
+                                        MusicHelper.playSequential(urls = musicListString, onPlaybackCompleted = {})
+                                    }
                                 },
                             ) {
                                 Image(

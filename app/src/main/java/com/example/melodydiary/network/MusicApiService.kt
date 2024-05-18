@@ -12,7 +12,7 @@ interface MusicApiService {
     @GET("Musics")
     suspend fun getMusic(): MusicResponse
 
-    @GET("/api/v1/generated-musics/by-lyric")
+    @GET("/api/v1/generated-musics/by-lyric/")
     suspend fun getGeneratedMusicByLyric(
         @Query("lyric") lyric: String
     ): GeneratedMusicDto
