@@ -1,5 +1,6 @@
 package com.example.melodydiary.ui.music
 
+import MusicHelper
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -11,10 +12,12 @@ import com.example.melodydiary.data.repository.AlbumRepository
 import com.example.melodydiary.data.repository.MusicRepository
 import com.example.melodydiary.model.Album
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -37,18 +40,18 @@ class MusicViewModel(
             throw e
         }
     }
-
-    suspend fun fetchMusicList(lyric: String): List<String> {
+//    CoroutineScope(Dispatchers.IO).launch {
+//        while(isActive) {
+//            fetchMusic()
+//            delay(FETCH_INTERVAL)
+//        }
+//    }
+    suspend fun populateMusicList(lyric: String) {
         try {
-            val musicList: MutableList<String> = mutableListOf()
-            repeat(3) {
-                val musicResponse = withContext(Dispatchers.IO) {
-                    musicRepository.getGeneratedMusicByLyric(lyric)
-                }
-                musicList.add(musicResponse.value.fileContentUrl)
-
+            val musicResponse = withContext(Dispatchers.IO) {
+                musicRepository.getGeneratedMusicByLyric(lyric)
             }
-            return musicList
+            MusicHelper.addSongToFront(musicResponse.value.fileContentUrl)
         } catch (e: Exception) {
             Log.e("fetchMusic", "Error fetching music: ${e.message}", e)
             throw e

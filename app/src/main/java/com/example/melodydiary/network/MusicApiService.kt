@@ -16,4 +16,7 @@ interface MusicApiService {
     suspend fun getGeneratedMusicByLyric(
         @Query("lyric") lyric: String
     ): GeneratedMusicDto
+
+    @GET("/api/v1/Configuration/warm-up")
+    suspend fun warmUp()
 }

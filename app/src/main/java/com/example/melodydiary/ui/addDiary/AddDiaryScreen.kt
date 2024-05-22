@@ -295,8 +295,8 @@ fun AddDiaryScreen(
                                     logo = R.drawable.ic_face
                                     scope.launch {
                                         MusicHelper.pause()
-                                        musicListString = musicViewModel.fetchMusicList("fun")
-                                        MusicHelper.playSequential(urls = musicListString, onPlaybackCompleted = {})
+                                        musicViewModel.populateMusicList("fun")
+                                        MusicHelper.playSequential(onPlaybackCompleted = {})
                                     }
                                 },
                             ) {
@@ -314,8 +314,8 @@ fun AddDiaryScreen(
                                     logo = R.drawable.ic_cry
                                     scope.launch {
                                         MusicHelper.pause()
-                                        musicListString = musicViewModel.fetchMusicList("sadnees, cry music")
-                                        MusicHelper.playSequential(urls = musicListString, onPlaybackCompleted = {})
+                                        musicViewModel.populateMusicList("sadnees, cry music")
+                                        MusicHelper.playSequential(onPlaybackCompleted = {})
                                     }
                                 },
                             ) {
@@ -333,8 +333,8 @@ fun AddDiaryScreen(
                                     logo = R.drawable.ic_neutral
                                     scope.launch {
                                         MusicHelper.pause()
-                                        musicListString = musicViewModel.fetchMusicList("sad")
-                                        MusicHelper.playSequential(urls = musicListString, onPlaybackCompleted = {})
+                                        musicViewModel.populateMusicList("sad")
+                                        MusicHelper.playSequential(onPlaybackCompleted = {})
                                     }
                                 },
                             ) {
@@ -352,8 +352,8 @@ fun AddDiaryScreen(
                                     logo = R.drawable.ic_fear
                                     scope.launch {
                                         MusicHelper.pause()
-                                        musicListString = musicViewModel.fetchMusicList("fear")
-                                        MusicHelper.playSequential(urls = musicListString, onPlaybackCompleted = {})
+                                        musicViewModel.populateMusicList("fear")
+                                        MusicHelper.playSequential(onPlaybackCompleted = {})
                                     }
                                 },
                             ) {
@@ -371,8 +371,8 @@ fun AddDiaryScreen(
                                     logo = R.drawable.ic_disgust
                                     scope.launch {
                                         MusicHelper.pause()
-                                        musicListString = musicViewModel.fetchMusicList("disgust")
-                                        MusicHelper.playSequential(urls = musicListString, onPlaybackCompleted = {})
+                                        musicViewModel.populateMusicList("disgust")
+                                        MusicHelper.playSequential(onPlaybackCompleted = {})
                                     }
                                 },
                             ) {
@@ -390,8 +390,8 @@ fun AddDiaryScreen(
                                     logo = R.drawable.ic_angry
                                     scope.launch {
                                         MusicHelper.pause()
-                                        musicListString = musicViewModel.fetchMusicList("angry")
-                                        MusicHelper.playSequential(urls = musicListString, onPlaybackCompleted = {})
+                                        musicViewModel.populateMusicList("angry")
+                                        MusicHelper.playSequential(onPlaybackCompleted = {})
                                     }
                                 },
                             ) {

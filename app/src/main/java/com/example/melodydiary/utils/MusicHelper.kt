@@ -1,11 +1,23 @@
 import android.media.MediaPlayer
 import android.os.Handler
 import android.os.Looper
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.melodydiary.model.Music
+import com.example.melodydiary.ui.music.MusicViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import java.io.IOException
+import java.util.ArrayDeque
 
 object MusicHelper {
     private var mediaPlayer: MediaPlayer? = null
     private val handler = Handler(Looper.getMainLooper())
+    private val songQueue = ArrayDeque<String>(10)
+    private const val MAX_SIZE = 10
+    private const val FETCH_INTERVAL = 5000L
 
     private fun initializeMediaPlayer(url: String, onPlaybackCompleted: () -> Unit) {
         mediaPlayer = MediaPlayer().apply {
@@ -14,7 +26,6 @@ object MusicHelper {
                 prepareAsync()
                 setOnPreparedListener { mp ->
                     mp.start()
-//                    mp.isLooping = true
                 }
                 setOnCompletionListener {
                     releaseMediaPlayer()
@@ -46,7 +57,6 @@ object MusicHelper {
                         prepareAsync()
                         setOnPreparedListener { mp ->
                             mp.start()
-//                            mp.isLooping = true
                         }
                         setOnCompletionListener {
                             releaseMediaPlayer()
@@ -65,28 +75,45 @@ object MusicHelper {
         mediaPlayer?.pause()
     }
 
-    fun playSequential(urls: List<String>, onPlaybackCompleted: () -> Unit) {
-        fun playNext(index: Int) {
-            if (index < urls.size) {
-                togglePlayback(urls[index]) {
-                    playNext(index + 1)
+    private fun maintainQueueSize() {
+        while (songQueue.size > MAX_SIZE) {
+            songQueue.removeLast()
+        }
+    }
+
+    fun addSongToFront(url: String) {
+        songQueue.addFirst(url)
+        maintainQueueSize()
+    }
+
+    fun addSongToEnd(url: String) {
+        songQueue.addLast(url)
+        maintainQueueSize()
+    }
+
+    fun playSequential(onPlaybackCompleted: () -> Unit) {
+        fun playNext() {
+            if (songQueue.isNotEmpty()) {
+                val url = songQueue.removeFirst()
+                songQueue.addLast(url)
+                togglePlayback(url) {
+                    playNext()
                 }
             } else {
-                playNext(0)
                 onPlaybackCompleted()
             }
         }
 
-        if (urls.isNotEmpty()) {
-            playNext(0)
+        if (songQueue.isNotEmpty()) {
+            playNext()
         } else {
             onPlaybackCompleted()
         }
     }
 
-    fun playRandom(urls: List<String>, onPlaybackCompleted: () -> Unit) {
-        if (urls.isNotEmpty()) {
-            val randomUrl = urls.random()
+    fun playRandom(onPlaybackCompleted: () -> Unit) {
+        if (songQueue.isNotEmpty()) {
+            val randomUrl = songQueue.random()
             togglePlayback(randomUrl) {
                 onPlaybackCompleted()
             }
@@ -99,4 +126,6 @@ object MusicHelper {
         mediaPlayer?.release()
         mediaPlayer = null
     }
+
+
 }

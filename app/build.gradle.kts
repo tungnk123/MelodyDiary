@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.melodydiary"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -47,6 +47,11 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
+    lint {
+        baseline = file("lint-baseline.xml")
+    }
+
 }
 
 dependencies {

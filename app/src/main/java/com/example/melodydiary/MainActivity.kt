@@ -24,6 +24,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,11 +34,21 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.melodydiary.ui.theme.MelodyDiaryTheme
+import kotlinx.coroutines.launch
+import retrofit2.Retrofit
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val appContainer = (applicationContext as MelodyDiaryApplication).container
+
         setContent {
+            val scope = rememberCoroutineScope()
+            LaunchedEffect(Unit) {
+                scope.launch {
+                    appContainer.warmUpApiService.warmUp()
+                }
+            }
             MelodyDiaryApp()
         }
     }

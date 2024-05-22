@@ -26,7 +26,7 @@ class AppContainer(private val context: Context) {
         .baseUrl(baseUrl)
         .client(okHttpClient)
         .build()
-
+    val warmUpApiService = retrofit.create(MusicApiService::class.java)
     val applicationScope = CoroutineScope(SupervisorJob())
     val database by lazy {
         DiaryRoomDatabase.getDatabase(context, applicationScope)
