@@ -17,7 +17,7 @@ object MusicHelper {
     private val handler = Handler(Looper.getMainLooper())
     private val songQueue = ArrayDeque<String>(10)
     private const val MAX_SIZE = 10
-    private const val FETCH_INTERVAL = 5000L
+
 
     private fun initializeMediaPlayer(url: String, onPlaybackCompleted: () -> Unit) {
         mediaPlayer = MediaPlayer().apply {

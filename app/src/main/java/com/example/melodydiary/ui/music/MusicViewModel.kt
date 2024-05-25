@@ -8,9 +8,12 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.melodydiary.MelodyDiaryApplication
+import com.example.melodydiary.R
 import com.example.melodydiary.data.repository.AlbumRepository
 import com.example.melodydiary.data.repository.MusicRepository
 import com.example.melodydiary.model.Album
+import com.example.melodydiary.model.Diary
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,15 +23,25 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.LocalDateTime
 
 
-
+private const val FETCH_INTERVAL = 5000L
 class MusicViewModel(
     private val musicRepository: MusicRepository,
     private val albumRepository: AlbumRepository
 ) : ViewModel() {
 
     var albumList: StateFlow<List<Album>> = MutableStateFlow(mutableListOf())
+    var currentDiary: Diary = Diary(
+        diaryId = 0,
+        title = "Chọn",
+        content = "Content",
+        createdAt = LocalDateTime.now(),
+        logo = R.drawable.ic_face,
+        mood = "fun",
+        imageIdList = listOf()
+    )
     suspend fun fetchMusic(lyric: String): String {
         try {
             val musicResponse = withContext(Dispatchers.IO) {
@@ -40,18 +53,18 @@ class MusicViewModel(
             throw e
         }
     }
-//    CoroutineScope(Dispatchers.IO).launch {
-//        while(isActive) {
-//            fetchMusic()
-//            delay(FETCH_INTERVAL)
-//        }
-//    }
+
     suspend fun populateMusicList(lyric: String) {
         try {
-            val musicResponse = withContext(Dispatchers.IO) {
-                musicRepository.getGeneratedMusicByLyric(lyric)
+            CoroutineScope(Dispatchers.IO).launch {
+                while(isActive) {
+                    val musicResponse = withContext(Dispatchers.IO) {
+                        musicRepository.getGeneratedMusicByLyric(lyric)
+                    }
+                    MusicHelper.addSongToFront(musicResponse.value.fileContentUrl)
+                    delay(FETCH_INTERVAL)
+                }
             }
-            MusicHelper.addSongToFront(musicResponse.value.fileContentUrl)
         } catch (e: Exception) {
             Log.e("fetchMusic", "Error fetching music: ${e.message}", e)
             throw e
@@ -77,6 +90,9 @@ class MusicViewModel(
 
 
 
+    fun setSelectedDiary(diary: Diary) {
+        currentDiary = diary
+    }
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {

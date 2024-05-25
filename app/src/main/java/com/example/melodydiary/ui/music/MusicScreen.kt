@@ -1,9 +1,11 @@
 package com.example.melodydiary.ui.music
 
 
+import MusicHelper
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -129,7 +131,12 @@ fun DiaryTab(
     val diaryList = diaryViewModel.diaryList.collectAsState()
     val scope = rememberCoroutineScope()
     var selectedAlbum by remember { mutableStateOf<Album?>(null) }
-
+    var selectedGiaiDieu by remember {
+        mutableStateOf("Chọn")
+    }
+    var selectedNhacCu by remember {
+        mutableStateOf("Chọn")
+    }
     Column(
         modifier = modifier.fillMaxSize()
     ) {
@@ -171,7 +178,9 @@ fun DiaryTab(
                     musicList = musicList,
                     onTaoNhacClick = {
                         scope.launch {
-                            val result = musicViewModel.fetchMusic("sadness")
+                            Log.i("giai_dieu", musicViewModel.currentDiary.content + ":" + selectedGiaiDieu + ":" +  selectedNhacCu)
+                            val genString = "Đây là một bài nhạc có giai điệu $selectedGiaiDieu, nhạc cụ $selectedNhacCu và có nội dung là $musicViewModel.currentDiary.content"
+                            val result = musicViewModel.fetchMusic(genString)
                             val size = musicList.size + 1
                             musicList = musicList.toMutableList()
                                 .apply { add(MusicSmall(title = "Giai điệu $size", url = result)) }
@@ -180,7 +189,16 @@ fun DiaryTab(
                     onXuatBanClick = {
 
                     },
-                    diaryList = diaryList.value.sortedByDescending { it.createdAt }
+                    diaryList = diaryList.value.sortedByDescending { it.createdAt },
+                    selectedGiaiDieu = selectedGiaiDieu,
+                    selectedNhacCu = selectedNhacCu,
+                    onSelectedGiaiDieuChange = {
+                        selectedGiaiDieu = it
+                    },
+                    onSelectedNhacCuChange = {
+                        selectedNhacCu = it
+                    },
+                    musicViewModel = musicViewModel
                 )
             }
             1 -> {
@@ -213,7 +231,12 @@ fun GenMusicTab(
     musicList: List<MusicSmall>,
     onTaoNhacClick: () -> Unit,
     onXuatBanClick: () -> Unit,
-    diaryList: List<Diary>
+    diaryList: List<Diary>,
+    selectedGiaiDieu: String,
+    selectedNhacCu: String,
+    onSelectedGiaiDieuChange: (String) -> Unit,
+    onSelectedNhacCuChange: (String) -> Unit,
+    musicViewModel: MusicViewModel
 ) {
     Column(
         modifier = modifier
@@ -221,7 +244,16 @@ fun GenMusicTab(
         GenMusicWrapper(
             onTaoNhacClick = onTaoNhacClick,
             onXuatBanClick = onXuatBanClick,
-            diaryList = diaryList
+            diaryList = diaryList,
+            selectedGiaiDieu = selectedGiaiDieu,
+            selectedNhacCu = selectedNhacCu,
+            onSelectedGiaiDieuChange = {
+                onSelectedGiaiDieuChange(it)
+            },
+            onSelectedNhacCuChange = {
+                onSelectedNhacCuChange(it)
+            },
+            musicViewModel = musicViewModel
         )
         MusicList(
             musicList = musicList
@@ -234,9 +266,9 @@ fun GenMusicTab(
 fun MyDropDown(
     list: List<String>,
     selectedItem: String = "Chọn",
+    onSelectedItemChange: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val selectedItem = remember { mutableStateOf("Chọn") }
     var expanded by remember { mutableStateOf(false) }
     var canWrite by remember {
         mutableStateOf(false)
@@ -250,9 +282,9 @@ fun MyDropDown(
     ) {
         TextField(
             readOnly = !canWrite,
-            value = selectedItem.value,
+            value = selectedItem,
             onValueChange = {
-                selectedItem.value = it
+                onSelectedItemChange(it)
             },
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
@@ -273,7 +305,7 @@ fun MyDropDown(
                         Text(text = item)
                     },
                     onClick = {
-                        selectedItem.value = item
+                        onSelectedItemChange(item)
                         expanded = false
                         if (item == "Tùy chọn") {
                             canWrite = true
@@ -295,7 +327,12 @@ fun GenMusicWrapper(
     modifier: Modifier = Modifier,
     onTaoNhacClick: () -> Unit,
     onXuatBanClick: () -> Unit,
-    diaryList: List<Diary>
+    diaryList: List<Diary>,
+    selectedGiaiDieu: String,
+    selectedNhacCu: String,
+    onSelectedGiaiDieuChange: (String) -> Unit,
+    onSelectedNhacCuChange: (String) -> Unit,
+    musicViewModel: MusicViewModel
 ) {
     val theLoaiList: MutableList<String> = mutableListOf(
         "Nhạc pop",
@@ -325,7 +362,8 @@ fun GenMusicWrapper(
     ) {
         PickDiary(
             onClickChooseDiary = {},
-            list = diaryList
+            list = diaryList,
+            musicViewModel = musicViewModel
         )
         Row(
             modifier = Modifier.padding(horizontal = 20.dp, vertical = 5.dp),
@@ -338,7 +376,11 @@ fun GenMusicWrapper(
             )
             Spacer(modifier = Modifier.width(10.dp))
             MyDropDown(
-                list = theLoaiList
+                list = theLoaiList,
+                selectedItem = selectedGiaiDieu,
+                onSelectedItemChange = {
+                    onSelectedGiaiDieuChange(it)
+                }
             )
         }
         Row(
@@ -352,7 +394,11 @@ fun GenMusicWrapper(
             )
             Spacer(modifier = Modifier.width(10.dp))
             MyDropDown(
-                list = nhacCuList
+                list = nhacCuList,
+                selectedItem = selectedNhacCu,
+                onSelectedItemChange = {
+                    onSelectedNhacCuChange(it)
+                }
             )
         }
         Spacer(modifier = Modifier.height(10.dp))
@@ -398,6 +444,7 @@ fun GenMusicWrapper(
 fun PickDiary(
     onClickChooseDiary: () -> Unit,
     list: List<Diary>,
+    musicViewModel: MusicViewModel,
     modifier: Modifier = Modifier
 ) {
     val selectedDiary = remember {
@@ -414,6 +461,7 @@ fun PickDiary(
             )
         )
     }
+
     var expanded by remember { mutableStateOf(false) }
     var canExpandDropdown by remember { mutableStateOf(true) }
 
@@ -483,6 +531,7 @@ fun PickDiary(
                     },
                     onClick = {
                         selectedDiary.value = item
+                        musicViewModel.setSelectedDiary(selectedDiary.value)
                         expanded = false
                     }
                 )

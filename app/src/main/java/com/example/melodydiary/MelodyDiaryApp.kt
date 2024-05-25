@@ -37,6 +37,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.melodydiary.ui.addDiary.AddDiaryScreen
 import com.example.melodydiary.ui.diary.DiaryScreen
@@ -64,6 +65,10 @@ fun MelodyDiaryApp(
 
     val diaryViewModel: DiaryViewModel = viewModel(factory = DiaryViewModel.Factory)
     val musicViewModel: MusicViewModel = viewModel(factory = MusicViewModel.Factory)
+    var isAddDiaryScreen by remember {
+        mutableStateOf(false)
+    }
+    isAddDiaryScreen = navController.currentBackStackEntryAsState().value?.destination?.route == MelodyDiaryApp.AddDiaryScreen.name
     MelodyDiaryTheme {
         // A surface container using the 'background' color from the theme
         Surface(
@@ -72,9 +77,11 @@ fun MelodyDiaryApp(
         ) {
             Scaffold(
                 bottomBar = {
-                    BottomNavigationWithFab(
-                        navController = navController
-                    )
+                    if (!isAddDiaryScreen) {
+                        BottomNavigationWithFab(
+                            navController = navController
+                        )
+                    }
                 },
                 floatingActionButtonPosition = FabPosition.Center,
             ) { innerPadding ->
