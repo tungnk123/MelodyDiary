@@ -109,5 +109,8 @@ dependencies {
     // The compose calendar library
     implementation ("com.kizitonwose.calendar:compose:2.5.0")
 
+    // chart
+    implementation("com.github.jaikeerthick:Composable-Graphs:v1.2.3") //ex: v1.2.3
+    implementation ("com.github.tehras:charts:0.2.4-alpha")
 
 }

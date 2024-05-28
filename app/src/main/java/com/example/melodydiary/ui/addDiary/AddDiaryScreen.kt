@@ -188,7 +188,7 @@ fun AddDiaryScreen(
                 title = {
                     Text(
                         text = stringResource(R.string.title_viet_nhat_ky),
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.titleMedium
                     )
                 },
                 actions = {
@@ -212,7 +212,7 @@ fun AddDiaryScreen(
                                     diaryId = 0,
                                     title = title,
                                     content = content,
-                                    mood = "Happy",
+                                    mood = "Fun",
                                     imageIdList = listOf("image1", "image2"),
                                     logo = logo, // Thay thế R.drawable.logo bằng resource id thích hợp
                                     createdAt = datetime
@@ -223,7 +223,7 @@ fun AddDiaryScreen(
                             }
                         ) {
                             Text(
-                                text = "Lưu",
+                                text = "Save",
                                 color = Color.White
                             )
                         }
@@ -252,7 +252,7 @@ fun AddDiaryScreen(
             )
             BorderlessTextField(
                 value = title,
-                placeholder = "Tiêu đề",
+                placeholder = "Title",
                 onValueChange = {
                     title = it
                 }
@@ -260,7 +260,7 @@ fun AddDiaryScreen(
 
             DiaryTextField(
                 value = content,
-                placeholder = "Bắt đầu viết ...",
+                placeholder = "Start to write now ...",
                 onValueChange = {
                     content = it
                 }

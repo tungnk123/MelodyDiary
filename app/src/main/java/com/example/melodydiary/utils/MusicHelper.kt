@@ -18,7 +18,6 @@ object MusicHelper {
     private val songQueue = ArrayDeque<String>(10)
     private const val MAX_SIZE = 10
 
-
     private fun initializeMediaPlayer(url: String, onPlaybackCompleted: () -> Unit) {
         mediaPlayer = MediaPlayer().apply {
             try {

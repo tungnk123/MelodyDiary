@@ -46,7 +46,12 @@ class MainActivity : ComponentActivity() {
             val scope = rememberCoroutineScope()
             LaunchedEffect(Unit) {
                 scope.launch {
-                    appContainer.warmUpApiService.warmUp()
+                    try {
+                        appContainer.warmUpApiService.warmUp()
+                    }
+                    catch(e: Exception) {
+
+                    }
                 }
             }
             MelodyDiaryApp()

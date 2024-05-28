@@ -104,7 +104,9 @@ fun MelodyDiaryApp(
                         AddDiaryScreen(diaryViewModel = diaryViewModel, musicViewModel = musicViewModel , navController = navController)
                     }
                     composable(route = MelodyDiaryApp.ReportScreen.name) {
-                        ReportScreen()
+                        ReportScreen(
+                            musicViewModel = musicViewModel, navController = navController
+                        )
                     }
                     composable(route = MelodyDiaryApp.ProfileScreen.name) {
                         ProfileScreen()
