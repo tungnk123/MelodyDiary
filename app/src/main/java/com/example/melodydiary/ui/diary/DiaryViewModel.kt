@@ -32,7 +32,10 @@ class DiaryViewModel(private val diaryRepository: DiaryRepository): ViewModel() 
             )
         }
     }
-
+    fun getDiaryList(): List<Diary> {
+        getDiaryFromDatabase()
+        return diaryList.value
+    }
     @RequiresApi(Build.VERSION_CODES.O)
     fun getDiaryAtDateFromDatabase(date: String): List<Diary> {
         viewModelScope.launch {

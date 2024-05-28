@@ -1,8 +1,6 @@
 package com.example.melodydiary.ui.report
 
 
-import android.R
-import android.graphics.BitmapFactory
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -13,7 +11,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -28,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,8 +33,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Blue
 import androidx.compose.ui.graphics.Color.Companion.Red
@@ -52,26 +48,43 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.melodydiary.ui.music.MusicViewModel
+import com.example.melodydiary.ui.diary.DiaryViewModel
 import com.example.melodydiary.ui.theme.MelodyDiaryTheme
 import com.github.tehras.charts.bar.BarChart
-import com.github.tehras.charts.bar.renderer.bar.SimpleBarDrawer
-import com.github.tehras.charts.bar.renderer.label.SimpleValueDrawer
-import com.github.tehras.charts.piechart.animation.simpleChartAnimation
-import com.jaikeerthick.composable_graphs.composables.bar.BarGraph
-import com.jaikeerthick.composable_graphs.composables.bar.model.BarData
 import com.github.tehras.charts.bar.BarChartData
-import com.github.tehras.charts.bar.renderer.xaxis.SimpleXAxisDrawer
-import com.github.tehras.charts.bar.renderer.yaxis.SimpleYAxisDrawer
+import com.github.tehras.charts.bar.renderer.label.SimpleValueDrawer
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReportScreen(
     modifier: Modifier = Modifier,
-    musicViewModel: MusicViewModel,
+    diaryViewModel: DiaryViewModel,
     navController: NavController
 ) {
+    LaunchedEffect(Unit) {
+        diaryViewModel.getDiaryFromDatabase()
+    }
+    val diaryList = diaryViewModel.diaryList.collectAsState().value
+
+    val moodCountMap: MutableMap<String, Int> = remember {
+        mutableMapOf(
+            "Fun" to 0,
+            "Cry" to 0,
+            "Sad" to 0,
+            "Disgust" to 0,
+            "Fear" to 0,
+            "Angry" to 0
+        )
+    }
+
+    LaunchedEffect(diaryList) {
+        moodCountMap.entries.forEach { it.setValue(0) }
+        for (diary in diaryList) {
+            moodCountMap[diary.mood] = moodCountMap[diary.mood]?.plus(1) ?: 0
+        }
+    }
+
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -92,16 +105,18 @@ fun ReportScreen(
         ) {
             DiaryCountWrapper(
                 modifier = Modifier.padding(horizontal = 20.dp),
-                countDiary =1,
+                countDiary = diaryViewModel.diaryList.collectAsState().value.size,
                 countStreak = 1
             )
             Spacer(modifier = Modifier.height(16.dp))
             BieuDoTamTrang(
                 modifier = Modifier.padding(horizontal = 20.dp),
+                moodCountMap = moodCountMap
             )
             Spacer(modifier = Modifier.height(16.dp))
             ThongKeTamTrang(
                 modifier = Modifier.padding(horizontal = 20.dp),
+                moodCountMap = moodCountMap
             )
         }   
     }
@@ -152,8 +167,10 @@ fun DiaryCountWrapper(
 
 @Composable
 fun BieuDoTamTrang(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    moodCountMap: Map<String, Int>
 ) {
+    val sumCount = moodCountMap.values.sum()
     Column(
         modifier = modifier.fillMaxWidth()
             .background(Color.White, shape = RoundedCornerShape(20.dp))
@@ -173,44 +190,44 @@ fun BieuDoTamTrang(
             PieChart(
                 modifier = modifier.size(100.dp),
                 data = mapOf(
-                    Pair("Sample-1", 150),
-                    Pair("Sample-2", 120),
-                    Pair("Sample-3", 110),
-                    Pair("Sample-4", 170),
-                    Pair("Sample-5", 120),
-                    Pair("Sample-6", 120),
+                    Pair("Fun", moodCountMap["Fun"]!!),
+                    Pair("Cry", moodCountMap["Cry"]!!),
+                    Pair("Sad", moodCountMap["Sad"]!!),
+                    Pair("Disgust", moodCountMap["Disgust"]!!),
+                    Pair("Fear", moodCountMap["Fear"]!!),
+                    Pair("Angry", moodCountMap["Angry"]!!),
                 )
             )
             Column {
                 TamTrangItem(
                     color = Color.Blue,
                     tamTrang = "Fun",
-                    phanTram = 0
+                    phanTram = (moodCountMap["Fun"]!!.toFloat() / sumCount * 100).toInt()
                 )
                 TamTrangItem(
                     color = Color.Magenta,
                     tamTrang = "Cry",
-                    phanTram = 0
+                    phanTram = (moodCountMap["Cry"]!!.toFloat() / sumCount * 100).toInt()
                 )
                 TamTrangItem(
                     color = Color.Green,
                     tamTrang = "Sad",
-                    phanTram = 0
+                    phanTram = (moodCountMap["Sad"]!!.toFloat() / sumCount * 100).toInt()
                 )
                 TamTrangItem(
                     color = Color.DarkGray,
                     tamTrang = "Disgust",
-                    phanTram = 0
+                    phanTram = (moodCountMap["Disgust"]!!.toFloat() / sumCount * 100).toInt()
                 )
                 TamTrangItem(
                     color = Color.Yellow,
                     tamTrang = "Fear",
-                    phanTram = 0
+                    phanTram = (moodCountMap["Fear"]!!.toFloat() / sumCount * 100).toInt()
                 )
                 TamTrangItem(
                     color = Color.Red,
                     tamTrang = "Angry",
-                    phanTram = 0
+                    phanTram = (moodCountMap["Angry"]!!.toFloat() / sumCount * 100).toInt()
                 )
             }
         }
@@ -250,7 +267,8 @@ fun TamTrangItem(
 
 @Composable
 fun ThongKeTamTrang(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    moodCountMap: Map<String, Int>
 ) {
     Column(
         modifier = modifier.fillMaxWidth()
@@ -263,44 +281,49 @@ fun ThongKeTamTrang(
             modifier = Modifier.padding(start = 24.dp)
         )
         Spacer(modifier = Modifier.height(10.dp))
-        MyBarChartParent()
+        MyBarChartParent(moodCountMap)
     }
 }
 @Composable
-fun MyBarChartParent() {
+fun MyBarChartParent(
+    moodCountMap: Map<String, Int>
+) {
     BarChart(
         barChartData = BarChartData(bars = listOf(
             BarChartData.Bar(
                 label = "Fun",
-                value = 80f,
+                value = moodCountMap["Fun"]!!.toFloat(),
                 color = Blue
             ),
             BarChartData.Bar(
                 label = "Cry",
-                value = 20f,
+                value = moodCountMap["Cry"]!!.toFloat(),
                 color = Color.Magenta
             ),
             BarChartData.Bar(
                 label = "Sad",
-                value = 0f,
+                value = moodCountMap["Sad"]!!.toFloat(),
                 color = Color.Green
             ),
             BarChartData.Bar(
                 label = "Disgust",
-                value = 0f,
+                value = moodCountMap["Disgust"]!!.toFloat(),
                 color = Color.DarkGray
             ),
             BarChartData.Bar(
                 label = "Fear",
-                value = 0f,
+                value = moodCountMap["Fear"]!!.toFloat(),
                 color =Color.Yellow
             ),
             BarChartData.Bar(
                 label = "Angry",
-                value = 0f,
+                value = moodCountMap["Angry"]!!.toFloat(),
                 color = Red
             )
-        )),
+        ),
+            startAtZero = true,
+            padBy = 10f
+        ),
         modifier = Modifier.padding(horizontal = 20.dp),
         labelDrawer = SimpleValueDrawer(
             labelTextSize = 8.sp,
@@ -400,7 +423,7 @@ fun PieChart(
 @Composable
 fun PreviewReportScreen() {
     MelodyDiaryTheme {
-        val musicViewModel: MusicViewModel = viewModel(factory = MusicViewModel.Factory)
-        ReportScreen(musicViewModel = musicViewModel, navController = rememberNavController())
+        val diaryViewModel: DiaryViewModel = viewModel(factory = DiaryViewModel.Factory)
+        ReportScreen(diaryViewModel = diaryViewModel, navController = rememberNavController())
     }
 }

@@ -112,9 +112,10 @@ fun AddDiaryScreen(
 
     var openDialog by remember { mutableStateOf(false) }
     var openTimeDialog by remember { mutableStateOf(false) }
-    var datePickerState = rememberDatePickerState()
-    var timePickerState = rememberTimePickerState()
+    val datePickerState = rememberDatePickerState()
+    val timePickerState = rememberTimePickerState()
     var musicListString: List<String> = mutableListOf()
+    var mood: String = "Fun"
     if (openDialog) {
         DatePickerDialog(
             onDismissRequest = {
@@ -212,7 +213,7 @@ fun AddDiaryScreen(
                                     diaryId = 0,
                                     title = title,
                                     content = content,
-                                    mood = "Fun",
+                                    mood = mood,
                                     imageIdList = listOf("image1", "image2"),
                                     logo = logo, // Thay thế R.drawable.logo bằng resource id thích hợp
                                     createdAt = datetime
@@ -291,6 +292,7 @@ fun AddDiaryScreen(
                         item {
                             IconButton(
                                 onClick = {
+                                    mood = "Fun"
                                     showBottomSheet = false
                                     logo = R.drawable.ic_face
                                     scope.launch {
@@ -310,6 +312,7 @@ fun AddDiaryScreen(
                         item {
                             IconButton(
                                 onClick = {
+                                    mood = "Cry"
                                     showBottomSheet = false
                                     logo = R.drawable.ic_cry
                                     scope.launch {
@@ -329,6 +332,7 @@ fun AddDiaryScreen(
                         item {
                             IconButton(
                                 onClick = {
+                                    mood = "Sad"
                                     showBottomSheet = false
                                     logo = R.drawable.ic_neutral
                                     scope.launch {
@@ -348,6 +352,7 @@ fun AddDiaryScreen(
                         item {
                             IconButton(
                                 onClick = {
+                                    mood = "Fear"
                                     showBottomSheet = false
                                     logo = R.drawable.ic_fear
                                     scope.launch {
@@ -367,6 +372,7 @@ fun AddDiaryScreen(
                         item {
                             IconButton(
                                 onClick = {
+                                    mood = "Disgust"
                                     showBottomSheet = false
                                     logo = R.drawable.ic_disgust
                                     scope.launch {
@@ -386,6 +392,7 @@ fun AddDiaryScreen(
                         item {
                             IconButton(
                                 onClick = {
+                                    mood = "Angry"
                                     showBottomSheet = false
                                     logo = R.drawable.ic_angry
                                     scope.launch {
