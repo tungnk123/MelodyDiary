@@ -1,0 +1,21 @@
+
+
+package com.uit.melodydiary.network
+
+import com.uit.melodydiary.model.GeneratedMusicDto
+import com.uit.melodydiary.model.MusicResponse
+import retrofit2.http.GET
+import retrofit2.http.Query
+
+interface MusicApiService {
+    @GET("Musics")
+    suspend fun getMusic(): MusicResponse
+
+    @GET("/api/v1/generated-musics/by-lyric/")
+    suspend fun getGeneratedMusicByLyric(
+        @Query("lyric") lyric: String
+    ): GeneratedMusicDto
+
+    @GET("/api/v1/Configuration/warm-up")
+    suspend fun warmUp()
+}

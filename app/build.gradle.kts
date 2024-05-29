@@ -4,11 +4,11 @@ plugins {
     id("kotlin-kapt")
 }
 android {
-    namespace = "com.example.melodydiary"
+    namespace = "com.uit.melodydiary"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.melodydiary"
+        applicationId = "com.uit.melodydiary"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
@@ -112,5 +112,7 @@ dependencies {
     // chart
     implementation("com.github.jaikeerthick:Composable-Graphs:v1.2.3") //ex: v1.2.3
     implementation ("com.github.tehras:charts:0.2.4-alpha")
+
+    implementation("androidx.core:core-splashscreen:1.0.1")
 
 }

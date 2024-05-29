@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MelodyDiary</string>
+    <string name="app_name">Melody Diary</string>
     <string name="bottom_navigation_diary">Diary</string>
     <string name="bottom_navigation_music">Music</string>
     <string name="bottom_navigation_report">Report</string>
