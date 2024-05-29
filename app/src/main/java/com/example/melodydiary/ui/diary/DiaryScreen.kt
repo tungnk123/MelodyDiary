@@ -10,6 +10,7 @@ import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -169,7 +170,8 @@ fun DiaryList(
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
-        modifier = Modifier.padding(20.dp),
+        modifier = modifier,
+        contentPadding = PaddingValues(16.dp)
     ) {
         items(diaryList, key = { it.diaryId }) { item ->
             DiaryItem(
@@ -325,7 +327,7 @@ fun DiaryItem(
         )
     ) {
         Column(
-            modifier = Modifier.padding(20.dp).background(Color.Transparent)
+            modifier = Modifier.padding(16.dp).background(Color.Transparent)
         ) {
             DateDetailInDiary(
                 date = item.createdAt.format(formatter),

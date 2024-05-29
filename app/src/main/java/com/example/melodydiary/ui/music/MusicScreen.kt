@@ -132,10 +132,10 @@ fun DiaryTab(
     val scope = rememberCoroutineScope()
     var selectedAlbum by remember { mutableStateOf<Album?>(null) }
     var selectedGiaiDieu by remember {
-        mutableStateOf("Chọn")
+        mutableStateOf("Choose")
     }
     var selectedNhacCu by remember {
-        mutableStateOf("Chọn")
+        mutableStateOf("Choose")
     }
     Column(
         modifier = modifier.fillMaxSize()
@@ -183,7 +183,7 @@ fun DiaryTab(
                             val result = musicViewModel.fetchMusic(genString)
                             val size = musicList.size + 1
                             musicList = musicList.toMutableList()
-                                .apply { add(MusicSmall(title = "Giai điệu $size", url = result)) }
+                                .apply { add(MusicSmall(title = "Melody $size", url = result)) }
                         }
                     },
                     onXuatBanClick = {
@@ -265,7 +265,7 @@ fun GenMusicTab(
 @Composable
 fun MyDropDown(
     list: List<String>,
-    selectedItem: String = "Chọn",
+    selectedItem: String = "Choose",
     onSelectedItemChange: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -307,7 +307,7 @@ fun MyDropDown(
                     onClick = {
                         onSelectedItemChange(item)
                         expanded = false
-                        if (item == "Tùy chọn") {
+                        if (item == "Other") {
                             canWrite = true
                         }
                         else {
@@ -335,21 +335,21 @@ fun GenMusicWrapper(
     musicViewModel: MusicViewModel
 ) {
     val theLoaiList: MutableList<String> = mutableListOf(
-        "Nhạc pop",
-        "Nhạc rock",
-        "Nhạc jazz",
-        "Nhạc đồng quê",
-        "Nhạc điện tử",
-        "Tùy chọn"
+        "Pop Music",
+        "Rock Music",
+        "Jazz Music",
+        "Country Music",
+        "Electronic Music",
+        "Other"
     )
 
     val nhacCuList: MutableList<String> = mutableListOf(
         "Guitar",
         "Piano",
         "Violin",
-        "Trống",
-        "Sáo",
-        "Tùy chọn"
+        "Drums",
+        "Flute",
+        "Other"
     )
     Column(
         modifier = modifier
@@ -451,7 +451,7 @@ fun PickDiary(
         mutableStateOf(
             Diary(
                 diaryId = 0,
-                title = "Chọn",
+                title = "Other",
                 content = "Content",
                 createdAt = LocalDateTime.now(),
                 logo = R.drawable.ic_face,
@@ -964,10 +964,10 @@ fun AlbumDetailScreen(
 ) {
     val musicList: List<MusicSmall> = mutableListOf(
         MusicSmall(
-            title = "Giai điệu 1"
+            title = "Melody 1"
         ),
         MusicSmall(
-            title = "Giai điệu 2"
+            title = "Melody 2"
         ),
 
         )
@@ -1168,7 +1168,7 @@ fun ImageSelector(
         modifier = Modifier.fillMaxWidth(),
     ) {
         Text(
-            text = "Chọn logo cho album"
+            text = "Choose logo for album"
         )
         if (selectedImageUri == null) {
             Button(
@@ -1181,7 +1181,7 @@ fun ImageSelector(
                     contentColor = Color.White,
                 )
             ) {
-                Text("Chọn logo", color = Color.White)
+                Text("Choose logo", color = Color.White)
             }
         } else {
             AsyncImage(

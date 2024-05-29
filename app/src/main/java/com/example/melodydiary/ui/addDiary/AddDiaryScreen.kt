@@ -171,7 +171,7 @@ fun AddDiaryScreen(
         modifier = modifier,
         topBar = {
             CenterAlignedTopAppBar(
-                modifier = Modifier.padding(end = 20.dp, start = 10.dp),
+                modifier = Modifier.padding(end = 20.dp),
                 navigationIcon = {
 
                     IconButton(

@@ -63,4 +63,23 @@
     <string name="title_bieu_do_tam_trang">Mood pie chart</string>
     <string name="title_thong_ke_tam_trang">Mood bar chart</string>
 
+
+    //Setting
+    <string name="btn_back_up">Back up now</string>
+    <string name="title_back_up">Backup to my Google Drive</string>
+    <string name="title_back_up_description">Avoid data loss when you change the device</string>
+    <string name="title_app_theme">App theme</string>
+    <string name="title_notification">Notification</string>
+    <string name="title_passcode">Passcode</string>
+    <string name="title_mood_gallery">Mood gallery</string>
+    <string name="title_language">Language</string>
+    <string name="title_datetime">Date &amp; time</string>
+
+    <string name="title_faq">FAQ</string>
+    <string name="title_terms_of_use">Terms of use</string>
+    <string name="title_privacy_policy">Privacy policy</string>
+    <string name="title_feedback">Feedback</string>
+    <string name="title_rate_us">Rate us</string>
+    <string name="title_footer">Version 1.0 @2024, CFF Inc</string>
+
 </resources>

@@ -104,18 +104,18 @@ fun ReportScreen(
                 .padding(paddingValue)
         ) {
             DiaryCountWrapper(
-                modifier = Modifier.padding(horizontal = 20.dp),
+                modifier = Modifier.padding(horizontal = 16.dp),
                 countDiary = diaryViewModel.diaryList.collectAsState().value.size,
                 countStreak = 1
             )
             Spacer(modifier = Modifier.height(16.dp))
             BieuDoTamTrang(
-                modifier = Modifier.padding(horizontal = 20.dp),
+                modifier = Modifier.padding(horizontal = 16.dp),
                 moodCountMap = moodCountMap
             )
             Spacer(modifier = Modifier.height(16.dp))
             ThongKeTamTrang(
-                modifier = Modifier.padding(horizontal = 20.dp),
+                modifier = Modifier.padding(horizontal = 16.dp),
                 moodCountMap = moodCountMap
             )
         }   
