@@ -1,6 +1,7 @@
 package com.uit.melodydiary.ui.profile
 
 
+import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -29,7 +30,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -43,6 +46,7 @@ import com.uit.melodydiary.ui.theme.MelodyDiaryTheme
 fun ProfileScreen(
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -65,7 +69,9 @@ fun ProfileScreen(
         ) {
             item {
                 BackupWrapper(
-                    onBackUpButtonClick = {}
+                    onBackUpButtonClick = {
+                        Toast.makeText(context, "Feature is under construction", Toast.LENGTH_SHORT).show()
+                    }
                 )
             }
             item {
@@ -116,6 +122,7 @@ fun BackupWrapper(
                     backgroundColor = MaterialTheme.colorScheme.primary
                 ),
                 shape = RoundedCornerShape(20.dp),
+                modifier = Modifier.alpha(0f)
             ) {
                 Text(
                     text = stringResource(R.string.btn_back_up),

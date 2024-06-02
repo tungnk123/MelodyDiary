@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.uit.melodydiary.model.Album
 import com.uit.melodydiary.model.Diary
+import com.uit.melodydiary.model.MusicSmall
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -29,4 +30,13 @@ interface DiaryDao {
 
     @Query("SELECT * FROM album_table ")
     fun getAllAlbum(): Flow<List<Album>>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertMusic(music: MusicSmall)
+
+
+    @Query("SELECT * FROM music_table ")
+    fun getAllMusic(): List<MusicSmall>
+    @Query("SELECT * FROM music_table WHERE albumId =:albumId ")
+    fun getMusicInAlbum(albumId: Int): List<MusicSmall>
 }

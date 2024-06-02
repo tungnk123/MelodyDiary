@@ -55,6 +55,7 @@
     <string name="text_viet_nhat_ky_bay_gio">Write your diary now</string>
     <string name="text_danh_sach_giai_dieu_trong">The melody list is empty</string>
     <string name="text_danh_sach_album_trong">The album list is empty</string>
+    <string name="text_select_album">Choose album</string>
 
 
     <string name="title_report">Report</string>

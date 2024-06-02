@@ -13,6 +13,8 @@ import com.uit.melodydiary.data.repository.AlbumRepository
 import com.uit.melodydiary.data.repository.MusicRepository
 import com.uit.melodydiary.model.Album
 import com.uit.melodydiary.model.Diary
+import com.uit.melodydiary.model.Music
+import com.uit.melodydiary.model.MusicSmall
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -33,6 +35,7 @@ class MusicViewModel(
 ) : ViewModel() {
 
     var albumList: StateFlow<List<Album>> = MutableStateFlow(mutableListOf())
+    var musicSmallList: List<MusicSmall> = listOf()
     var currentDiary: Diary = Diary(
         diaryId = 0,
         title = "Chọn",
@@ -87,6 +90,18 @@ class MusicViewModel(
             )
         }
     }
+    fun insertMusic(music: MusicSmall) {
+
+        viewModelScope.launch(Dispatchers.IO) {
+            albumRepository.insertMusic(music)
+        }
+    }
+    fun getAllMusic(){
+        viewModelScope.launch(Dispatchers.IO) {
+            musicSmallList = albumRepository.getAllMusic()
+        }
+    }
+
 
 
 

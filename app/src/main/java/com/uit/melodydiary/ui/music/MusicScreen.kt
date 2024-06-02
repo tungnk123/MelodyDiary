@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -54,6 +55,7 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -70,6 +72,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -128,6 +131,7 @@ fun DiaryTab(
 ) {
     var selectedTabIndex by remember { mutableStateOf(0) }
     var musicList by remember { mutableStateOf(mutableListOf<MusicSmall>()) }
+    var musicListFromDB by remember { mutableStateOf(listOf<MusicSmall>()) }
     val diaryList = diaryViewModel.diaryList.collectAsState()
     val scope = rememberCoroutineScope()
     var selectedAlbum by remember { mutableStateOf<Album?>(null) }
@@ -136,6 +140,19 @@ fun DiaryTab(
     }
     var selectedNhacCu by remember {
         mutableStateOf("Choose")
+    }
+    var selectedMusicSmall by remember {
+        mutableStateOf(
+            MusicSmall(
+                title = "Melody",
+                albumId = 0
+            )
+        )
+    }
+    var isAlbumSelectionDialogVisible by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    LaunchedEffect(isAlbumSelectionDialogVisible) {
+        musicViewModel.getAllMusic()
     }
     Column(
         modifier = modifier.fillMaxSize()
@@ -177,17 +194,33 @@ fun DiaryTab(
                 GenMusicTab(
                     musicList = musicList,
                     onTaoNhacClick = {
-                        scope.launch {
-                            Log.i("giai_dieu", musicViewModel.currentDiary.content + ":" + selectedGiaiDieu + ":" +  selectedNhacCu)
-                            val genString = "Đây là một bài nhạc có giai điệu $selectedGiaiDieu, nhạc cụ $selectedNhacCu và có nội dung là $musicViewModel.currentDiary.content"
-                            val result = musicViewModel.fetchMusic(genString)
-                            val size = musicList.size + 1
-                            musicList = musicList.toMutableList()
-                                .apply { add(MusicSmall(title = "Melody $size", url = result)) }
+                        if (musicViewModel.currentDiary.title == "Chọn") {
+                            Toast.makeText(
+                                context,
+                                "Please select a diary to gen music!",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        } else {
+                            scope.launch {
+                                Log.i("giai_dieu", musicViewModel.currentDiary.content + ":" + selectedGiaiDieu + ":" +  selectedNhacCu)
+                                val genString = "Đây là một bài nhạc có giai điệu $selectedGiaiDieu, nhạc cụ $selectedNhacCu và có nội dung là $musicViewModel.currentDiary.content"
+                                val result = musicViewModel.fetchMusic(genString)
+                                val size = musicList.size + 1
+                                musicList = musicList.toMutableList()
+                                    .apply { add(MusicSmall(title = "Melody $size", url = result)) }
+                            }
                         }
                     },
                     onXuatBanClick = {
-
+                        if (selectedMusicSmall.title == "Melody") {
+                            Toast.makeText(
+                                context,
+                                "Please select a music to expose!",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        } else {
+                            isAlbumSelectionDialogVisible = true
+                        }
                     },
                     diaryList = diaryList.value.sortedByDescending { it.createdAt },
                     selectedGiaiDieu = selectedGiaiDieu,
@@ -198,7 +231,11 @@ fun DiaryTab(
                     onSelectedNhacCuChange = {
                         selectedNhacCu = it
                     },
-                    musicViewModel = musicViewModel
+                    musicViewModel = musicViewModel,
+                    selectedMusicSmall = selectedMusicSmall,
+                    onSelectedMusicChange = {
+                        selectedMusicSmall = it
+                    }
                 )
             }
             1 -> {
@@ -216,12 +253,92 @@ fun DiaryTab(
         selectedAlbum?.let { album ->
             AlbumDetailScreen(
                 album = album,
-                onClose = { selectedAlbum = null }
+                onClose = { selectedAlbum = null },
+                selectedMusicSmall = selectedMusicSmall,
+                onSelectedMusicChange = {
+                    selectedMusicSmall = it
+                },
+                musicList = musicViewModel.musicSmallList.filter { it.albumId == album.albumId }
+            )
+        }
+        if (isAlbumSelectionDialogVisible) {
+            AlbumSelectionDialog(
+                albumList = albumList,
+                onAlbumSelected = { album ->
+                    selectedMusicSmall.albumId = album.albumId
+
+                    musicViewModel.insertMusic(selectedMusicSmall)
+                    Toast.makeText(context, "Exposed to ${album.title}", Toast.LENGTH_SHORT)
+                        .show()
+                    isAlbumSelectionDialogVisible = false
+                },
+                onDismissRequest = { isAlbumSelectionDialogVisible = false }
             )
         }
     }
 }
 
+@Composable
+fun AlbumSelectionDialog(
+    albumList: List<Album>,
+    onAlbumSelected: (Album) -> Unit,
+    onDismissRequest: () -> Unit
+) {
+    var selectedAlbum by remember { mutableStateOf<Album?>(null) }
+
+    AlertDialog(
+        onDismissRequest = onDismissRequest,
+        title = { Text(text = stringResource(R.string.text_select_album), style = MaterialTheme.typography.titleLarge) },
+        text = {
+            LazyColumn {
+                items(albumList) { album ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { selectedAlbum = album }
+                            .background(if (album == selectedAlbum) Color.Gray else Color.Transparent)
+                            .padding(8.dp)
+                    ) {
+                        Text(
+                            text = album.title,
+                            fontWeight = if (album == selectedAlbum) FontWeight.Bold else FontWeight.Normal
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    selectedAlbum?.let { onAlbumSelected(it) }
+                    onDismissRequest()
+                },
+                enabled = selectedAlbum != null,
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = mygreen
+                ),
+                shape = RoundedCornerShape(20.dp)
+            ) {
+                Text(text = stringResource(R.string.btn_xac_nhan), color = Color.Black)
+            }
+        },
+        dismissButton = {
+            Button(
+                onClick = onDismissRequest,
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = Color.Red
+                ),
+                shape = RoundedCornerShape(20.dp),
+                modifier = Modifier.padding(bottom = 10.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.btn_close),
+                    color = Color.White
+                )
+            }
+        }
+    )
+}
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -236,6 +353,8 @@ fun GenMusicTab(
     selectedNhacCu: String,
     onSelectedGiaiDieuChange: (String) -> Unit,
     onSelectedNhacCuChange: (String) -> Unit,
+    selectedMusicSmall: MusicSmall,
+    onSelectedMusicChange: (MusicSmall) -> Unit,
     musicViewModel: MusicViewModel
 ) {
     Column(
@@ -256,7 +375,9 @@ fun GenMusicTab(
             musicViewModel = musicViewModel
         )
         MusicList(
-            musicList = musicList
+            musicList = musicList,
+            selectedItem = selectedMusicSmall,
+            onSelectedItemChange = onSelectedMusicChange
         )
     }
 }
@@ -425,7 +546,7 @@ fun GenMusicWrapper(
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = mygreen
                 ),
-                shape = RoundedCornerShape(20.dp)
+                shape = RoundedCornerShape(20.dp),
             ) {
                 Text(
                     text = stringResource(R.string.title_xuat_ban),
@@ -600,7 +721,9 @@ fun DiaryMenuItemWithClose(
 @Composable
 fun MusicList(
     modifier: Modifier = Modifier,
-    musicList: List<MusicSmall>
+    musicList: List<MusicSmall>,
+    selectedItem: MusicSmall,
+    onSelectedItemChange: (MusicSmall) -> Unit
 ) {
     if (musicList.isEmpty()) {
         Box(
@@ -614,9 +737,6 @@ fun MusicList(
         }
     }
     else {
-        var selectedItem by remember {
-            mutableStateOf<MusicSmall?>(null)
-        }
         LazyColumn {
             items(musicList) {
                 var isPlayState by remember {
@@ -635,7 +755,7 @@ fun MusicList(
                     isPlay = isPlayState,
                     isSelected = selectedItem == it,
                     onItemSelected = {
-                        selectedItem = it
+                        onSelectedItemChange(it)
                     }
                 )
             }
@@ -870,12 +990,16 @@ fun PlaylistTab(
             )
         }
     } else {
-        selectedAlbum?.let {
-            AlbumDetailScreen(
-                album = it,
-                onClose = { onAlbumSelected(it) }
-            )
-        }
+//        selectedAlbum?.let {
+//            AlbumDetailScreen(
+//                album = it,
+//                onClose = { selectedAlbum = null },
+//                selectedMusicSmall = selectedMusicSmall,
+//                onSelectedMusicChange = {
+//
+//                }
+//            )
+//        }
     }
 }
 
@@ -960,20 +1084,15 @@ fun AlbumItem(
 @Composable
 fun AlbumDetailScreen(
     album: Album,
+    musicList: List<MusicSmall>,
     onClose: () -> Unit,
+    selectedMusicSmall: MusicSmall,
+    onSelectedMusicChange: (MusicSmall) -> Unit
 ) {
-    val musicList: List<MusicSmall> = mutableListOf(
-        MusicSmall(
-            title = "Melody 1"
-        ),
-        MusicSmall(
-            title = "Melody 2"
-        ),
-
-        )
     val bitmap = BitmapFactory.decodeByteArray(
         album.logo, 0, album.logo.size
     )
+    val context = LocalContext.current
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Top,
@@ -1018,7 +1137,10 @@ fun AlbumDetailScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Button(
-                onClick = {},
+                onClick = {
+                    Toast.makeText(context, "Feature is under construction", Toast.LENGTH_SHORT)
+                        .show()
+                },
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = MaterialTheme.colorScheme.primary
                 ),
@@ -1031,7 +1153,10 @@ fun AlbumDetailScreen(
             }
             Spacer(modifier = Modifier.width(20.dp))
             Button(
-                onClick = {},
+                onClick = {
+                    Toast.makeText(context, "Feature is under construction", Toast.LENGTH_SHORT)
+                        .show()
+                },
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = mygreen
                 ),
@@ -1045,7 +1170,9 @@ fun AlbumDetailScreen(
         }
 
         MusicList(
-            musicList = musicList
+            musicList = musicList,
+            selectedItem = selectedMusicSmall,
+            onSelectedItemChange = onSelectedMusicChange
         )
     }
 }

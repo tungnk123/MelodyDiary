@@ -7,10 +7,11 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.uit.melodydiary.model.Album
 import com.uit.melodydiary.model.Diary
+import com.uit.melodydiary.model.MusicSmall
 import com.uit.melodydiary.utils.Converters
 import kotlinx.coroutines.CoroutineScope
 
-@Database(entities = [Diary::class, Album::class], version = 1)
+@Database(entities = [Diary::class, Album::class, MusicSmall::class], version = 1)
 @TypeConverters(Converters::class)
 abstract class DiaryRoomDatabase: RoomDatabase() {
     abstract fun diaryDao(): DiaryDao
