@@ -19,6 +19,12 @@ interface DiaryDao {
     fun getDiaryAtDate(startOfDay: String, endOfDay: String): Flow<List<Diary>>
 
 
+    @Query("SELECT * FROM diary_table WHERE diary_id = :diaryId")
+    fun getDiaryById(diaryId:Int): Diary
+
+    @Query("DELETE FROM diary_table WHERE diary_id = :id")
+    suspend fun deleteDiaryById(id: Int)
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insertDiary(diary: Diary)
 

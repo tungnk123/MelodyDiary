@@ -27,4 +27,12 @@ class DiaryRepository(
             localDiaryDataSource.addDiary(diary)
         }
     }
+
+    suspend fun getDiaryById(id: Int): Diary {
+        return localDiaryDataSource.getDiaryById(id)
+    }
+
+    suspend fun deleteDiaryById(id: Int) {
+        localDiaryDataSource.deleteDiaryById(id)
+    }
 }

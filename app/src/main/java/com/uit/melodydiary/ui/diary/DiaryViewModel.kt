@@ -10,6 +10,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.uit.melodydiary.MelodyDiaryApplication
 import com.uit.melodydiary.data.repository.DiaryRepository
 import com.uit.melodydiary.model.Diary
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -23,6 +24,9 @@ class DiaryViewModel(private val diaryRepository: DiaryRepository): ViewModel() 
     var diaryList: StateFlow<List<Diary>> = MutableStateFlow(mutableListOf())
     var diaryListAtDate: List<Diary> = mutableListOf()
 
+    private val _selectedDiary = MutableStateFlow<Diary?>(null)
+    val selectedDiary: StateFlow<Diary?> = _selectedDiary
+
     fun getDiaryFromDatabase(){
         viewModelScope.launch {
             diaryList =  diaryRepository.getDiary().stateIn(
@@ -35,6 +39,19 @@ class DiaryViewModel(private val diaryRepository: DiaryRepository): ViewModel() 
     fun getDiaryList(): List<Diary> {
         getDiaryFromDatabase()
         return diaryList.value
+    }
+
+    fun getDiaryById(id: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val diary = diaryRepository.getDiaryById(id)
+            _selectedDiary.value = diary
+        }
+    }
+
+    fun deleteDiaryById(id: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            diaryRepository.deleteDiaryById(id)
+        }
     }
     @RequiresApi(Build.VERSION_CODES.O)
     fun getDiaryAtDateFromDatabase(date: String): List<Diary> {

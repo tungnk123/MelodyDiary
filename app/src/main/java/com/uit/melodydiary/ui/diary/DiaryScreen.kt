@@ -54,6 +54,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.kizitonwose.calendar.compose.HorizontalCalendar
+import com.kizitonwose.calendar.compose.rememberCalendarState
+import com.kizitonwose.calendar.core.CalendarDay
+import com.kizitonwose.calendar.core.DayPosition
+import com.kizitonwose.calendar.core.daysOfWeek
+import com.kizitonwose.calendar.core.nextMonth
+import com.kizitonwose.calendar.core.previousMonth
+import com.uit.melodydiary.MelodyDiaryApp
 import com.uit.melodydiary.R
 import com.uit.melodydiary.model.Diary
 import com.uit.melodydiary.ui.components.Day
@@ -65,13 +73,6 @@ import com.uit.melodydiary.ui.theme.mygreen
 import com.uit.melodydiary.utils.DayOfWeekConverter
 import com.uit.melodydiary.utils.hasDiaryOnDay
 import com.uit.melodydiary.utils.rememberFirstMostVisibleMonth
-import com.kizitonwose.calendar.compose.HorizontalCalendar
-import com.kizitonwose.calendar.compose.rememberCalendarState
-import com.kizitonwose.calendar.core.CalendarDay
-import com.kizitonwose.calendar.core.DayPosition
-import com.kizitonwose.calendar.core.daysOfWeek
-import com.kizitonwose.calendar.core.nextMonth
-import com.kizitonwose.calendar.core.previousMonth
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.YearMonth
@@ -102,7 +103,8 @@ fun DiaryScreen(
         }
     ) { innerPadding ->
 
-        DiaryTab(modifier = Modifier.padding(innerPadding), diaryList.value.sortedByDescending { it.createdAt }, diaryViewModel)
+        DiaryTab(modifier = Modifier.padding(innerPadding),
+            diaryList.value.sortedByDescending { it.createdAt }, diaryViewModel, navController = navController)
 
     }
 }
@@ -112,7 +114,8 @@ fun DiaryScreen(
 fun DiaryTab(
     modifier: Modifier = Modifier,
     diaryList: List<Diary>,
-    viewModel: DiaryViewModel
+    viewModel: DiaryViewModel,
+    navController: NavHostController
 ) {
     var selectedTabIndex by remember { mutableStateOf(0) }
 
@@ -152,10 +155,13 @@ fun DiaryTab(
             0 -> {
                 DiaryList(
                     diaryList = diaryList,
+                    onItemClick = {
+                        navController.navigate("${MelodyDiaryApp.DetailDiaryScreen.name}/${it.diaryId}")
+                    }
                 )
             }
             1 -> {
-                Calendar(diaryList = diaryList, diaryViewModel = viewModel)
+                Calendar(diaryList = diaryList, diaryViewModel = viewModel, navController = navController)
             }
         }
     }
@@ -165,7 +171,8 @@ fun DiaryTab(
 @Composable
 fun DiaryList(
     diaryList: List<Diary>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onItemClick: (Diary) -> Unit
 ) {
     LazyColumn(
         modifier = modifier,
@@ -174,7 +181,10 @@ fun DiaryList(
         items(diaryList, key = { it.diaryId }) { item ->
             DiaryItem(
                 item = item,
-                modifier = Modifier.padding(vertical = 10.dp)
+                modifier = Modifier.padding(vertical = 10.dp),
+                onItemClick = {
+                    onItemClick(item)
+                }
             )
         }
     }
@@ -194,7 +204,8 @@ fun TabContent(text: String) {
 fun Calendar(
     modifier: Modifier = Modifier,
     diaryList: List<Diary>,
-    diaryViewModel: DiaryViewModel
+    diaryViewModel: DiaryViewModel,
+    navController: NavHostController
 ) {
     var currentDateSelected by remember {
         mutableStateOf(LocalDate.now())
@@ -238,7 +249,10 @@ fun Calendar(
             NoDiaryInfo()
         } else {
             diaryListAtDate = diaryViewModel.getDiaryAtDateFromDatabase(currentDateSelected.toString())
-            DiaryList(diaryList = diaryListAtDate)
+            DiaryList(diaryList = diaryListAtDate,
+                onItemClick = {
+                    navController.navigate("${MelodyDiaryApp.DetailDiaryScreen.name}/${it.diaryId}")
+                })
         }
     }
 }
@@ -303,7 +317,8 @@ fun CalendarVer2(
 @Composable
 fun DiaryItem(
     item: Diary,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onItemClick: () -> Unit
 ) {
     val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM")
     val timeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
@@ -322,7 +337,8 @@ fun DiaryItem(
         ),
         colors = CardDefaults.cardColors(
             containerColor = mygreen,
-        )
+        ),
+        onClick = onItemClick
     ) {
         Column(
             modifier = Modifier.padding(16.dp).background(Color.Transparent)

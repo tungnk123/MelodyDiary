@@ -16,6 +16,14 @@ class LocalDiaryDataSource(
         return diaryDao.getAllDiary()
     }
 
+    suspend fun getDiaryById(id: Int): Diary {
+        return diaryDao.getDiaryById(id)
+    }
+
+    suspend fun deleteDiaryById(id: Int) {
+        diaryDao.deleteDiaryById(id)
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     suspend fun getDiaryAtDate(dateString: String):Flow<List<Diary>> {
         val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE

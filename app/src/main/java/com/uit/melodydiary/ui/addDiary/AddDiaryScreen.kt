@@ -3,6 +3,7 @@ package com.uit.melodydiary.ui.addDiary
 
 import MusicHelper
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
@@ -55,6 +56,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -83,7 +85,7 @@ fun AddDiaryScreen(
     modifier: Modifier = Modifier,
     diaryViewModel: DiaryViewModel,
     musicViewModel: MusicViewModel,
-    navController: NavHostController
+    navController: NavHostController,
 ) {
 
     var title by remember {
@@ -94,6 +96,7 @@ fun AddDiaryScreen(
     }
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
     var showBottomSheet by remember { mutableStateOf(true) }
 
     var logo by remember {
@@ -192,16 +195,16 @@ fun AddDiaryScreen(
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        IconButton(
-                            onClick = {
-
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.MoreVert,
-                                contentDescription = null
-                            )
-                        }
+//                        IconButton(
+//                            onClick = {
+//                                Toast.makeText(context, "Feature is under construction", Toast.LENGTH_SHORT).show()
+//                            }
+//                        ) {
+//                            Icon(
+//                                imageVector = Icons.Default.MoreVert,
+//                                contentDescription = null
+//                            )
+//                        }
                         Spacer(modifier = Modifier.width(5.dp))
                         Button(
                             onClick = {
@@ -245,14 +248,16 @@ fun AddDiaryScreen(
                 },
                 onDateTimePickerClick = {
                     openDialog = true
-                }
+                },
+                enabled = true
             )
             BorderlessTextField(
                 value = title,
                 placeholder = "Title",
                 onValueChange = {
                     title = it
-                }
+                },
+                enable = true
             )
 
             DiaryTextField(
@@ -260,7 +265,8 @@ fun AddDiaryScreen(
                 placeholder = "Start to write now ...",
                 onValueChange = {
                     content = it
-                }
+                },
+                enable = true
             )
 
         }
@@ -440,7 +446,8 @@ fun BorderlessTextField(
     value: String,
     placeholder: String,
     onValueChange: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enable: Boolean
 ) {
     TextField(
         value = value,
@@ -455,14 +462,17 @@ fun BorderlessTextField(
             backgroundColor = Color.Transparent,
             cursorColor = Color.Black,
             focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent
+            unfocusedIndicatorColor = Color.Transparent,
+            disabledTextColor = Color.Black,
+            disabledIndicatorColor = Color.Transparent
         ),
         textStyle = MaterialTheme.typography.titleLarge,
         modifier = modifier.fillMaxWidth().border(
             width = 0.dp,
             color = Color.Transparent,
             shape = RoundedCornerShape(0.dp)
-        )
+        ),
+        enabled = enable
     )
 }
 
@@ -471,7 +481,8 @@ fun DiaryTextField(
     value: String,
     placeholder: String,
     onValueChange: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enable: Boolean
 ) {
     TextField(
         value = value,
@@ -486,14 +497,17 @@ fun DiaryTextField(
             backgroundColor = Color.Transparent,
             cursorColor = Color.Black,
             focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent
+            unfocusedIndicatorColor = Color.Transparent,
+            disabledTextColor = Color.Black,
+            disabledIndicatorColor = Color.Transparent
         ),
         textStyle = MaterialTheme.typography.bodyMedium,
         modifier = modifier.fillMaxWidth().border(
             width = 0.dp,
             color = Color.Transparent,
             shape = RoundedCornerShape(0.dp)
-        )
+        ),
+        enabled = enable
     )
 }
 
@@ -560,6 +574,7 @@ fun DateDetailInDiaryWithSelection(
     @DrawableRes statusLogoRes: Int,
     onPickEmoteClick: () -> Unit,
     onDateTimePickerClick: () -> Unit,
+    enabled: Boolean,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -585,7 +600,8 @@ fun DateDetailInDiaryWithSelection(
         }
         Spacer(modifier = Modifier.width(5.dp))
         IconButton(
-            onClick = onDateTimePickerClick
+            onClick = onDateTimePickerClick,
+            enabled = enabled
         ) {
             Icon(
                 imageVector = Icons.Default.ArrowDropDown,
@@ -595,6 +611,7 @@ fun DateDetailInDiaryWithSelection(
         Spacer(modifier = Modifier.weight(1f))
         IconButton(
             onClick = onPickEmoteClick,
+            enabled = enabled
         ) {
             Image(
                 painter = painterResource(statusLogoRes),

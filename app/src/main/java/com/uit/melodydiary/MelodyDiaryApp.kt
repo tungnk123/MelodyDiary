@@ -35,11 +35,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.uit.melodydiary.ui.addDiary.AddDiaryScreen
+import com.uit.melodydiary.ui.addDiary.DetailDiaryScreen
 import com.uit.melodydiary.ui.diary.DiaryScreen
 import com.uit.melodydiary.ui.diary.DiaryViewModel
 import com.uit.melodydiary.ui.music.MusicScreen
@@ -54,7 +57,8 @@ enum class MelodyDiaryApp(@StringRes val title: Int) {
     MusicScreen(title = R.string.music_route),
     ReportScreen(title = R.string.profile_route),
     ProfileScreen(title = R.string.profile_route),
-    AddDiaryScreen(title =R.string.add_diary_route)
+    AddDiaryScreen(title = R.string.add_diary_route),
+    DetailDiaryScreen(title = R.string.detail_diary_route)
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -65,10 +69,22 @@ fun MelodyDiaryApp(
 
     val diaryViewModel: DiaryViewModel = viewModel(factory = DiaryViewModel.Factory)
     val musicViewModel: MusicViewModel = viewModel(factory = MusicViewModel.Factory)
-    var isAddDiaryScreen by remember {
+    var isHomeScreen by remember {
         mutableStateOf(false)
     }
-    isAddDiaryScreen = navController.currentBackStackEntryAsState().value?.destination?.route == MelodyDiaryApp.AddDiaryScreen.name
+    isHomeScreen = navController.currentBackStackEntryAsState().value?.destination?.route == MelodyDiaryApp.DiaryScreen.name
+    var isMusicScreen by remember {
+        mutableStateOf(false)
+    }
+    isMusicScreen = navController.currentBackStackEntryAsState().value?.destination?.route == MelodyDiaryApp.MusicScreen.name
+    var isReportScreen by remember {
+        mutableStateOf(false)
+    }
+    isReportScreen = navController.currentBackStackEntryAsState().value?.destination?.route == MelodyDiaryApp.ReportScreen.name
+    var isProfileScreen by remember {
+        mutableStateOf(false)
+    }
+    isProfileScreen = navController.currentBackStackEntryAsState().value?.destination?.route == MelodyDiaryApp.ProfileScreen.name
     MelodyDiaryTheme {
         // A surface container using the 'background' color from the theme
         Surface(
@@ -77,7 +93,7 @@ fun MelodyDiaryApp(
         ) {
             Scaffold(
                 bottomBar = {
-                    if (!isAddDiaryScreen) {
+                    if (isHomeScreen || isMusicScreen || isProfileScreen || isReportScreen) {
                         BottomNavigationWithFab(
                             navController = navController
                         )
@@ -102,6 +118,23 @@ fun MelodyDiaryApp(
 
                     composable(route = MelodyDiaryApp.AddDiaryScreen.name) {
                         AddDiaryScreen(diaryViewModel = diaryViewModel, musicViewModel = musicViewModel , navController = navController)
+                    }
+
+                    composable(
+                        route = "${MelodyDiaryApp.DetailDiaryScreen.name}/{diaryId}",
+                        arguments = listOf(navArgument("diaryId") {
+                            type = NavType.StringType
+                        })
+                    ) { navBackStackEntry ->
+                        val diaryId = navBackStackEntry.arguments?.getString("diaryId")
+                        diaryId?.let {
+                            DetailDiaryScreen(
+                                diaryId = diaryId.toInt(),
+                                navController = navController,
+                                diaryViewModel = diaryViewModel
+                            )
+                        }
+
                     }
                     composable(route = MelodyDiaryApp.ReportScreen.name) {
                         ReportScreen(
