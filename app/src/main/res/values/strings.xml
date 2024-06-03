@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MelodyDiary</string>
+    <string name="app_name">Melody Diary</string>
     <string name="bottom_navigation_diary">Diary</string>
     <string name="bottom_navigation_music">Music</string>
     <string name="bottom_navigation_report">Report</string>
@@ -25,21 +25,66 @@
     <string name="report_route">report</string>
     <string name="profile_route">profile</string>
     <string name="add_diary_route">add_diary</string>
+    <string name="detail_diary_route">detail_diary</string>
+    <string name="edit_diary_route">edit_diary</string>
 
     <string name="title_diary">My Dairy</string>
-    <string name="tab_name_danh_sach">Danh sách</string>
-    <string name="tab_name_lich">Lịch</string>
+    <string name="title_music">My Music Studio</string>
+    <string name="title_reports">Report</string>
+    <string name="title_settings">Settings</string>
+    <string name="tab_name_danh_sach">List Diary</string>
+    <string name="tab_name_lich">Calendar</string>
     
     <string name="title_example">Sad day</string>
     <string name="description_example">Lorem Ipsum is simply dummy text of the printing and typesetting industry.</string>
 
-    <string name="title_viet_nhat_ky">Viết nhật ký</string>
-    <string name="title_tao_nhac">Tạo nhạc</string>
-    <string name="title_thu_vien_nhac">Thư viện nhạc</string>
+    <string name="title_viet_nhat_ky">Write your diary</string>
+    <string name="title_edit_nhat_ky">Edit your diary</string>
+    <string name="title_see_nhat_ky">Diary detail</string>
+    <string name="title_tao_nhac">Gen music</string>
+    <string name="title_xuat_ban">Expose now</string>
+    <string name="title_thu_vien_nhac">Playlist</string>
+    <string name="title_the_loai">Music type</string>
+    <string name="title_nhac_cu">Instrument</string>
+    <string name="title_chon_nhat_ky">Choose diary</string>
 
-    <string name="ban_hom_nay_the_nao">Bạn hôm nay thế nào?</string>
-    <string name="btn_xac_nhan">Xác nhận</string>
-    <string name="btn_them_tam_trang">Thêm tâm trạng</string>
-    <string name="text_chua_co_nhat_ky">Chưa có nhật ký</string>
-    <string name="text_viet_nhat_ky_bay_gio">Viết nhật ký của bạn ngay bây giờ</string>
+    <string name="ban_hom_nay_the_nao">How are you today?</string>
+    <string name="btn_xac_nhan">Confirm</string>
+    <string name="btn_close">Close</string>
+    <string name="btn_them_tam_trang">Add more mood</string>
+    <string name="btn_phat_tuan_tu">Play sequential</string>
+    <string name="btn_phat_ngau_nhien">Play random</string>
+    <string name="text_chua_co_nhat_ky">You don\'t have any diary</string>
+    <string name="text_them_album">Add Album</string>
+    <string name="text_viet_nhat_ky_bay_gio">Write your diary now</string>
+    <string name="text_danh_sach_giai_dieu_trong">The melody list is empty</string>
+    <string name="text_danh_sach_album_trong">The album list is empty</string>
+    <string name="text_select_album">Choose album</string>
+
+
+    <string name="title_report">Report</string>
+    <string name="title_nhat_ky">Diary</string>
+    <string name="title_chuoi_ghi_lien_tuc">Streak days</string>
+    <string name="title_bieu_do_tam_trang">Mood pie chart</string>
+    <string name="title_thong_ke_tam_trang">Mood bar chart</string>
+
+
+    //Setting
+    <string name="btn_back_up">Back up now</string>
+    <string name="title_back_up">Backup to my Google Drive</string>
+    <string name="title_back_up_description">Avoid data loss when you change the device</string>
+    <string name="title_app_theme">App theme</string>
+    <string name="title_notification">Notification</string>
+    <string name="title_passcode">Passcode</string>
+    <string name="title_mood_gallery">Mood gallery</string>
+    <string name="title_language">Language</string>
+    <string name="title_datetime">Date &amp; time</string>
+
+    <string name="title_faq">FAQ</string>
+    <string name="title_terms_of_use">Terms of use</string>
+    <string name="title_privacy_policy">Privacy policy</string>
+    <string name="title_feedback">Feedback</string>
+    <string name="title_rate_us">Rate us</string>
+    <string name="title_footer">Version 1.0 @2024, CFF Inc</string>
+
 </resources>

@@ -4,15 +4,15 @@ plugins {
     id("kotlin-kapt")
 }
 android {
-    namespace = "com.example.melodydiary"
+    namespace = "com.uit.melodydiary"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.melodydiary"
-        minSdk = 24
+        applicationId = "com.uit.melodydiary"
+        minSdk = 26
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 7
+        versionName = "7.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -47,6 +47,11 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
+    lint {
+        baseline = file("lint-baseline.xml")
+    }
+
 }
 
 dependencies {
@@ -70,6 +75,8 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation("androidx.compose.material:material:1.6.3")
     implementation("androidx.compose.ui:ui-text-google-fonts:1.6.1")
+    implementation("androidx.compose.material3:material3:1.2.1")
+
 
     val nav_version = "2.7.7"
 
@@ -93,6 +100,8 @@ dependencies {
     implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+
 
     // Coil
     implementation("io.coil-kt:coil-compose:2.4.0")
@@ -100,5 +109,10 @@ dependencies {
     // The compose calendar library
     implementation ("com.kizitonwose.calendar:compose:2.5.0")
 
+    // chart
+    implementation("com.github.jaikeerthick:Composable-Graphs:v1.2.3") //ex: v1.2.3
+    implementation ("com.github.tehras:charts:0.2.4-alpha")
+
+    implementation("androidx.core:core-splashscreen:1.0.1")
 
 }
