@@ -87,7 +87,9 @@ fun DiaryScreen(
     diaryViewModel: DiaryViewModel,
     navController: NavHostController
 ) {
-    diaryViewModel.getDiaryFromDatabase()
+    LaunchedEffect(Unit) {
+        diaryViewModel.getDiaryFromDatabase()
+    }
     val diaryList = diaryViewModel.diaryList.collectAsState()
     Scaffold(
         topBar = {
@@ -153,12 +155,17 @@ fun DiaryTab(
         // Content for each tab
         when (selectedTabIndex) {
             0 -> {
-                DiaryList(
-                    diaryList = diaryList,
-                    onItemClick = {
-                        navController.navigate("${MelodyDiaryApp.DetailDiaryScreen.name}/${it.diaryId}")
-                    }
-                )
+                if (diaryList.isNotEmpty()) {
+                    DiaryList(
+                        diaryList = diaryList,
+                        onItemClick = {
+                            navController.navigate("${MelodyDiaryApp.DetailDiaryScreen.name}/${it.diaryId}")
+                        }
+                    )
+                }
+                else {
+                    NoDiaryInfo()
+                }
             }
             1 -> {
                 Calendar(diaryList = diaryList, diaryViewModel = viewModel, navController = navController)

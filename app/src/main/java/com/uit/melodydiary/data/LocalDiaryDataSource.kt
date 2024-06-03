@@ -16,6 +16,10 @@ class LocalDiaryDataSource(
         return diaryDao.getAllDiary()
     }
 
+    suspend fun updateDiary(diary: Diary) {
+        diaryDao.updateDiary(diary)
+    }
+
     suspend fun getDiaryById(id: Int): Diary {
         return diaryDao.getDiaryById(id)
     }

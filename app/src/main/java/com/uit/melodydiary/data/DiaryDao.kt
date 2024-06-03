@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.uit.melodydiary.model.Album
 import com.uit.melodydiary.model.Diary
 import com.uit.melodydiary.model.MusicSmall
@@ -27,6 +28,9 @@ interface DiaryDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insertDiary(diary: Diary)
+
+    @Update
+    suspend fun updateDiary(diary: Diary)
 
     @Query("DELETE FROM diary_table")
     fun deleteAllDiary()

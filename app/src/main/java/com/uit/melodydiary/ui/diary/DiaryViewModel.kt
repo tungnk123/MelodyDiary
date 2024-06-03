@@ -70,6 +70,12 @@ class DiaryViewModel(private val diaryRepository: DiaryRepository): ViewModel() 
         }
     }
 
+    fun updateDiary(diary: Diary) {
+        viewModelScope.launch {
+            diaryRepository.updateDiary(diary)
+        }
+    }
+
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {

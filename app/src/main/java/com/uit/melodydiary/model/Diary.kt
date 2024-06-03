@@ -9,8 +9,8 @@ import java.time.LocalDateTime
 @Entity(tableName = "diary_table")
 data class Diary(
     @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "diary_id") val diaryId: Int,
-    val title: String,
-    val content: String,
+    var title: String,
+    var content: String,
     val mood: String,
     val imageIdList: List<String>,
     @DrawableRes val logo: Int,

@@ -126,7 +126,7 @@ fun DetailDiaryScreen(
                 title = {
                     Text(
                         text = stringResource(R.string.title_see_nhat_ky),
-                        style = MaterialTheme.typography.titleMedium
+                        style = MaterialTheme.typography.titleLarge
                     )
                 },
                 actions = {
@@ -168,7 +168,7 @@ fun DetailDiaryScreen(
                         Spacer(modifier = Modifier.width(5.dp))
                         Button(
                             onClick = {
-                                navController.navigate(MelodyDiaryApp.AddDiaryScreen.name)
+                                navController.navigate("${MelodyDiaryApp.EditDiaryScreen.name}/${diaryId}")
                             }
                         ) {
                             Text(

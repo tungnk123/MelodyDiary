@@ -28,6 +28,12 @@ class DiaryRepository(
         }
     }
 
+    suspend fun updateDiary(diary: Diary) {
+        withContext(Dispatchers.IO) {
+            localDiaryDataSource.updateDiary(diary)
+        }
+    }
+
     suspend fun getDiaryById(id: Int): Diary {
         return localDiaryDataSource.getDiaryById(id)
     }

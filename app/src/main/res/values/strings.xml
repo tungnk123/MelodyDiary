@@ -26,6 +26,7 @@
     <string name="profile_route">profile</string>
     <string name="add_diary_route">add_diary</string>
     <string name="detail_diary_route">detail_diary</string>
+    <string name="edit_diary_route">edit_diary</string>
 
     <string name="title_diary">My Dairy</string>
     <string name="title_music">My Music Studio</string>
@@ -38,6 +39,7 @@
     <string name="description_example">Lorem Ipsum is simply dummy text of the printing and typesetting industry.</string>
 
     <string name="title_viet_nhat_ky">Write your diary</string>
+    <string name="title_edit_nhat_ky">Edit your diary</string>
     <string name="title_see_nhat_ky">Diary detail</string>
     <string name="title_tao_nhac">Gen music</string>
     <string name="title_xuat_ban">Expose now</string>

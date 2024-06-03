@@ -43,6 +43,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.uit.melodydiary.ui.addDiary.AddDiaryScreen
 import com.uit.melodydiary.ui.addDiary.DetailDiaryScreen
+import com.uit.melodydiary.ui.addDiary.EditDiaryScreen
 import com.uit.melodydiary.ui.diary.DiaryScreen
 import com.uit.melodydiary.ui.diary.DiaryViewModel
 import com.uit.melodydiary.ui.music.MusicScreen
@@ -58,7 +59,8 @@ enum class MelodyDiaryApp(@StringRes val title: Int) {
     ReportScreen(title = R.string.profile_route),
     ProfileScreen(title = R.string.profile_route),
     AddDiaryScreen(title = R.string.add_diary_route),
-    DetailDiaryScreen(title = R.string.detail_diary_route)
+    DetailDiaryScreen(title = R.string.detail_diary_route),
+    EditDiaryScreen(title = R.string.edit_diary_route)
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -132,6 +134,24 @@ fun MelodyDiaryApp(
                                 diaryId = diaryId.toInt(),
                                 navController = navController,
                                 diaryViewModel = diaryViewModel
+                            )
+                        }
+
+                    }
+
+                    composable(
+                        route = "${MelodyDiaryApp.EditDiaryScreen.name}/{diaryId}",
+                        arguments = listOf(navArgument("diaryId") {
+                            type = NavType.StringType
+                        })
+                    ) { navBackStackEntry ->
+                        val diaryId = navBackStackEntry.arguments?.getString("diaryId")
+                        diaryId?.let {
+                            EditDiaryScreen(
+                                diaryId = diaryId.toInt(),
+                                navController = navController,
+                                diaryViewModel = diaryViewModel,
+                                musicViewModel = musicViewModel
                             )
                         }
 
