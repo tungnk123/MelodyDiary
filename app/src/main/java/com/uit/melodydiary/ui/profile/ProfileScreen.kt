@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -135,35 +136,55 @@ fun BackupWrapper(
 
 @Composable
 fun AppSettingWrapper(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+
 ) {
+    val context = LocalContext.current
     Column(
         modifier = modifier.background(Color.White, shape = RoundedCornerShape(20.dp))
 
     ) {
         SettingItem(
             icon = R.drawable.ic_theme,
-            title = stringResource(R.string.title_app_theme)
+            title = stringResource(R.string.title_app_theme),
+            onItemClick = {
+                Toast.makeText(context, "Feature is under construction", Toast.LENGTH_SHORT).show()
+            }
         )
         SettingItem(
             icon = R.drawable.ic_notification,
-            title = stringResource(R.string.title_notification)
+            title = stringResource(R.string.title_notification),
+            onItemClick = {
+                Toast.makeText(context, "Feature is under construction", Toast.LENGTH_SHORT).show()
+            }
         )
         SettingItem(
             icon = R.drawable.ic_password,
-            title = stringResource(R.string.title_passcode)
+            title = stringResource(R.string.title_passcode),
+            onItemClick = {
+                Toast.makeText(context, "Feature is under construction", Toast.LENGTH_SHORT).show()
+            }
         )
         SettingItem(
             icon = R.drawable.ic_fun,
-            title = stringResource(R.string.title_mood_gallery)
+            title = stringResource(R.string.title_mood_gallery),
+            onItemClick = {
+                Toast.makeText(context, "Feature is under construction", Toast.LENGTH_SHORT).show()
+            }
         )
         SettingItem(
             icon = R.drawable.ic_language,
-            title = stringResource(R.string.title_language)
+            title = stringResource(R.string.title_language),
+            onItemClick = {
+                Toast.makeText(context, "Feature is under construction", Toast.LENGTH_SHORT).show()
+            }
         )
         SettingItem(
             icon = R.drawable.ic_datetime,
-            title = stringResource(R.string.title_datetime)
+            title = stringResource(R.string.title_datetime),
+            onItemClick = {
+                Toast.makeText(context, "Feature is under construction", Toast.LENGTH_SHORT).show()
+            }
         )
     }
 }
@@ -172,28 +193,44 @@ fun AppSettingWrapper(
 fun AppInformationWrapper(
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     Column(
         modifier = modifier.background(Color.White, shape = RoundedCornerShape(20.dp))
     ) {
         SettingItem(
             icon = R.drawable.ic_faq,
-            title = stringResource(R.string.title_faq)
+            title = stringResource(R.string.title_faq),
+            onItemClick = {
+                Toast.makeText(context, "Feature is under construction", Toast.LENGTH_SHORT).show()
+            }
         )
         SettingItem(
             icon = R.drawable.ic_terms_of_use,
-            title = stringResource(R.string.title_terms_of_use)
+            title = stringResource(R.string.title_terms_of_use),
+            onItemClick = {
+                Toast.makeText(context, "Feature is under construction", Toast.LENGTH_SHORT).show()
+            }
         )
         SettingItem(
             icon = R.drawable.ic_privac_policy,
-            title = stringResource(R.string.title_privacy_policy)
+            title = stringResource(R.string.title_privacy_policy),
+            onItemClick = {
+                Toast.makeText(context, "Feature is under construction", Toast.LENGTH_SHORT).show()
+            }
         )
         SettingItem(
             icon = R.drawable.ic_feedback,
-            title = stringResource(R.string.title_feedback)
+            title = stringResource(R.string.title_feedback),
+            onItemClick = {
+                Toast.makeText(context, "Feature is under construction", Toast.LENGTH_SHORT).show()
+            }
         )
         SettingItem(
             icon = R.drawable.ic_rate,
-            title = stringResource(R.string.title_rate_us)
+            title = stringResource(R.string.title_rate_us),
+            onItemClick = {
+                Toast.makeText(context, "Feature is under construction", Toast.LENGTH_SHORT).show()
+            }
         )
     }
 }
@@ -203,12 +240,18 @@ fun SettingItem(
     modifier: Modifier = Modifier,
     @DrawableRes icon: Int,
     title: String,
+    onItemClick: () -> Unit
 ) {
     Row(
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .clickable {
+                onItemClick()
+            }
+            .fillMaxWidth()
             .padding(vertical = 10.dp, horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
-    ) {
+
+        ) {
         Image(
             painterResource(icon),
             contentDescription = null,

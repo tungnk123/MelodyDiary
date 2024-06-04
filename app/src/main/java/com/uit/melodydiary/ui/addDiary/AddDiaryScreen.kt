@@ -423,7 +423,9 @@ fun AddDiaryScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         TextButton(
-                            onClick = {}
+                            onClick = {
+                                Toast.makeText(context, "Feature is under construction", Toast.LENGTH_SHORT).show()
+                            }
                         ) {
                             Text(
                                 text = stringResource(R.string.btn_them_tam_trang),
