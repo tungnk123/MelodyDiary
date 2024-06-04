@@ -32,6 +32,7 @@ import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DatePicker
@@ -234,7 +235,14 @@ fun AddDiaryScreen(
                 }
             )
         },
-
+        bottomBar = {
+            ToolBar(
+                onFontFormatClick = {},
+                onPaletteClick = {},
+                onIconClick = {},
+                onImageClick = {}
+            )
+        }
     ) { paddingValue ->
         Column(
             modifier = modifier
@@ -350,7 +358,7 @@ fun AddDiaryScreen(
                                 Image(
                                     painter = painterResource(R.drawable.ic_neutral),
                                     contentDescription = null,
-                                    modifier = Modifier.size(32.dp)
+                                    modifier = Modifier.size(36.dp)
                                 )
                             }
                         }
@@ -370,7 +378,7 @@ fun AddDiaryScreen(
                                 Image(
                                     painter = painterResource(R.drawable.ic_fear),
                                     contentDescription = null,
-                                    modifier = Modifier.size(32.dp)
+                                    modifier = Modifier.size(36.dp)
                                 )
                             }
                         }
@@ -799,6 +807,54 @@ fun EditDiaryScreen(
     }
 }
 
+@Composable
+fun ToolBar(
+    modifier: Modifier = Modifier,
+    onFontFormatClick: () -> Unit,
+    onIconClick: () -> Unit,
+    onImageClick: () -> Unit,
+    onPaletteClick: () -> Unit,
+) {
+    Row(
+        modifier = modifier.background(Color.White).padding(5.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(5.dp)
+    ) {
+        IconButton(
+            onClick = onFontFormatClick
+        ) {
+            Icon(
+                painterResource(R.drawable.text_format_24px),
+                contentDescription = null
+            )
+        }
+        IconButton(
+            onClick = onPaletteClick
+        ) {
+            Icon(
+                painterResource(R.drawable.palette_24px),
+                contentDescription = null
+            )
+        }
+        IconButton(
+            onClick = onImageClick
+        ) {
+            Icon(
+                painterResource(R.drawable.add_reaction_24px),
+                contentDescription = null
+            )
+        }
+        IconButton(
+            onClick = onIconClick
+        ) {
+            Icon(
+                painterResource(R.drawable.photo_library_24px),
+                contentDescription = null
+            )
+        }
+
+    }
+}
 @Composable
 fun BorderlessTextField(
     value: String,
