@@ -48,9 +48,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -72,6 +74,7 @@ import com.uit.melodydiary.ui.theme.MelodyDiaryTheme
 import com.uit.melodydiary.ui.theme.mygreen
 import com.uit.melodydiary.utils.DayOfWeekConverter
 import com.uit.melodydiary.utils.hasDiaryOnDay
+import com.uit.melodydiary.utils.plus
 import com.uit.melodydiary.utils.rememberFirstMostVisibleMonth
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -329,6 +332,7 @@ fun DiaryItem(
 ) {
     val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM")
     val timeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+    val diaryStyle = item.diaryStyle
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -358,13 +362,34 @@ fun DiaryItem(
             )
             Text(
                 text = item.title,
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Medium),
+                style = TextStyle(
+                    fontFamily = when (diaryStyle.fontStyle) {
+                        "Serif" -> FontFamily.Serif
+                        "Sans-serif" -> FontFamily.SansSerif
+                        "Monospace" -> FontFamily.Monospace
+                        "Cursive" -> FontFamily.Cursive
+                        "Fantasy" -> FontFamily.Default
+                        else -> FontFamily.Default
+                    },
+                    color = diaryStyle.color,
+                    fontSize = diaryStyle.fontSize.value.sp + 10.sp
+                ),
             )
-
             Text(
                 text = item.content,
-                color = Color.Gray,
-                )
+                style = TextStyle(
+                    fontFamily = when (diaryStyle.fontStyle) {
+                        "Serif" -> FontFamily.Serif
+                        "Sans-serif" -> FontFamily.SansSerif
+                        "Monospace" -> FontFamily.Monospace
+                        "Cursive" -> FontFamily.Cursive
+                        "Fantasy" -> FontFamily.Default
+                        else -> FontFamily.Default
+                    },
+                    color = diaryStyle.color,
+                    fontSize = diaryStyle.fontSize
+                ),
+            )
         }
     }
 }

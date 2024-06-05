@@ -3,7 +3,6 @@ package com.uit.melodydiary.ui.addDiary
 
 import MusicHelper
 import android.os.Build
-import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
@@ -23,7 +22,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.IconButton
 import androidx.compose.material.TextButton
@@ -32,8 +30,7 @@ import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Call
-import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -62,8 +59,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -71,12 +72,14 @@ import androidx.navigation.NavHostController
 import com.uit.melodydiary.MelodyDiaryApp
 import com.uit.melodydiary.R
 import com.uit.melodydiary.model.Diary
+import com.uit.melodydiary.model.DiaryStyle
+import com.uit.melodydiary.ui.components.FontSelectionContent
 import com.uit.melodydiary.ui.diary.DiaryViewModel
 import com.uit.melodydiary.ui.music.MusicViewModel
 import com.uit.melodydiary.ui.theme.MelodyDiaryTheme
 import com.uit.melodydiary.utils.DayOfWeekConverter
+import com.uit.melodydiary.utils.plus
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.JsonNull.content
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -119,6 +122,13 @@ fun AddDiaryScreen(
     val timePickerState = rememberTimePickerState()
     var musicListString: List<String> = mutableListOf()
     var mood: String = "Fun"
+
+    var showFontBottomSheet by remember { mutableStateOf(false) }
+    var selectedFontStyle by remember { mutableStateOf("Default") }
+    var selectedFontSize by remember { mutableStateOf(16.sp) }
+    var selectedColor by remember { mutableStateOf(Color.Black) }
+
+
     if (openDialog) {
         DatePickerDialog(
             onDismissRequest = {
@@ -219,7 +229,12 @@ fun AddDiaryScreen(
                                     mood = mood,
                                     imageIdList = listOf("image1", "image2"),
                                     logo = logo, // Thay thế R.drawable.logo bằng resource id thích hợp
-                                    createdAt = datetime
+                                    createdAt = datetime,
+                                    diaryStyle = DiaryStyle(
+                                        fontStyle = selectedFontStyle,
+                                        color = selectedColor,
+                                        fontSize = selectedFontSize
+                                    )
                                 )
                                 diaryViewModel.addDiary(newDiary)
                                 navController.navigate(MelodyDiaryApp.DiaryScreen.name)
@@ -237,10 +252,18 @@ fun AddDiaryScreen(
         },
         bottomBar = {
             ToolBar(
-                onFontFormatClick = {},
-                onPaletteClick = {},
-                onIconClick = {},
-                onImageClick = {}
+                onFontFormatClick = {
+                    showFontBottomSheet = true
+                },
+                onPaletteClick = {
+
+                },
+                onIconClick = {
+
+                },
+                onImageClick = {
+
+                }
             )
         }
     ) { paddingValue ->
@@ -268,7 +291,19 @@ fun AddDiaryScreen(
                 onValueChange = {
                     title = it
                 },
-                enable = true
+                enable = true,
+                textStyle = TextStyle(
+                    fontFamily = when (selectedFontStyle) {
+                        "Serif" -> FontFamily.Serif
+                        "Sans-serif" -> FontFamily.SansSerif
+                        "Monospace" -> FontFamily.Monospace
+                        "Cursive" -> FontFamily.Cursive
+                        "Fantasy" -> FontFamily.Default
+                        else -> FontFamily.Default
+                    },
+                    fontSize = selectedFontSize.value.sp + 10.sp,
+                    color = selectedColor
+                )
             )
 
             DiaryTextField(
@@ -277,7 +312,19 @@ fun AddDiaryScreen(
                 onValueChange = {
                     content = it
                 },
-                enable = true
+                enable = true,
+                textStyle = TextStyle(
+                    fontFamily = when (selectedFontStyle) {
+                        "Serif" -> FontFamily.Serif
+                        "Sans-serif" -> FontFamily.SansSerif
+                        "Monospace" -> FontFamily.Monospace
+                        "Cursive" -> FontFamily.Cursive
+                        "Fantasy" -> FontFamily.Default
+                        else -> FontFamily.Default
+                    },
+                    fontSize = selectedFontSize,
+                    color = selectedColor
+                )
             )
 
         }
@@ -448,8 +495,34 @@ fun AddDiaryScreen(
                 }
             }
         }
+
+        if (showFontBottomSheet) {
+            ModalBottomSheet(
+                onDismissRequest = {
+                    showFontBottomSheet = false
+                }
+            ) {
+                FontSelectionContent(
+                    selectedFontStyle = selectedFontStyle,
+                    onFontStyleChange = { style ->
+                        selectedFontStyle = style
+                    },
+                    selectedFontSize = selectedFontSize,
+                    onFontSizeChange = { size ->
+                        selectedFontSize = size
+                    },
+                    selectedColor = selectedColor,
+                    onColorChange = { color ->
+                        selectedColor = color
+                    }
+
+                )
+            }
+        }
     }
 }
+
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
@@ -490,6 +563,8 @@ fun EditDiaryScreen(
 
     var title by remember { mutableStateOf(diary?.title ?: "") }
     var content by remember { mutableStateOf(diary?.content ?: "") }
+
+    val diaryStyle = diary!!.diaryStyle
 
     if (openDialog) {
         DatePickerDialog(
@@ -582,7 +657,9 @@ fun EditDiaryScreen(
                                         mood = mood,
                                         imageIdList = listOf("image1", "image2"),
                                         logo = logo, // Thay thế R.drawable.logo bằng resource id thích hợp
-                                        createdAt = datetime
+                                        createdAt = datetime,
+                                        diaryStyle = it.diaryStyle
+
                                     )
                                 }
                                 diaryViewModel.updateDiary(newDiary!!)
@@ -626,7 +703,19 @@ fun EditDiaryScreen(
                     onValueChange = {
                         title = it
                     },
-                    enable = true
+                    enable = true,
+                    textStyle = TextStyle(
+                        fontFamily = when (diaryStyle.fontStyle) {
+                            "Serif" -> FontFamily.Serif
+                            "Sans-serif" -> FontFamily.SansSerif
+                            "Monospace" -> FontFamily.Monospace
+                            "Cursive" -> FontFamily.Cursive
+                            "Fantasy" -> FontFamily.Default
+                            else -> FontFamily.Default
+                        },
+                        color = diaryStyle.color,
+                        fontSize = diaryStyle.fontSize.plus(10.sp)
+                    )
                 )
 
                 DiaryTextField(
@@ -635,7 +724,19 @@ fun EditDiaryScreen(
                     onValueChange = {
                         content = it
                     },
-                    enable = true
+                    enable = true,
+                    textStyle = TextStyle(
+                        fontFamily = when (diaryStyle.fontStyle) {
+                            "Serif" -> FontFamily.Serif
+                            "Sans-serif" -> FontFamily.SansSerif
+                            "Monospace" -> FontFamily.Monospace
+                            "Cursive" -> FontFamily.Cursive
+                            "Fantasy" -> FontFamily.Default
+                            else -> FontFamily.Default
+                        },
+                        color = diaryStyle.color,
+                        fontSize = diaryStyle.fontSize
+                    )
                 )
             }
         }
@@ -816,9 +917,9 @@ fun ToolBar(
     onPaletteClick: () -> Unit,
 ) {
     Row(
-        modifier = modifier.background(Color.White).padding(5.dp),
+        modifier = modifier.fillMaxWidth().background(Color.White).padding(5.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(5.dp)
+        horizontalArrangement = Arrangement.SpaceAround
     ) {
         IconButton(
             onClick = onFontFormatClick
@@ -861,14 +962,15 @@ fun BorderlessTextField(
     placeholder: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    enable: Boolean
+    enable: Boolean,
+    textStyle: TextStyle = MaterialTheme.typography.titleLarge
 ) {
     TextField(
         value = value,
         placeholder = {
             Text(
                 text = placeholder,
-                style = MaterialTheme.typography.titleLarge
+                style = textStyle
             )
         },
         onValueChange = onValueChange,
@@ -880,7 +982,7 @@ fun BorderlessTextField(
             disabledTextColor = Color.Black,
             disabledIndicatorColor = Color.Transparent
         ),
-        textStyle = MaterialTheme.typography.titleLarge,
+        textStyle = textStyle,
         modifier = modifier.fillMaxWidth().border(
             width = 0.dp,
             color = Color.Transparent,
@@ -896,14 +998,15 @@ fun DiaryTextField(
     placeholder: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    enable: Boolean
+    enable: Boolean,
+    textStyle: TextStyle = MaterialTheme.typography.bodyMedium
 ) {
     TextField(
         value = value,
         placeholder = {
             Text(
                 text = placeholder,
-                style = MaterialTheme.typography.bodyMedium
+                style = textStyle
             )
         },
         onValueChange = onValueChange,
@@ -915,7 +1018,7 @@ fun DiaryTextField(
             disabledTextColor = Color.Black,
             disabledIndicatorColor = Color.Transparent
         ),
-        textStyle = MaterialTheme.typography.bodyMedium,
+        textStyle = textStyle,
         modifier = modifier.fillMaxWidth().border(
             width = 0.dp,
             color = Color.Transparent,

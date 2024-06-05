@@ -62,8 +62,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -75,6 +78,7 @@ import com.uit.melodydiary.ui.diary.DiaryViewModel
 import com.uit.melodydiary.ui.music.MusicViewModel
 import com.uit.melodydiary.ui.theme.MelodyDiaryTheme
 import com.uit.melodydiary.utils.DayOfWeekConverter
+import com.uit.melodydiary.utils.plus
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.JsonNull.content
 import java.time.Instant
@@ -105,6 +109,7 @@ fun DetailDiaryScreen(
     var openDialog by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
     val context = LocalContext.current
+
 
     Scaffold(
         modifier = modifier,
@@ -187,6 +192,7 @@ fun DetailDiaryScreen(
                 .padding(paddingValue)
         ) {
             diary?.let {
+                val diaryStyle = diary!!.diaryStyle
                 DateDetailInDiaryWithSelection(
                     date = it.createdAt.format(formatter),
                     time = it.createdAt.format(timeFormatter),
@@ -204,13 +210,37 @@ fun DetailDiaryScreen(
                     value = it.title,
                     placeholder = "Title",
                     onValueChange = {},
-                    enable = false
+                    enable = false,
+                    textStyle = TextStyle(
+                        fontFamily = when (diaryStyle.fontStyle) {
+                            "Serif" -> FontFamily.Serif
+                            "Sans-serif" -> FontFamily.SansSerif
+                            "Monospace" -> FontFamily.Monospace
+                            "Cursive" -> FontFamily.Cursive
+                            "Fantasy" -> FontFamily.Default
+                            else -> FontFamily.Default
+                        },
+                        color = diaryStyle.color,
+                        fontSize = diaryStyle.fontSize.plus(10.sp   )
+                    )
                 )
                 DiaryTextField(
                     value = it.content,
                     placeholder = "Start to write now ...",
                     onValueChange = {},
-                    enable = false
+                    enable = false,
+                    textStyle = TextStyle(
+                        fontFamily = when (diaryStyle.fontStyle) {
+                            "Serif" -> FontFamily.Serif
+                            "Sans-serif" -> FontFamily.SansSerif
+                            "Monospace" -> FontFamily.Monospace
+                            "Cursive" -> FontFamily.Cursive
+                            "Fantasy" -> FontFamily.Default
+                            else -> FontFamily.Default
+                        },
+                        color = diaryStyle.color,
+                        fontSize = diaryStyle.fontSize
+                    )
                 )
             }
         }
