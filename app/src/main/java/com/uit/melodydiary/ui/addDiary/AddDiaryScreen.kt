@@ -3,6 +3,7 @@ package com.uit.melodydiary.ui.addDiary
 
 import MusicHelper
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
@@ -69,6 +70,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.makeappssimple.abhimanyu.composeemojipicker.ComposeEmojiPickerBottomSheetUI
 import com.uit.melodydiary.MelodyDiaryApp
 import com.uit.melodydiary.R
 import com.uit.melodydiary.model.Diary
@@ -124,9 +126,12 @@ fun AddDiaryScreen(
     var mood: String = "Fun"
 
     var showFontBottomSheet by remember { mutableStateOf(false) }
+    var showIconBottomSheet by remember { mutableStateOf(false) }
     var selectedFontStyle by remember { mutableStateOf("Default") }
     var selectedFontSize by remember { mutableStateOf(16.sp) }
     var selectedColor by remember { mutableStateOf(Color.Black) }
+    var selectedEmoji by remember { mutableStateOf("") }
+    var searchText by  remember { mutableStateOf("") }
 
 
     if (openDialog) {
@@ -259,7 +264,7 @@ fun AddDiaryScreen(
 
                 },
                 onIconClick = {
-
+                    showIconBottomSheet = true
                 },
                 onImageClick = {
 
@@ -516,6 +521,26 @@ fun AddDiaryScreen(
                         selectedColor = color
                     }
 
+                )
+            }
+        }
+
+        if (showIconBottomSheet) {
+            ModalBottomSheet(
+                onDismissRequest = {
+                    showIconBottomSheet = false
+                }
+            ) {
+                ComposeEmojiPickerBottomSheetUI(
+                    onEmojiClick = { emoji ->
+                        showIconBottomSheet = false
+                        selectedEmoji = emoji.character
+                        content += selectedEmoji
+                    },
+                    searchText = searchText,
+                    updateSearchText = { updatedSearchText ->
+                        searchText = updatedSearchText
+                    },
                 )
             }
         }
@@ -938,7 +963,7 @@ fun ToolBar(
             )
         }
         IconButton(
-            onClick = onImageClick
+            onClick = onIconClick
         ) {
             Icon(
                 painterResource(R.drawable.add_reaction_24px),
@@ -946,7 +971,7 @@ fun ToolBar(
             )
         }
         IconButton(
-            onClick = onIconClick
+            onClick = onImageClick
         ) {
             Icon(
                 painterResource(R.drawable.photo_library_24px),

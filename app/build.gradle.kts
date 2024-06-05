@@ -115,4 +115,9 @@ dependencies {
 
     implementation("androidx.core:core-splashscreen:1.0.1")
 
+    //icon
+    implementation ("com.github.Abhimanyu14:compose-emoji-picker:1.0.0-alpha16")
+    val emoji2_version = "1.4.0"
+    implementation("androidx.emoji2:emoji2:$emoji2_version")
+
 }
