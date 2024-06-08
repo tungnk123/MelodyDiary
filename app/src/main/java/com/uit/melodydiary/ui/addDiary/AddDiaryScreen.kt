@@ -2,8 +2,9 @@ package com.uit.melodydiary.ui.addDiary
 
 
 import MusicHelper
+import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Build
-import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
@@ -15,14 +16,20 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.IconButton
 import androidx.compose.material.TextButton
@@ -31,7 +38,9 @@ import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -43,6 +52,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberTimePickerState
@@ -56,31 +66,39 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
 import com.makeappssimple.abhimanyu.composeemojipicker.ComposeEmojiPickerBottomSheetUI
 import com.uit.melodydiary.MelodyDiaryApp
 import com.uit.melodydiary.R
 import com.uit.melodydiary.model.Diary
 import com.uit.melodydiary.model.DiaryStyle
 import com.uit.melodydiary.ui.components.FontSelectionContent
+import com.uit.melodydiary.ui.components.ImageSelection
+import com.uit.melodydiary.ui.components.PaletteSelection
 import com.uit.melodydiary.ui.diary.DiaryViewModel
 import com.uit.melodydiary.ui.music.MusicViewModel
 import com.uit.melodydiary.ui.theme.MelodyDiaryTheme
+import com.uit.melodydiary.ui.theme.mygreen
 import com.uit.melodydiary.utils.DayOfWeekConverter
+import com.uit.melodydiary.utils.byteArrayToString
 import com.uit.melodydiary.utils.plus
+import com.uit.melodydiary.utils.stringToByteArray
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDateTime
@@ -124,14 +142,27 @@ fun AddDiaryScreen(
     val timePickerState = rememberTimePickerState()
     var musicListString: List<String> = mutableListOf()
     var mood: String = "Fun"
-
     var showFontBottomSheet by remember { mutableStateOf(false) }
     var showIconBottomSheet by remember { mutableStateOf(false) }
+    var showImageBottomSheet by remember { mutableStateOf(false) }
+    var showPaletteBottomSheet by remember { mutableStateOf(false) }
     var selectedFontStyle by remember { mutableStateOf("Default") }
     var selectedFontSize by remember { mutableStateOf(16.sp) }
     var selectedColor by remember { mutableStateOf(Color.Black) }
+    var selectedColorPalette by remember { mutableStateOf(mygreen) }
     var selectedEmoji by remember { mutableStateOf("") }
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var searchText by  remember { mutableStateOf("") }
+    var isShrink by remember {
+        mutableStateOf(false)
+    }
+    var contentList by remember {
+        mutableStateOf(
+            mutableListOf<Pair<String, ByteArray>>(
+                Pair("text", stringToByteArray(""))
+            )
+        )
+    }
 
 
     if (openDialog) {
@@ -189,7 +220,10 @@ fun AddDiaryScreen(
         modifier = modifier,
         topBar = {
             CenterAlignedTopAppBar(
-                modifier = Modifier.padding(end = 20.dp),
+                modifier = Modifier.background(selectedColorPalette),
+                colors = TopAppBarDefaults.topAppBarColors().copy(
+                    containerColor = selectedColorPalette
+                ),
                 navigationIcon = {
 
                     IconButton(
@@ -212,7 +246,8 @@ fun AddDiaryScreen(
                 },
                 actions = {
                     Row(
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(end = 16.dp)
                     ) {
 //                        IconButton(
 //                            onClick = {
@@ -232,13 +267,14 @@ fun AddDiaryScreen(
                                     title = title,
                                     content = content,
                                     mood = mood,
-                                    imageIdList = listOf("image1", "image2"),
-                                    logo = logo, // Thay thế R.drawable.logo bằng resource id thích hợp
+                                    contentList = contentList.toList(),
+                                    logo = logo,
                                     createdAt = datetime,
                                     diaryStyle = DiaryStyle(
                                         fontStyle = selectedFontStyle,
                                         color = selectedColor,
-                                        fontSize = selectedFontSize
+                                        fontSize = selectedFontSize,
+                                        colorPalette = selectedColorPalette
                                     )
                                 )
                                 diaryViewModel.addDiary(newDiary)
@@ -261,76 +297,102 @@ fun AddDiaryScreen(
                     showFontBottomSheet = true
                 },
                 onPaletteClick = {
-
+                    showPaletteBottomSheet = true
                 },
                 onIconClick = {
                     showIconBottomSheet = true
                 },
                 onImageClick = {
-
+                    showImageBottomSheet = true
                 }
             )
         }
     ) { paddingValue ->
-        Column(
+        LazyColumn(
             modifier = modifier
-                .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValue)
-        ) {
-            DateDetailInDiaryWithSelection(
-                date = datetime.format(formatter),
-                time = datetime.format(timeFormatter),
-                thu = DayOfWeekConverter.convertToThu(datetime.dayOfWeek.toString()),
-                logo,
-                onPickEmoteClick = {
-                    showBottomSheet = !showBottomSheet
-                },
-                onDateTimePickerClick = {
-                    openDialog = true
-                },
-                enabled = true
-            )
-            BorderlessTextField(
-                value = title,
-                placeholder = "Title",
-                onValueChange = {
-                    title = it
-                },
-                enable = true,
-                textStyle = TextStyle(
-                    fontFamily = when (selectedFontStyle) {
-                        "Serif" -> FontFamily.Serif
-                        "Sans-serif" -> FontFamily.SansSerif
-                        "Monospace" -> FontFamily.Monospace
-                        "Cursive" -> FontFamily.Cursive
-                        "Fantasy" -> FontFamily.Default
-                        else -> FontFamily.Default
-                    },
-                    fontSize = selectedFontSize.value.sp + 10.sp,
-                    color = selectedColor
-                )
-            )
+                .fillMaxSize()
+                .background(selectedColorPalette),
+            contentPadding = paddingValue
 
-            DiaryTextField(
-                value = content,
-                placeholder = "Start to write now ...",
-                onValueChange = {
-                    content = it
-                },
-                enable = true,
-                textStyle = TextStyle(
-                    fontFamily = when (selectedFontStyle) {
-                        "Serif" -> FontFamily.Serif
-                        "Sans-serif" -> FontFamily.SansSerif
-                        "Monospace" -> FontFamily.Monospace
-                        "Cursive" -> FontFamily.Cursive
-                        "Fantasy" -> FontFamily.Default
-                        else -> FontFamily.Default
+        ) {
+            item {
+                DateDetailInDiaryWithSelection(
+                    date = datetime.format(formatter),
+                    time = datetime.format(timeFormatter),
+                    thu = DayOfWeekConverter.convertToThu(datetime.dayOfWeek.toString()),
+                    logo,
+                    onPickEmoteClick = {
+                        showBottomSheet = !showBottomSheet
                     },
-                    fontSize = selectedFontSize,
-                    color = selectedColor
+                    onDateTimePickerClick = {
+                        openDialog = true
+                    },
+                    enabled = true
                 )
-            )
+            }
+
+            item {
+                BorderlessTextField(
+                    value = title,
+                    placeholder = "Title",
+                    onValueChange = {
+                        title = it
+                    },
+                    enable = true,
+                    textStyle = TextStyle(
+                        fontFamily = when (selectedFontStyle) {
+                            "Serif" -> FontFamily.Serif
+                            "Sans-serif" -> FontFamily.SansSerif
+                            "Monospace" -> FontFamily.Monospace
+                            "Cursive" -> FontFamily.Cursive
+                            "Fantasy" -> FontFamily.Default
+                            else -> FontFamily.Default
+                        },
+                        fontSize = selectedFontSize.value.sp + 10.sp,
+                        color = selectedColor
+                    )
+                )
+            }
+
+            itemsIndexed(contentList) { index, (type, value) ->
+                if (type == "text") {
+                    DiaryTextField(
+                        value = byteArrayToString(value),
+                        placeholder = "Start to write now ...",
+                        onValueChange = {
+                            val updatedContentList = contentList.toMutableList()
+                            updatedContentList[index] = "text" to stringToByteArray(it)
+                            contentList = updatedContentList
+                        },
+                        enable = true,
+                        textStyle = TextStyle(
+                            fontFamily = when (selectedFontStyle) {
+                                "Serif" -> FontFamily.Serif
+                                "Sans-serif" -> FontFamily.SansSerif
+                                "Monospace" -> FontFamily.Monospace
+                                "Cursive" -> FontFamily.Cursive
+                                "Fantasy" -> FontFamily.Default
+                                else -> FontFamily.Default
+                            },
+                            fontSize = selectedFontSize,
+                            color = selectedColor
+                        )
+                    )
+                } else {
+                    ImageContentWrapper(
+                        imageByteArray = value,
+                        onDeleteClick = {
+                            val updatedContentList = contentList.toMutableList()
+                            updatedContentList.removeAt(index)
+                            contentList = updatedContentList
+                        },
+                        onShrinkClick = {
+                            isShrink = !isShrink
+                        }, isShrink = isShrink
+                    )
+                }
+            }
+
 
         }
 
@@ -535,12 +597,54 @@ fun AddDiaryScreen(
                     onEmojiClick = { emoji ->
                         showIconBottomSheet = false
                         selectedEmoji = emoji.character
-                        content += selectedEmoji
+                        val updatedContentList = contentList.toMutableList()
+                        val currentText = byteArrayToString(updatedContentList[contentList.size - 1].second) + selectedEmoji
+                        updatedContentList[contentList.size - 1] = "text" to stringToByteArray(currentText)
+                        contentList = updatedContentList
                     },
                     searchText = searchText,
                     updateSearchText = { updatedSearchText ->
                         searchText = updatedSearchText
                     },
+                )
+            }
+        }
+
+        if (showPaletteBottomSheet) {
+            ModalBottomSheet(
+                onDismissRequest = {
+                    showPaletteBottomSheet = false
+                },
+                containerColor = Color.White
+
+            ) {
+                PaletteSelection(
+                    color = selectedColorPalette,
+                    onColorChange = {
+                        selectedColorPalette = it
+                    }
+                )
+            }
+        }
+
+        if (showImageBottomSheet) {
+            ModalBottomSheet(
+                onDismissRequest = {
+                    showImageBottomSheet = !showImageBottomSheet
+                }
+            ) {
+                ImageSelection(
+                    selectedImageUri = selectedImageUri,
+                    onImageSelected = { uri ->
+                        selectedImageUri = uri
+                        val pair: Pair<String, ByteArray> = Pair("image", context.contentResolver.openInputStream(
+                            selectedImageUri!!
+                        )?.readBytes()!!)
+                        contentList.add(pair)
+                        val temp: Pair<String, ByteArray> = Pair("text", stringToByteArray(""))
+                        contentList.add(temp)
+                        showImageBottomSheet = !showImageBottomSheet
+                    }
                 )
             }
         }
@@ -590,7 +694,14 @@ fun EditDiaryScreen(
     var content by remember { mutableStateOf(diary?.content ?: "") }
 
     val diaryStyle = diary!!.diaryStyle
-
+    var isShrink by remember {
+        mutableStateOf(false)
+    }
+    var contentList by remember {
+        mutableStateOf(
+            diary!!.contentList
+        )
+    }
     if (openDialog) {
         DatePickerDialog(
             onDismissRequest = {
@@ -646,7 +757,10 @@ fun EditDiaryScreen(
         modifier = modifier,
         topBar = {
             CenterAlignedTopAppBar(
-                modifier = Modifier.padding(end = 20.dp),
+                modifier = Modifier,
+                colors = TopAppBarDefaults.topAppBarColors().copy(
+                    containerColor = diaryStyle.colorPalette
+                ),
                 navigationIcon = {
 
                     IconButton(
@@ -669,6 +783,7 @@ fun EditDiaryScreen(
                 },
                 actions = {
                     Row(
+                        modifier = Modifier.padding(end = 20.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Spacer(modifier = Modifier.width(5.dp))
@@ -680,7 +795,7 @@ fun EditDiaryScreen(
                                         title = title,
                                         content = content,
                                         mood = mood,
-                                        imageIdList = listOf("image1", "image2"),
+                                        contentList = contentList,
                                         logo = logo, // Thay thế R.drawable.logo bằng resource id thích hợp
                                         createdAt = datetime,
                                         diaryStyle = it.diaryStyle
@@ -703,66 +818,91 @@ fun EditDiaryScreen(
         },
 
         ) { paddingValue ->
-        Column(
+        LazyColumn(
             modifier = modifier
-                .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValue)
+                .fillMaxSize()
+                .background(diaryStyle.colorPalette),
+            contentPadding = paddingValue
         ) {
             diary?.let {
-                DateDetailInDiaryWithSelection(
-                    date = it.createdAt.format(formatter),
-                    time = it.createdAt.format(timeFormatter),
-                    thu = DayOfWeekConverter.convertToThu(it.createdAt.dayOfWeek.toString()),
-                    logo,
-                    onPickEmoteClick = {
-                        showBottomSheet = !showBottomSheet
-                    },
-                    onDateTimePickerClick = {
-                        openDialog = true
-                    },
-                    enabled = true
-                )
-                BorderlessTextField(
-                    value = title,
-                    placeholder = "Title",
-                    onValueChange = {
-                        title = it
-                    },
-                    enable = true,
-                    textStyle = TextStyle(
-                        fontFamily = when (diaryStyle.fontStyle) {
-                            "Serif" -> FontFamily.Serif
-                            "Sans-serif" -> FontFamily.SansSerif
-                            "Monospace" -> FontFamily.Monospace
-                            "Cursive" -> FontFamily.Cursive
-                            "Fantasy" -> FontFamily.Default
-                            else -> FontFamily.Default
-                        },
-                        color = diaryStyle.color,
-                        fontSize = diaryStyle.fontSize.plus(10.sp)
-                    )
-                )
 
-                DiaryTextField(
-                    value = content,
-                    placeholder = "Start to write now ...",
-                    onValueChange = {
-                        content = it
-                    },
-                    enable = true,
-                    textStyle = TextStyle(
-                        fontFamily = when (diaryStyle.fontStyle) {
-                            "Serif" -> FontFamily.Serif
-                            "Sans-serif" -> FontFamily.SansSerif
-                            "Monospace" -> FontFamily.Monospace
-                            "Cursive" -> FontFamily.Cursive
-                            "Fantasy" -> FontFamily.Default
-                            else -> FontFamily.Default
+                item {
+                    DateDetailInDiaryWithSelection(
+                        date = it.createdAt.format(formatter),
+                        time = it.createdAt.format(timeFormatter),
+                        thu = DayOfWeekConverter.convertToThu(it.createdAt.dayOfWeek.toString()),
+                        logo,
+                        onPickEmoteClick = {
+                            showBottomSheet = !showBottomSheet
                         },
-                        color = diaryStyle.color,
-                        fontSize = diaryStyle.fontSize
+                        onDateTimePickerClick = {
+                            openDialog = true
+                        },
+                        enabled = true
                     )
-                )
+                }
+                item {
+                    BorderlessTextField(
+                        value = title,
+                        placeholder = "Title",
+                        onValueChange = {
+                            title = it
+                        },
+                        enable = true,
+                        textStyle = TextStyle(
+                            fontFamily = when (diaryStyle.fontStyle) {
+                                "Serif" -> FontFamily.Serif
+                                "Sans-serif" -> FontFamily.SansSerif
+                                "Monospace" -> FontFamily.Monospace
+                                "Cursive" -> FontFamily.Cursive
+                                "Fantasy" -> FontFamily.Default
+                                else -> FontFamily.Default
+                            },
+                            color = diaryStyle.color,
+                            fontSize = diaryStyle.fontSize.plus(10.sp)
+                        )
+                    )
+                }
+                itemsIndexed(contentList) { index, (type, value) ->
+                    if (type == "text") {
+                        DiaryTextField(
+                            value = value.toString(),
+                            placeholder = "Start to write now ...",
+                            onValueChange = {
+                                val updatedContentList = contentList.toMutableList()
+                                updatedContentList[index] = "text" to stringToByteArray(it)
+                                contentList = updatedContentList
+                            },
+                            enable = true,
+                            textStyle = TextStyle(
+                                fontFamily = when (diaryStyle.fontStyle) {
+                                    "Serif" -> FontFamily.Serif
+                                    "Sans-serif" -> FontFamily.SansSerif
+                                    "Monospace" -> FontFamily.Monospace
+                                    "Cursive" -> FontFamily.Cursive
+                                    "Fantasy" -> FontFamily.Default
+                                    else -> FontFamily.Default
+                                },
+                                color = diaryStyle.color,
+                                fontSize = diaryStyle.fontSize
+                            )
+                        )
+                    } else {
+
+                        ImageContentWrapper(
+                            imageByteArray = value,
+                            onDeleteClick = {
+                                val updatedContentList = contentList.toMutableList()
+                                updatedContentList.removeAt(index)
+                                contentList = updatedContentList
+                            },
+                            onShrinkClick = {
+                                isShrink = !isShrink
+                            }, isShrink = isShrink
+                        )
+                    }
+                }
+
             }
         }
 
@@ -1044,14 +1184,88 @@ fun DiaryTextField(
             disabledIndicatorColor = Color.Transparent
         ),
         textStyle = textStyle,
-        modifier = modifier.fillMaxWidth().border(
-            width = 0.dp,
-            color = Color.Transparent,
-            shape = RoundedCornerShape(0.dp)
-        ),
+        modifier = modifier.fillMaxWidth(),
         enabled = enable
     )
 }
+
+
+@Composable
+fun ImageContentWrapper(
+    modifier: Modifier = Modifier,
+    imageByteArray: ByteArray,
+    isShrink: Boolean = false,
+    onDeleteClick: () -> Unit,
+    onShrinkClick: () -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val bitmap = BitmapFactory.decodeByteArray(
+        imageByteArray, 0, imageByteArray.size
+    )
+    bitmap.asImageBitmap()
+    Card(
+        modifier = if (!isShrink) {
+            modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        } else {
+            modifier
+                .padding(16.dp)
+                .size(200.dp)
+        },
+        shape = RoundedCornerShape(20.dp)
+    ) {
+        Box(
+            modifier = Modifier.aspectRatio(1.0f)
+                .fillMaxWidth()
+        ) {
+            Image(
+                bitmap = bitmap.asImageBitmap(),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxSize()
+            )
+
+            Column(
+                modifier = Modifier.align(Alignment.TopEnd)
+            ) {
+                IconButton(
+                    onClick = { expanded = true },
+                    modifier = Modifier
+                        .clip(shape = RoundedCornerShape(50))
+                        .background(Color.LightGray)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = null
+                    )
+                }
+
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier
+                        .padding(end = 8.dp)
+                ) {
+                    DropdownMenuItem(onClick = {
+                        expanded = false
+                        onDeleteClick()
+                    }) {
+                        Text(text = "Delete")
+                    }
+                    DropdownMenuItem(onClick = {
+                        expanded = false
+                        onShrinkClick()
+                    }) {
+                        Text(text = if (!isShrink) "Shrink" else "Expand")
+                    }
+                }
+            }
+        }
+    }
+}
+
 
 @Composable
 fun TimePickerDialog(

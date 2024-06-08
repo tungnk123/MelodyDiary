@@ -73,9 +73,11 @@ import com.uit.melodydiary.ui.components.SimpleCalendarTitle
 import com.uit.melodydiary.ui.theme.MelodyDiaryTheme
 import com.uit.melodydiary.ui.theme.mygreen
 import com.uit.melodydiary.utils.DayOfWeekConverter
+import com.uit.melodydiary.utils.byteArrayToString
 import com.uit.melodydiary.utils.hasDiaryOnDay
 import com.uit.melodydiary.utils.plus
 import com.uit.melodydiary.utils.rememberFirstMostVisibleMonth
+import com.uit.melodydiary.utils.stringToByteArray
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.YearMonth
@@ -347,7 +349,7 @@ fun DiaryItem(
             2.dp
         ),
         colors = CardDefaults.cardColors(
-            containerColor = mygreen,
+            containerColor = diaryStyle.colorPalette,
         ),
         onClick = onItemClick
     ) {
@@ -361,7 +363,7 @@ fun DiaryItem(
                 statusLogoRes = item.logo
             )
             Text(
-                text = item.title,
+                text = if (!item.title.isNullOrEmpty()) item.title else "Title",
                 style = TextStyle(
                     fontFamily = when (diaryStyle.fontStyle) {
                         "Serif" -> FontFamily.Serif
@@ -375,8 +377,10 @@ fun DiaryItem(
                     fontSize = diaryStyle.fontSize.value.sp + 10.sp
                 ),
             )
+            val textItem = item.contentList.firstOrNull { it.first == "text" }
+            val textContent: ByteArray = textItem?.second ?: stringToByteArray("")
             Text(
-                text = item.content,
+                text = byteArrayToString(textContent),
                 style = TextStyle(
                     fontFamily = when (diaryStyle.fontStyle) {
                         "Serif" -> FontFamily.Serif

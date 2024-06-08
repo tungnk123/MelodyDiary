@@ -1,6 +1,10 @@
 package com.uit.melodydiary.ui.components
 
+import android.net.Uri
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,12 +19,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,8 +43,17 @@ import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.makeappssimple.abhimanyu.composeemojipicker.ComposeEmojiPickerBottomSheetUI
 import com.makeappssimple.abhimanyu.composeemojipicker.ComposeEmojiPickerEmojiUI
+import com.uit.melodydiary.ui.theme.mauDa1
+import com.uit.melodydiary.ui.theme.mauDa2
+import com.uit.melodydiary.ui.theme.mauDa3
+import com.uit.melodydiary.ui.theme.mauDa4
+import com.uit.melodydiary.ui.theme.mauDa5
+import com.uit.melodydiary.ui.theme.mauDa6
+import com.uit.melodydiary.ui.theme.mauDa7
+import com.uit.melodydiary.ui.theme.mygreen
 
 @Composable
 fun FontSelectionContent(
@@ -141,72 +157,84 @@ fun FontSelectionContent(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ComposeEmojiPickerDemo() {
-    val context = LocalContext.current
-    val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true,
-    )
+fun PaletteSelection(
+    color: Color,
+    onColorChange: (Color) -> Unit
+) {
 
-    var isModalBottomSheetVisible by remember {
-        mutableStateOf(false)
-    }
-    var selectedEmoji by remember {
-        mutableStateOf("😃")
-    }
-    var searchText by remember {
-        mutableStateOf("")
-    }
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .background(Color.White),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Select Color ",
+            style = MaterialTheme.typography.titleLarge
+        )
+        val colors = listOf(mauDa1, mauDa2, mauDa3, mauDa4, mygreen, mauDa5, mauDa6, mauDa7)
 
-    if (isModalBottomSheetVisible) {
-        ModalBottomSheet(
-            sheetState = sheetState,
-            shape = RectangleShape,
-            tonalElevation = 0.dp,
-            onDismissRequest = {
-                isModalBottomSheetVisible = false
-                searchText = ""
-            },
-            dragHandle = null,
+        LazyRow(
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize(),
-            ) {
-                ComposeEmojiPickerBottomSheetUI(
-                    onEmojiClick = { emoji ->
-                        isModalBottomSheetVisible = false
-                        selectedEmoji = emoji.character
-                    },
-                    onEmojiLongClick = { emoji ->
-                        Toast.makeText(
-                            context,
-                            emoji.unicodeName.toUpperCase(),
-                            Toast.LENGTH_SHORT,
-                        ).show()
-                    },
-                    searchText = searchText,
-                    updateSearchText = { updatedSearchText ->
-                        searchText = updatedSearchText
-                    },
+            items(colors) { color ->
+                Box(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .size(40.dp)
+                        .background(color, shape = RoundedCornerShape(20.dp))
+                        .clickable {
+                            onColorChange(color)
+                        }
                 )
             }
         }
+        Spacer(modifier = Modifier.height(30.dp))
     }
 
-//    Box(
-//        contentAlignment = Alignment.Center,
-//        modifier = Modifier
-//            .fillMaxSize()
-//            .padding(16.dp),
-//    ) {
-//        ComposeEmojiPickerEmojiUI(
-//            emojiCharacter = selectedEmoji,
-//            onClick = {
-//                isModalBottomSheetVisible = true
-//            },
-//            fontSize = 56.sp,
-//        )
-//    }
 }
+
+
+@Composable
+fun ImageSelection(
+    selectedImageUri: Uri?,
+    onImageSelected: (Uri) -> Unit
+) {
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = {
+            it?.let { uri -> onImageSelected(uri) }
+        }
+    )
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Choose image from your library",
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(16.dp)
+        )
+
+        Button(
+            onClick = {
+                photoPickerLauncher.launch(
+                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                )
+            },
+            colors = ButtonDefaults.buttonColors(
+                contentColor = Color.White,
+            )
+        ) {
+            Text("Browse image", color = Color.White)
+        }
+
+        Spacer(modifier = Modifier.height(50.dp))
+
+    }
+}
+
+

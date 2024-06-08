@@ -7,4 +7,12 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="mau_da_1">#fbf2d5</color>
+    <color name="mau_da_2">#fce6ce</color>
+    <color name="mau_da_3">#c0ecc8</color>
+    <color name="mau_da_4">#cddeb2</color>
+    <color name="mau_da_5">#daf7f5</color>
+    <color name="mau_da_6">#ebe2fd</color>
+    <color name="mau_da_7">#ebe2fd</color>
+
 </resources>

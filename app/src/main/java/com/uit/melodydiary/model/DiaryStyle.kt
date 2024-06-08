@@ -9,5 +9,6 @@ import androidx.compose.ui.unit.TextUnit
 data class DiaryStyle(
     val fontSize: TextUnit,
     val fontStyle: String,
-    val color: Color
+    val color: Color,
+    val colorPalette: Color
 )
