@@ -43,10 +43,7 @@ class MusicViewModel(
         createdAt = LocalDateTime.now(),
         logo = R.drawable.ic_face,
         mood = "fun",
-        contentList = listOf(
-
-
-        )
+        contentFilePath = ""
     )
     suspend fun fetchMusic(lyric: String): String {
         try {

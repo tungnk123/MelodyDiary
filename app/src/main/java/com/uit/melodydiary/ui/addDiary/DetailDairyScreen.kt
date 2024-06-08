@@ -83,6 +83,7 @@ import com.uit.melodydiary.ui.music.MusicViewModel
 import com.uit.melodydiary.ui.theme.MelodyDiaryTheme
 import com.uit.melodydiary.utils.DayOfWeekConverter
 import com.uit.melodydiary.utils.byteArrayToString
+import com.uit.melodydiary.utils.loadContentListFromFile
 import com.uit.melodydiary.utils.plus
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.JsonNull.content
@@ -238,7 +239,7 @@ fun DetailDiaryScreen(
                     )
                 }
 
-                itemsIndexed(it.contentList) {index, (type, value) ->
+                itemsIndexed(loadContentListFromFile(it.contentFilePath)) { index, (type, value) ->
                     if (type == "text") {
                         DiaryTextField(
                             value = byteArrayToString(value),

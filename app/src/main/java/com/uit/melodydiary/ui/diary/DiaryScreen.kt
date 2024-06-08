@@ -75,6 +75,7 @@ import com.uit.melodydiary.ui.theme.mygreen
 import com.uit.melodydiary.utils.DayOfWeekConverter
 import com.uit.melodydiary.utils.byteArrayToString
 import com.uit.melodydiary.utils.hasDiaryOnDay
+import com.uit.melodydiary.utils.loadContentListFromFile
 import com.uit.melodydiary.utils.plus
 import com.uit.melodydiary.utils.rememberFirstMostVisibleMonth
 import com.uit.melodydiary.utils.stringToByteArray
@@ -377,7 +378,7 @@ fun DiaryItem(
                     fontSize = diaryStyle.fontSize.value.sp + 10.sp
                 ),
             )
-            val textItem = item.contentList.firstOrNull { it.first == "text" }
+            val textItem = loadContentListFromFile(item.contentFilePath).firstOrNull { it.first == "text" }
             val textContent: ByteArray = textItem?.second ?: stringToByteArray("")
             Text(
                 text = byteArrayToString(textContent),

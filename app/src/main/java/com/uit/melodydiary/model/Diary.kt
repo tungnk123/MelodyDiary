@@ -16,8 +16,7 @@ data class Diary(
     var title: String,
     var content: String,
     val mood: String,
-    @ColumnInfo(typeAffinity = ColumnInfo.BLOB)
-    var contentList: List<Pair<String, ByteArray>> = emptyList(),
+    var contentFilePath: String,
     @DrawableRes val logo: Int,
     @ColumnInfo(name = "created_at") val createdAt: LocalDateTime,
     val diaryStyle: DiaryStyle = DiaryStyle(

@@ -1,8 +1,10 @@
 package com.uit.melodydiary.data
 
+import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.uit.melodydiary.model.Diary
+import com.uit.melodydiary.utils.saveContentListToFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
@@ -41,7 +43,6 @@ class LocalDiaryDataSource(
         withContext(Dispatchers.IO) {
             diaryDao.insertDiary(diary)
         }
-
     }
 
 }

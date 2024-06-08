@@ -97,7 +97,9 @@ import com.uit.melodydiary.ui.theme.MelodyDiaryTheme
 import com.uit.melodydiary.ui.theme.mygreen
 import com.uit.melodydiary.utils.DayOfWeekConverter
 import com.uit.melodydiary.utils.byteArrayToString
+import com.uit.melodydiary.utils.loadContentListFromFile
 import com.uit.melodydiary.utils.plus
+import com.uit.melodydiary.utils.saveContentListToFile
 import com.uit.melodydiary.utils.stringToByteArray
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -267,7 +269,6 @@ fun AddDiaryScreen(
                                     title = title,
                                     content = content,
                                     mood = mood,
-                                    contentList = contentList.toList(),
                                     logo = logo,
                                     createdAt = datetime,
                                     diaryStyle = DiaryStyle(
@@ -275,7 +276,8 @@ fun AddDiaryScreen(
                                         color = selectedColor,
                                         fontSize = selectedFontSize,
                                         colorPalette = selectedColorPalette
-                                    )
+                                    ),
+                                    contentFilePath = saveContentListToFile(context, contentList)
                                 )
                                 diaryViewModel.addDiary(newDiary)
                                 navController.navigate(MelodyDiaryApp.DiaryScreen.name)
@@ -699,7 +701,7 @@ fun EditDiaryScreen(
     }
     var contentList by remember {
         mutableStateOf(
-            diary!!.contentList
+            loadContentListFromFile(diary!!.contentFilePath)
         )
     }
     if (openDialog) {
@@ -795,10 +797,10 @@ fun EditDiaryScreen(
                                         title = title,
                                         content = content,
                                         mood = mood,
-                                        contentList = contentList,
                                         logo = logo, // Thay thế R.drawable.logo bằng resource id thích hợp
                                         createdAt = datetime,
-                                        diaryStyle = it.diaryStyle
+                                        diaryStyle = it.diaryStyle,
+                                        contentFilePath = saveContentListToFile(context, contentList)
 
                                     )
                                 }
@@ -866,7 +868,7 @@ fun EditDiaryScreen(
                 itemsIndexed(contentList) { index, (type, value) ->
                     if (type == "text") {
                         DiaryTextField(
-                            value = value.toString(),
+                            value = byteArrayToString(value),
                             placeholder = "Start to write now ...",
                             onValueChange = {
                                 val updatedContentList = contentList.toMutableList()
