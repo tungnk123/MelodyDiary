@@ -5,6 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.uit.melodydiary.model.Album
 import com.uit.melodydiary.model.Diary
 import com.uit.melodydiary.model.MusicSmall
@@ -13,7 +14,7 @@ import kotlinx.coroutines.CoroutineScope
 
 @Database(entities = [Diary::class, Album::class, MusicSmall::class], version = 1)
 @TypeConverters(Converters::class)
-abstract class DiaryRoomDatabase: RoomDatabase() {
+abstract class DiaryRoomDatabase : RoomDatabase() {
     abstract fun diaryDao(): DiaryDao
 
     companion object {
@@ -23,22 +24,35 @@ abstract class DiaryRoomDatabase: RoomDatabase() {
         fun getDatabase(
             context: Context,
             scope: CoroutineScope
-        ) : DiaryRoomDatabase {
+        ): DiaryRoomDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     DiaryRoomDatabase::class.java,
-                    "dairy_database"
+                    "diary_database"
                 )
-                    // Wipes and rebuilds instead of migrating if no Migration object.
-                    // Migration is not part of this codelab.
                     .fallbackToDestructiveMigration()
-//                    .addCallback(WordDatabaseCallback(scope))
+                    .addCallback(DiaryDatabaseCallback(scope))
                     .build()
                 INSTANCE = instance
-                // return instance
                 instance
             }
+        }
+    }
+
+    private class DiaryDatabaseCallback(
+        private val scope: CoroutineScope
+    ) : RoomDatabase.Callback() {
+
+        override fun onCreate(db: SupportSQLiteDatabase) {
+            super.onCreate(db)
+            db.execSQL("PRAGMA page_size = 65536;")
+            db.execSQL("PRAGMA cache_size = 5000;")
+        }
+
+        override fun onOpen(db: SupportSQLiteDatabase) {
+            super.onOpen(db)
+            db.execSQL("PRAGMA cache_size = 5000;")
         }
     }
 }

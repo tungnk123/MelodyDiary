@@ -14,13 +14,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
@@ -45,6 +48,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberTimePickerState
@@ -62,8 +66,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -75,6 +82,9 @@ import com.uit.melodydiary.ui.diary.DiaryViewModel
 import com.uit.melodydiary.ui.music.MusicViewModel
 import com.uit.melodydiary.ui.theme.MelodyDiaryTheme
 import com.uit.melodydiary.utils.DayOfWeekConverter
+import com.uit.melodydiary.utils.byteArrayToString
+import com.uit.melodydiary.utils.loadContentListFromFile
+import com.uit.melodydiary.utils.plus
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.JsonNull.content
 import java.time.Instant
@@ -105,12 +115,13 @@ fun DetailDiaryScreen(
     var openDialog by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
     val context = LocalContext.current
-
+    val diaryStyle = diary?.diaryStyle
+    var isShrink by remember { mutableStateOf(false) }
     Scaffold(
         modifier = modifier,
         topBar = {
             CenterAlignedTopAppBar(
-                modifier = Modifier.padding(end = 20.dp),
+                modifier = Modifier,
                 navigationIcon = {
                     IconButton(
                         onClick = {
@@ -131,6 +142,7 @@ fun DetailDiaryScreen(
                 },
                 actions = {
                     Row(
+                        modifier = Modifier.padding(end = 20.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         IconButton(
@@ -181,37 +193,86 @@ fun DetailDiaryScreen(
             )
         },
     ) { paddingValue ->
-        Column(
-            modifier = modifier
-                .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValue)
-        ) {
-            diary?.let {
-                DateDetailInDiaryWithSelection(
-                    date = it.createdAt.format(formatter),
-                    time = it.createdAt.format(timeFormatter),
-                    thu = DayOfWeekConverter.convertToThu(it.createdAt.dayOfWeek.toString()),
-                    it.logo,
-                    onPickEmoteClick = {
-                        showBottomSheet = !showBottomSheet
-                    },
-                    onDateTimePickerClick = {
-                        openDialog = true
-                    },
-                    enabled = false
-                )
-                BorderlessTextField(
-                    value = it.title,
-                    placeholder = "Title",
-                    onValueChange = {},
-                    enable = false
-                )
-                DiaryTextField(
-                    value = it.content,
-                    placeholder = "Start to write now ...",
-                    onValueChange = {},
-                    enable = false
-                )
+        diary?.let {
+            val diaryStyle = diary!!.diaryStyle
+            LazyColumn(
+                modifier = modifier
+                    .fillMaxSize()
+                    .background(diaryStyle.colorPalette),
+                contentPadding = paddingValue
+
+            ) {
+
+                item {
+                    DateDetailInDiaryWithSelection(
+                        date = it.createdAt.format(formatter),
+                        time = it.createdAt.format(timeFormatter),
+                        thu = DayOfWeekConverter.convertToThu(it.createdAt.dayOfWeek.toString()),
+                        it.logo,
+                        onPickEmoteClick = {
+                            showBottomSheet = !showBottomSheet
+                        },
+                        onDateTimePickerClick = {
+                            openDialog = true
+                        },
+                        enabled = false
+                    )
+                }
+                item {
+                    BorderlessTextField(
+                        value = it.title,
+                        placeholder = "Title",
+                        onValueChange = {},
+                        enable = false,
+                        textStyle = TextStyle(
+                            fontFamily = when (diaryStyle.fontStyle) {
+                                "Serif" -> FontFamily.Serif
+                                "Sans-serif" -> FontFamily.SansSerif
+                                "Monospace" -> FontFamily.Monospace
+                                "Cursive" -> FontFamily.Cursive
+                                "Fantasy" -> FontFamily.Default
+                                else -> FontFamily.Default
+                            },
+                            color = diaryStyle.color,
+                            fontSize = diaryStyle.fontSize.plus(10.sp   )
+                        )
+                    )
+                }
+
+                itemsIndexed(loadContentListFromFile(it.contentFilePath)) { index, (type, value) ->
+                    if (type == "text") {
+                        DiaryTextField(
+                            value = byteArrayToString(value),
+                            placeholder = "Start to write now ...",
+                            onValueChange = {},
+                            enable = false,
+                            textStyle = TextStyle(
+                                fontFamily = when (diaryStyle.fontStyle) {
+                                    "Serif" -> FontFamily.Serif
+                                    "Sans-serif" -> FontFamily.SansSerif
+                                    "Monospace" -> FontFamily.Monospace
+                                    "Cursive" -> FontFamily.Cursive
+                                    "Fantasy" -> FontFamily.Default
+                                    else -> FontFamily.Default
+                                },
+                                color = diaryStyle.color,
+                                fontSize = diaryStyle.fontSize
+                            )
+                        )
+                    }
+                    else {
+                        ImageContentWrapper(
+                            imageByteArray = value,
+                            onDeleteClick = {
+                                Toast.makeText(context,"Please go to Edit mode to delete", Toast.LENGTH_LONG).show()
+                            },
+                            onShrinkClick = {
+                                isShrink = !isShrink
+                            }
+                            , isShrink = isShrink
+                        )
+                    }
+                }
             }
         }
     }

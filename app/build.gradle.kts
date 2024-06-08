@@ -11,8 +11,8 @@ android {
         applicationId = "com.uit.melodydiary"
         minSdk = 26
         targetSdk = 34
-        versionCode = 8
-        versionName = "8.0.1"
+        versionCode = 9
+        versionName = "9.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -114,5 +114,10 @@ dependencies {
     implementation ("com.github.tehras:charts:0.2.4-alpha")
 
     implementation("androidx.core:core-splashscreen:1.0.1")
+
+    //icon
+    implementation ("com.github.Abhimanyu14:compose-emoji-picker:1.0.0-alpha16")
+    val emoji2_version = "1.4.0"
+    implementation("androidx.emoji2:emoji2:$emoji2_version")
 
 }

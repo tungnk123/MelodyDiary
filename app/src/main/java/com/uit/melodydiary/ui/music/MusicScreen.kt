@@ -577,8 +577,7 @@ fun PickDiary(
                 createdAt = LocalDateTime.now(),
                 logo = R.drawable.ic_face,
                 mood = "fun",
-                imageIdList = listOf()
-
+                contentFilePath = ""
             )
         )
     }
