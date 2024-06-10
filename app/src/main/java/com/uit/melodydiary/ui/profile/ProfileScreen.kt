@@ -1,6 +1,9 @@
 package com.uit.melodydiary.ui.profile
 
 
+import android.app.Activity
+import android.content.Context
+import android.content.res.Configuration
 import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
@@ -17,7 +20,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.icons.Icons
@@ -25,10 +30,15 @@ import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -40,7 +50,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.uit.melodydiary.R
+import com.uit.melodydiary.model.Language
 import com.uit.melodydiary.ui.theme.MelodyDiaryTheme
+import com.uit.melodydiary.utils.PreferenceUtils
+import java.util.Locale
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -140,6 +154,11 @@ fun AppSettingWrapper(
 
 ) {
     val context = LocalContext.current
+    var expanded by remember { mutableStateOf(false) }
+    val savedLanguage = PreferenceUtils.getLanguage(context)
+    var selectedLanguage by remember { mutableStateOf(Language.fromCode(savedLanguage)) }
+
+    var showDialog by remember { mutableStateOf(false) }
     Column(
         modifier = modifier.background(Color.White, shape = RoundedCornerShape(20.dp))
 
@@ -176,7 +195,7 @@ fun AppSettingWrapper(
             icon = R.drawable.ic_language,
             title = stringResource(R.string.title_language),
             onItemClick = {
-                Toast.makeText(context, "Feature is under construction", Toast.LENGTH_SHORT).show()
+                showDialog = true
             }
         )
         SettingItem(
@@ -186,6 +205,85 @@ fun AppSettingWrapper(
                 Toast.makeText(context, "Feature is under construction", Toast.LENGTH_SHORT).show()
             }
         )
+
+        LanguageSelectionDialog(
+            selectedLanguage, showDialog,
+            onDismissClick = {
+                showDialog = false
+            },
+            onLanguageSelected = { language ->
+                selectedLanguage = language
+                setLocale(context, language.code)
+                PreferenceUtils.saveLanguage(context, selectedLanguage.code)
+            }
+        )
+    }
+}
+
+@Composable
+fun LanguageSelectionDialog(
+    selectedLanguage: Language, showDialog: Boolean, onDismissClick: () -> Unit,
+    onLanguageSelected: (Language) -> Unit
+) {
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { onDismissClick() },
+            title = { Text(text = "Select Language") },
+            buttons = {
+                Row(
+                    modifier = Modifier.padding(8.dp),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    Button(
+                        onClick = { onDismissClick() },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Color.Gray)
+                    ) {
+                        Text(text = "Cancel")
+                    }
+                }
+            },
+            text = {
+                Column {
+                    Language.values().forEach { language ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .selectable(
+                                    selected = language == selectedLanguage,
+                                    onClick = {
+                                        onLanguageSelected(language)
+                                        onDismissClick()
+                                    }
+                                )
+                                .padding(horizontal = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            RadioButton(
+                                selected = language == selectedLanguage,
+                                onClick = {
+                                    onLanguageSelected(language)
+                                    onDismissClick()
+                                }
+                            )
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Text(text = language.displayName)
+                        }
+                    }
+                }
+            }
+        )
+    }
+}
+
+fun setLocale(context: Context, language: String) {
+    val locale = Locale(language)
+    Locale.setDefault(locale)
+    val config = Configuration(context.resources.configuration)
+    config.setLocale(locale)
+    context.resources.updateConfiguration(config, context.resources.displayMetrics)
+
+    if (context is Activity) {
+        context.recreate()
     }
 }
 

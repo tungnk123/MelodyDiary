@@ -1,10 +1,14 @@
 package com.uit.melodydiary
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
+import com.uit.melodydiary.ui.profile.setLocale
+import com.uit.melodydiary.utils.PreferenceUtils
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -14,6 +18,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val scope = rememberCoroutineScope()
+
             LaunchedEffect(Unit) {
                 scope.launch {
                     try {
@@ -23,9 +28,19 @@ class MainActivity : ComponentActivity() {
 
                     }
                 }
+                scope.launch {
+
+                }
             }
+
             MelodyDiaryApp()
         }
+    }
+
+    override fun attachBaseContext(newBase: Context?) {
+        super.attachBaseContext(newBase)
+        val savedLanguage = PreferenceUtils.getLanguage(this)
+        setLocale(newBase!!, savedLanguage)
     }
 }
 
