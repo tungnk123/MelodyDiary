@@ -3,7 +3,9 @@ package com.uit.melodydiary.ui.profile
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
+import android.net.Uri
 import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
@@ -49,6 +51,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat.startActivity
 import com.uit.melodydiary.R
 import com.uit.melodydiary.model.Language
 import com.uit.melodydiary.ui.theme.MelodyDiaryTheme
@@ -292,6 +295,7 @@ fun AppInformationWrapper(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://sites.google.com/view/melodydiary/trang-ch%E1%BB%A7"))
     Column(
         modifier = modifier.background(Color.White, shape = RoundedCornerShape(20.dp))
     ) {
@@ -299,21 +303,21 @@ fun AppInformationWrapper(
             icon = R.drawable.ic_faq,
             title = stringResource(R.string.title_faq),
             onItemClick = {
-                Toast.makeText(context, "Feature is under construction", Toast.LENGTH_SHORT).show()
+                context.startActivity(intent)
             }
         )
         SettingItem(
             icon = R.drawable.ic_terms_of_use,
             title = stringResource(R.string.title_terms_of_use),
             onItemClick = {
-                Toast.makeText(context, "Feature is under construction", Toast.LENGTH_SHORT).show()
+                context.startActivity(intent)
             }
         )
         SettingItem(
             icon = R.drawable.ic_privac_policy,
             title = stringResource(R.string.title_privacy_policy),
             onItemClick = {
-                Toast.makeText(context, "Feature is under construction", Toast.LENGTH_SHORT).show()
+                context.startActivity(intent)
             }
         )
         SettingItem(
