@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "442893282936",
+    "project_id": "melodydiary",
+    "storage_bucket": "melodydiary.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:442893282936:android:7be0e1632103e48e7d878d",
+        "android_client_info": {
+          "package_name": "com.uit.melodydiary"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "442893282936-h1v8amldj4mqem9lklan1moovt7l15pd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.uit.melodydiary",
+            "certificate_hash": "3a329d4b21b6bae849f1dbb733ca0147d84fae6e"
+          }
+        },
+        {
+          "client_id": "442893282936-u7fndhkscuam9k8n5uu5vf6bo7qf44c0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANem8sB3H9kXHGcfnMcVEIoD71ee-7eGc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "442893282936-u7fndhkscuam9k8n5uu5vf6bo7qf44c0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

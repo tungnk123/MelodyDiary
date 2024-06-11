@@ -48,6 +48,7 @@ import com.uit.melodydiary.ui.diary.DiaryScreen
 import com.uit.melodydiary.ui.diary.DiaryViewModel
 import com.uit.melodydiary.ui.music.MusicScreen
 import com.uit.melodydiary.ui.music.MusicViewModel
+import com.uit.melodydiary.ui.profile.BackupScreen
 import com.uit.melodydiary.ui.profile.ProfileScreen
 import com.uit.melodydiary.ui.report.ReportScreen
 import com.uit.melodydiary.ui.theme.MelodyDiaryTheme
@@ -60,7 +61,8 @@ enum class MelodyDiaryApp(@StringRes val title: Int) {
     ProfileScreen(title = R.string.profile_route),
     AddDiaryScreen(title = R.string.add_diary_route),
     DetailDiaryScreen(title = R.string.detail_diary_route),
-    EditDiaryScreen(title = R.string.edit_diary_route)
+    EditDiaryScreen(title = R.string.edit_diary_route),
+    BackUpScreen(title = R.string.backup_route)
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -162,7 +164,15 @@ fun MelodyDiaryApp(
                         )
                     }
                     composable(route = MelodyDiaryApp.ProfileScreen.name) {
-                        ProfileScreen()
+                        ProfileScreen(
+                            navController = navController
+                        )
+                    }
+
+                    composable(route = MelodyDiaryApp.BackUpScreen.name) {
+                        BackupScreen(
+                            navController = navController
+                        )
                     }
 
                 }

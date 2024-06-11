@@ -28,10 +28,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.uit.melodydiary" />
+                  <option name="mobileSdkAppId" value="1:442893282936:android:7be0e1632103e48e7d878d" />
+                  <option name="projectId" value="melodydiary" />
+                  <option name="projectNumber" value="442893282936" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

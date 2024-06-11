@@ -27,6 +27,7 @@
     <string name="add_diary_route">add_diary</string>
     <string name="detail_diary_route">detail_diary</string>
     <string name="edit_diary_route">edit_diary</string>
+    <string name="backup_route">backup</string>
 
     <string name="title_diary">My Dairy</string>
     <string name="title_music">My Music Studio</string>
@@ -86,5 +87,12 @@
     <string name="title_feedback">Feedback</string>
     <string name="title_rate_us">Rate us</string>
     <string name="title_footer">Version 1.0 @2024, CFF Inc</string>
+
+
+    <string name="title_backup_screen">Synchronize and Backup</string>
+    <string name="title_sync">Synchronize</string>
+    <string name="title_backup">Backup data on device</string>
+    <string name="title_import">Import data from device</string>
+    <string name="title_google_account">Google account</string>
 
 </resources>

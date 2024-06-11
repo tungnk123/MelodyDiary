@@ -52,6 +52,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
+import androidx.navigation.NavHostController
+import com.uit.melodydiary.MelodyDiaryApp
 import com.uit.melodydiary.R
 import com.uit.melodydiary.model.Language
 import com.uit.melodydiary.ui.theme.MelodyDiaryTheme
@@ -62,7 +64,8 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    navController: NavHostController
 ) {
     val context = LocalContext.current
     Scaffold(
@@ -88,7 +91,7 @@ fun ProfileScreen(
             item {
                 BackupWrapper(
                     onBackUpButtonClick = {
-                        Toast.makeText(context, "Feature is under construction", Toast.LENGTH_SHORT).show()
+                       navController.navigate(MelodyDiaryApp.BackUpScreen.name)
                     }
                 )
             }
@@ -140,7 +143,6 @@ fun BackupWrapper(
                     backgroundColor = MaterialTheme.colorScheme.primary
                 ),
                 shape = RoundedCornerShape(20.dp),
-                modifier = Modifier.alpha(0f)
             ) {
                 Text(
                     text = stringResource(R.string.btn_back_up),
@@ -371,10 +373,10 @@ fun SettingItem(
         )
     }
 }
-@Preview(showBackground = true)
-@Composable
-fun PreviewProfileScreen() {
-    MelodyDiaryTheme {
-        ProfileScreen()
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun PreviewProfileScreen() {
+//    MelodyDiaryTheme {
+//        ProfileScreen()
+//    }
+//}

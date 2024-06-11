@@ -27,6 +27,7 @@
     <string name="add_diary_route">add_diary</string>
     <string name="detail_diary_route">detail_diary</string>
     <string name="edit_diary_route">edit_diary</string>
+    <string name="backup_route">backup</string>
 
     <string name="title_diary">My Dairy</string>
     <string name="title_music">My Music Studio</string>
@@ -85,5 +86,12 @@
     <string name="title_feedback">Phản hồi</string>
     <string name="title_rate_us">Đánh giá chúng tôi</string>
     <string name="title_footer">Phiên bản 1.0 @2024, CFF Inc</string>
+
+
+    <string name="title_backup_screen">Đồng bộ hóa và sao lưu</string>
+    <string name="title_sync">Đồng bộ hóa</string>
+    <string name="title_backup">Sao lưu trên thiết bị</string>
+    <string name="title_import">Khôi phục ghi chú từ thiết bị</string>
+    <string name="title_google_account">Tài khoản Google</string>
 
 </resources>

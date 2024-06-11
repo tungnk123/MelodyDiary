@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     id("kotlin-kapt")
+    id("com.google.gms.google-services")
 }
 android {
     namespace = "com.uit.melodydiary"
@@ -11,8 +12,8 @@ android {
         applicationId = "com.uit.melodydiary"
         minSdk = 26
         targetSdk = 34
-        versionCode = 9
-        versionName = "9.0.2"
+        versionCode = 10
+        versionName = "1.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -66,6 +67,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.protolite.well.known.types)
+    implementation(libs.firebase.auth)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -119,5 +121,8 @@ dependencies {
     implementation ("com.github.Abhimanyu14:compose-emoji-picker:1.0.0-alpha16")
     val emoji2_version = "1.4.0"
     implementation("androidx.emoji2:emoji2:$emoji2_version")
+
+    // google sign in
+    implementation ("com.google.android.gms:play-services-auth:21.2.0")
 
 }
