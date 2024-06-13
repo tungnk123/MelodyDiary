@@ -1,3 +1,5 @@
+import com.android.build.api.dsl.Packaging
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
@@ -53,6 +55,11 @@ android {
         baseline = file("lint-baseline.xml")
     }
 
+    packaging {
+        resources {
+            excludes += "META-INF/DEPENDENCIES"
+        }
+    }
 }
 
 dependencies {
@@ -124,5 +131,23 @@ dependencies {
 
     // google sign in
     implementation ("com.google.android.gms:play-services-auth:21.2.0")
+
+    // drive
+    implementation ("com.google.api-client:google-api-client-android:1.33.2")
+    implementation ("com.google.api-client:google-api-client-gson:1.33.2")
+
+//    implementation("com.google.api-client:google-api-client-android:1.26.0") {
+//        exclude(group = "org.apache.httpcomponents")
+//        exclude(module = "guava-jdk5")
+//    }
+//
+    implementation("com.google.apis:google-api-services-drive:v3-rev136-1.25.0") {
+        exclude(group = "org.apache.httpcomponents")
+        exclude(module = "guava-jdk5")
+    }
+
+
+
+
 
 }
