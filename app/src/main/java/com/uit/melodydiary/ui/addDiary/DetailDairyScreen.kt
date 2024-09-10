@@ -215,6 +215,9 @@ fun DetailDiaryScreen(
                         onDateTimePickerClick = {
                             openDialog = true
                         },
+                        onMusicConfigurationClick = {
+
+                        },
                         enabled = false
                     )
                 }

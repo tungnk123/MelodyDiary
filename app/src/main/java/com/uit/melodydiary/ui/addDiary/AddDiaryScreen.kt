@@ -4,10 +4,8 @@ package com.uit.melodydiary.ui.addDiary
 import MusicHelper
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.os.Build
 import android.widget.Toast
 import androidx.annotation.DrawableRes
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -83,7 +81,6 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import coil.compose.AsyncImage
 import com.makeappssimple.abhimanyu.composeemojipicker.ComposeEmojiPickerBottomSheetUI
 import com.uit.melodydiary.MelodyDiaryApp
 import com.uit.melodydiary.R
@@ -93,6 +90,7 @@ import com.uit.melodydiary.ui.components.FontSelectionContent
 import com.uit.melodydiary.ui.components.ImageSelection
 import com.uit.melodydiary.ui.components.PaletteSelection
 import com.uit.melodydiary.ui.diary.DiaryViewModel
+import com.uit.melodydiary.ui.music.MusicConfigurationDialog
 import com.uit.melodydiary.ui.music.MusicViewModel
 import com.uit.melodydiary.ui.theme.MelodyDiaryTheme
 import com.uit.melodydiary.ui.theme.mygreen
@@ -108,7 +106,6 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun AddDiaryScreen(
@@ -149,6 +146,7 @@ fun AddDiaryScreen(
     var showIconBottomSheet by remember { mutableStateOf(false) }
     var showImageBottomSheet by remember { mutableStateOf(false) }
     var showPaletteBottomSheet by remember { mutableStateOf(false) }
+    var showMusicConfigurationDialog by remember { mutableStateOf(false) }
     var selectedFontStyle by remember { mutableStateOf("Default") }
     var selectedFontSize by remember { mutableStateOf(16.sp) }
     var selectedColor by remember { mutableStateOf(Color.Black) }
@@ -158,6 +156,12 @@ fun AddDiaryScreen(
     var searchText by  remember { mutableStateOf("") }
     var isShrink by remember {
         mutableStateOf(false)
+    }
+    var giaiDieuName by remember {
+        mutableStateOf("Giai điệu 1")
+    }
+    var sliderPosition by remember {
+        mutableStateOf(0f)
     }
     var contentList by remember {
         mutableStateOf(
@@ -329,6 +333,9 @@ fun AddDiaryScreen(
                     },
                     onDateTimePickerClick = {
                         openDialog = true
+                    },
+                    onMusicConfigurationClick = {
+                        showMusicConfigurationDialog = true
                     },
                     enabled = true
                 )
@@ -653,12 +660,33 @@ fun AddDiaryScreen(
                 )
             }
         }
+
+        if (showMusicConfigurationDialog) {
+            MusicConfigurationDialog(
+                onDismiss = {
+                    showMusicConfigurationDialog = !showMusicConfigurationDialog
+                },
+                sliderPosition = sliderPosition,
+                giaiDieuName = MusicHelper.currentMusicName,
+                onValueChange = { newValue ->
+                    sliderPosition = newValue
+                },
+                onPlayPauseClick = {
+                    MusicHelper.togglePlayback(MusicHelper.currentMusicName) { }
+                },
+                onPlayPreviousClick = {
+                    MusicHelper.previous {  }
+                },
+                onPlayNextClick = {
+                    MusicHelper.next {  }
+                }
+            )
+        }
     }
 }
 
 
 
-@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun EditDiaryScreen(
@@ -842,6 +870,9 @@ fun EditDiaryScreen(
                         },
                         onDateTimePickerClick = {
                             openDialog = true
+                        },
+                        onMusicConfigurationClick = {
+
                         },
                         enabled = true
                     )
@@ -1335,6 +1366,7 @@ fun DateDetailInDiaryWithSelection(
     @DrawableRes statusLogoRes: Int,
     onPickEmoteClick: () -> Unit,
     onDateTimePickerClick: () -> Unit,
+    onMusicConfigurationClick: () -> Unit,
     enabled: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -1380,8 +1412,20 @@ fun DateDetailInDiaryWithSelection(
                 modifier = Modifier.size(32.dp)
             )
         }
+        Spacer(modifier = Modifier.width(5.dp))
+        IconButton(
+            onClick = onMusicConfigurationClick,
+            enabled = enabled
+        ) {
+            Image(
+                painter = painterResource(R.drawable.ic_music),
+                contentDescription = null,
+                modifier = Modifier.size(32.dp)
+            )
+        }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable

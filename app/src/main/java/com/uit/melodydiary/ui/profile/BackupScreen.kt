@@ -45,7 +45,9 @@ import androidx.navigation.NavHostController
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.Scopes
 import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.Scope
 import com.google.android.gms.tasks.Task
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
 import com.google.api.client.http.InputStreamContent
@@ -79,6 +81,7 @@ fun BackupScreen(
 
     val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
         .requestIdToken(WEB_CLIENT_ID)
+        .requestScopes(Scope(Scopes.DRIVE_APPFOLDER), Scope(Scopes.DRIVE_FILE))
         .requestEmail()
         .build()
     val googleSignInClient = GoogleSignIn.getClient(context, gso)
@@ -134,36 +137,39 @@ fun BackupScreen(
                     authResultLauncher.launch(signInRequestCode)
                 },
                 onSynchorizeClick = {
-                    googleSignInClient.signOut()
+//                    googleSignInClient.signOut()
 
-//                    scope.launch(Dispatchers.IO) {
-//                        val fileMetadata = com.google.api.services.drive.model.File()
-//                        fileMetadata.name = "TextFile.txt" // Set the name of the file
-//
-//                        // Convert text to InputStream
-//                        val text = "test drive"
-//                        val inputStream = ByteArrayInputStream(text.toByteArray())
-//
-//                        // Create a file content instance
-//                        val mediaContent = InputStreamContent("text/plain", inputStream)
-//
-//                        // Get the Drive service instance
-//                        val driveService = getDriveService(googleAccount.value!!, context)
-//                        Log.d("DriveUpload", "drive service: ${driveService!!.applicationName}")
-//                        try {
-//                            val driveFile = driveService.files()?.create(fileMetadata, mediaContent)?.execute()
-//                            if (driveFile != null) {
-//                                Log.d("DriveUpload", "File uploaded: ${driveFile.name} (${driveFile.id})")
-////                                Toast.makeText(context, "File uploaded successfully", Toast.LENGTH_SHORT).show()
-//                            } else {
-//                                Log.e("DriveUpload", "Null Drive file received after upload")
-////                                Toast.makeText(context, "File upload failed", Toast.LENGTH_SHORT).show()
-//                            }
-//                        } catch (e: Exception) {
-//                            Log.e("DriveUpload", "Error uploading file to Drive: ${e.message}", e)
-////                            Toast.makeText(context, "File upload failed: ${e.message}", Toast.LENGTH_SHORT).show()
-//                        }
-//                    }
+                    scope.launch(Dispatchers.IO) {
+                        val fileMetadata = com.google.api.services.drive.model.File()
+                        fileMetadata.name = "TextFile.txt" // Set the name of the file
+
+                        // Convert text to InputStream
+                        val text = "test drive"
+                        val inputStream = ByteArrayInputStream(text.toByteArray())
+
+                        // Create a file content instance
+                        val mediaContent = InputStreamContent("text/plain", inputStream)
+
+                        // Get the Drive service instance
+                        val driveService = getDriveService(googleAccount.value!!, context)
+                        Log.d("DriveUpload", "drive service: ${driveService!!.applicationName}")
+                        try {
+
+                            val driveFile = driveService.files().create(fileMetadata, mediaContent)
+                                .setFields("id")
+                                .execute()
+                            if (driveFile != null) {
+                                Log.d("DriveUpload", "File uploaded: ${driveFile.name} (${driveFile.id})")
+//                                Toast.makeText(context, "File uploaded successfully", Toast.LENGTH_SHORT).show()
+                            } else {
+                                Log.e("DriveUpload", "Null Drive file received after upload")
+//                                Toast.makeText(context, "File upload failed", Toast.LENGTH_SHORT).show()
+                            }
+                        } catch (e: Exception) {
+                            Log.e("DriveUpload", "Error uploading file to Drive: ${e.message}", e)
+//                            Toast.makeText(context, "File upload failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
+                    }
 
                 }
             )
