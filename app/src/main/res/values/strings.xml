@@ -94,5 +94,7 @@
     <string name="title_backup">Backup data on device</string>
     <string name="title_import">Import data from device</string>
     <string name="title_google_account">Google account</string>
+    <string name="msg_new_status">Group face for new status</string>
+    <string name="msg_save_btn">Save</string>
 
 </resources>

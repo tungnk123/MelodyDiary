@@ -117,7 +117,12 @@ fun MusicScreen(
         }
     ) { innerPadding ->
 
-        DiaryTab(modifier = Modifier.padding(innerPadding), musicViewModel, diaryViewModel, albumList = albumList.value)
+        DiaryTab(
+            modifier = Modifier.padding(innerPadding),
+            musicViewModel,
+            diaryViewModel,
+            albumList = albumList.value
+        )
     }
 }
 
@@ -202,8 +207,12 @@ fun DiaryTab(
                             ).show()
                         } else {
                             scope.launch {
-                                Log.i("giai_dieu", musicViewModel.currentDiary.content + ":" + selectedGiaiDieu + ":" +  selectedNhacCu)
-                                val genString = "Đây là một bài nhạc có giai điệu $selectedGiaiDieu, nhạc cụ $selectedNhacCu và có nội dung là $musicViewModel.currentDiary.content"
+                                Log.i(
+                                    "giai_dieu",
+                                    musicViewModel.currentDiary.content + ":" + selectedGiaiDieu + ":" + selectedNhacCu
+                                )
+                                val genString =
+                                    "Đây là một bài nhạc có giai điệu $selectedGiaiDieu, nhạc cụ $selectedNhacCu và có nội dung là $musicViewModel.currentDiary.content"
                                 val result = musicViewModel.fetchMusic(genString)
                                 val size = musicList.size + 1
                                 musicList = musicList.toMutableList()
@@ -238,6 +247,7 @@ fun DiaryTab(
                     }
                 )
             }
+
             1 -> {
                 PlaylistTab(
                     modifier = Modifier.weight(1f),
@@ -288,7 +298,12 @@ fun AlbumSelectionDialog(
 
     AlertDialog(
         onDismissRequest = onDismissRequest,
-        title = { Text(text = stringResource(R.string.text_select_album), style = MaterialTheme.typography.titleLarge) },
+        title = {
+            Text(
+                text = stringResource(R.string.text_select_album),
+                style = MaterialTheme.typography.titleLarge
+            )
+        },
         text = {
             LazyColumn {
                 items(albumList) { album ->
@@ -430,8 +445,7 @@ fun MyDropDown(
                         expanded = false
                         if (item == "Other") {
                             canWrite = true
-                        }
-                        else {
+                        } else {
                             canWrite = false
                         }
                     }
@@ -441,8 +455,6 @@ fun MyDropDown(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun GenMusicWrapper(
     modifier: Modifier = Modifier,
@@ -559,7 +571,6 @@ fun GenMusicWrapper(
 }
 
 
-@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun PickDiary(
@@ -734,8 +745,7 @@ fun MusicList(
                 style = MaterialTheme.typography.titleMedium
             )
         }
-    }
-    else {
+    } else {
         LazyColumn {
             items(musicList) {
                 var isPlayState by remember {
@@ -745,7 +755,7 @@ fun MusicList(
                 MusicItem(musicItem = it,
                     onClickPlay = {
                         isPlayState = true
-                        MusicHelper.togglePlayback(it.url) {
+                        MusicHelper.togglePlayback(it) {
                             isPlayState = false
                         }
                     }, onClickPause = {
@@ -953,6 +963,7 @@ fun AddAlbum(
         }
     }
 }
+
 @Composable
 fun PlaylistTab(
     modifier: Modifier = Modifier,
@@ -1319,7 +1330,6 @@ fun ImageSelector(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true)
 @Composable
 fun PreviewMusicScreen() {

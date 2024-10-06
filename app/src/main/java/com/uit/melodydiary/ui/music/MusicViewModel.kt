@@ -13,22 +13,20 @@ import com.uit.melodydiary.data.repository.AlbumRepository
 import com.uit.melodydiary.data.repository.MusicRepository
 import com.uit.melodydiary.model.Album
 import com.uit.melodydiary.model.Diary
-import com.uit.melodydiary.model.Music
 import com.uit.melodydiary.model.MusicSmall
-import kotlinx.coroutines.CoroutineScope
+import com.uit.melodydiary.model.toMusicSmall
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 
 
 private const val FETCH_INTERVAL = 5000L
+
 class MusicViewModel(
     private val musicRepository: MusicRepository,
     private val albumRepository: AlbumRepository
@@ -45,6 +43,7 @@ class MusicViewModel(
         mood = "fun",
         contentFilePath = ""
     )
+
     suspend fun fetchMusic(lyric: String): String {
         try {
             val musicResponse = withContext(Dispatchers.IO) {
@@ -59,14 +58,10 @@ class MusicViewModel(
 
     suspend fun populateMusicList(lyric: String) {
         try {
-            CoroutineScope(Dispatchers.IO).launch {
-                while(isActive) {
-                    val musicResponse = withContext(Dispatchers.IO) {
-                        musicRepository.getGeneratedMusicByLyric(lyric)
-                    }
-                    MusicHelper.addSongToFront(musicResponse.value.fileContentUrl)
-                    delay(FETCH_INTERVAL)
-                }
+            viewModelScope.launch(Dispatchers.IO) {
+                val generatedMusicDto = musicRepository.getGeneratedMusicByLyric(lyric)
+                Log.d("Test request", generatedMusicDto.toString())
+                MusicHelper.addSongToFront(generatedMusicDto.toMusicSmall())
             }
         } catch (e: Exception) {
             Log.e("fetchMusic", "Error fetching music: ${e.message}", e)
@@ -90,24 +85,25 @@ class MusicViewModel(
             )
         }
     }
+
     fun insertMusic(music: MusicSmall) {
 
         viewModelScope.launch(Dispatchers.IO) {
             albumRepository.insertMusic(music)
         }
     }
-    fun getAllMusic(){
+
+    fun getAllMusic() {
         viewModelScope.launch(Dispatchers.IO) {
             musicSmallList = albumRepository.getAllMusic()
         }
     }
 
 
-
-
     fun setSelectedDiary(diary: Diary) {
         currentDiary = diary
     }
+
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {

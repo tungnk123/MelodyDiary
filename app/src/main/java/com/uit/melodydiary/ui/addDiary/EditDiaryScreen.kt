@@ -1,9 +1,6 @@
 package com.uit.melodydiary.ui.addDiary
 
-
 import MusicHelper
-import android.net.Uri
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -20,7 +17,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.itemsIndexed
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.IconButton
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -41,7 +40,9 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -57,28 +58,20 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.makeappssimple.abhimanyu.composeemojipicker.ComposeEmojiPickerBottomSheetUI
 import com.uit.melodydiary.MelodyDiaryApp
 import com.uit.melodydiary.R
 import com.uit.melodydiary.model.Diary
-import com.uit.melodydiary.model.DiaryStyle
 import com.uit.melodydiary.ui.addDiary.components.BorderlessTextField
 import com.uit.melodydiary.ui.addDiary.components.DateDetailInDiaryWithSelection
 import com.uit.melodydiary.ui.addDiary.components.DiaryTextField
 import com.uit.melodydiary.ui.addDiary.components.ImageContentWrapper
 import com.uit.melodydiary.ui.addDiary.components.TimePickerDialog
-import com.uit.melodydiary.ui.addDiary.components.ToolBar
-import com.uit.melodydiary.ui.components.FontSelectionContent
-import com.uit.melodydiary.ui.components.ImageSelection
-import com.uit.melodydiary.ui.components.PaletteSelection
 import com.uit.melodydiary.ui.diary.DiaryViewModel
-import com.uit.melodydiary.ui.music.MusicConfigurationDialog
-import com.uit.melodydiary.ui.music.MusicConfigurationTab
 import com.uit.melodydiary.ui.music.MusicViewModel
-import com.uit.melodydiary.ui.theme.mygreen
 import com.uit.melodydiary.utils.AppConstants
 import com.uit.melodydiary.utils.DayOfWeekConverter
 import com.uit.melodydiary.utils.byteArrayToString
+import com.uit.melodydiary.utils.loadContentListFromFile
 import com.uit.melodydiary.utils.plus
 import com.uit.melodydiary.utils.saveContentListToFile
 import com.uit.melodydiary.utils.stringToByteArray
@@ -88,33 +81,31 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddDiaryScreen(
+fun EditDiaryScreen(
     modifier: Modifier = Modifier,
+    diaryId: Int,
     diaryViewModel: DiaryViewModel,
     musicViewModel: MusicViewModel,
     navController: NavHostController,
 ) {
+    LaunchedEffect(diaryId) {
+        diaryViewModel.getDiaryById(diaryId)
+    }
 
-    var title by remember {
-        mutableStateOf("")
-    }
-    val content by remember {
-        mutableStateOf("")
-    }
+    val diary by diaryViewModel.selectedDiary.collectAsState()
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     var showBottomSheet by remember { mutableStateOf(true) }
 
     var logo by remember {
-        androidx.compose.runtime.mutableIntStateOf(R.drawable.ic_pick)
+        mutableIntStateOf(diary?.logo ?: 0)
     }
 
     var datetime by remember {
-        mutableStateOf(LocalDateTime.now())
+        mutableStateOf(diary?.createdAt ?: LocalDateTime.now())
     }
     val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM")
     val timeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
@@ -123,39 +114,20 @@ fun AddDiaryScreen(
     var openTimeDialog by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState()
     val timePickerState = rememberTimePickerState()
-    var mood by remember {
-        mutableStateOf(AppConstants.EMOTION_FUN)
-    }
-    var showFontBottomSheet by remember { mutableStateOf(false) }
-    var showIconBottomSheet by remember { mutableStateOf(false) }
-    var showImageBottomSheet by remember { mutableStateOf(false) }
-    var showPaletteBottomSheet by remember { mutableStateOf(false) }
-    var showMusicConfigurationDialog by remember { mutableStateOf(false) }
-    var selectedFontStyle by remember { mutableStateOf("Default") }
-    var selectedFontSize by remember { mutableStateOf(16.sp) }
-    var selectedColor by remember { mutableStateOf(Color.Black) }
-    var selectedColorPalette by remember { mutableStateOf(mygreen) }
-    var selectedEmoji by remember { mutableStateOf("") }
-    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
-    var searchText by remember { mutableStateOf("") }
+    var mood = AppConstants.EMOTION_FUN
+
+    var title by remember { mutableStateOf(diary?.title ?: "") }
+    val content by remember { mutableStateOf(diary?.content ?: "") }
+
+    val diaryStyle = diary!!.diaryStyle
     var isShrink by remember {
         mutableStateOf(false)
     }
     var contentList by remember {
         mutableStateOf(
-            mutableListOf(
-                Pair("text", stringToByteArray(""))
-            )
+            loadContentListFromFile(diary!!.contentFilePath)
         )
     }
-    var isPlayingMusic by remember {
-        mutableStateOf(true)
-    }
-
-    LaunchedEffect(Unit) {
-        MusicHelper.togglePlayback(MusicHelper.currentsong) {}
-    }
-
     if (openDialog) {
         DatePickerDialog(
             onDismissRequest = {
@@ -211,9 +183,9 @@ fun AddDiaryScreen(
         modifier = modifier,
         topBar = {
             CenterAlignedTopAppBar(
-                modifier = Modifier.background(selectedColorPalette),
+                modifier = Modifier,
                 colors = TopAppBarDefaults.topAppBarColors().copy(
-                    containerColor = selectedColorPalette
+                    containerColor = diaryStyle.colorPalette
                 ),
                 navigationIcon = {
 
@@ -231,40 +203,41 @@ fun AddDiaryScreen(
                 },
                 title = {
                     Text(
-                        text = stringResource(R.string.title_viet_nhat_ky),
+                        text = stringResource(R.string.title_edit_nhat_ky),
                         style = MaterialTheme.typography.titleLarge
                     )
                 },
                 actions = {
                     Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(end = 16.dp)
+                        modifier = Modifier.padding(end = 20.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Spacer(modifier = Modifier.width(5.dp))
                         Button(
                             onClick = {
-                                val newDiary = Diary(
-                                    diaryId = 0,
-                                    title = title,
-                                    content = content,
-                                    mood = mood,
-                                    logo = logo,
-                                    createdAt = datetime,
-                                    diaryStyle = DiaryStyle(
-                                        fontStyle = selectedFontStyle,
-                                        color = selectedColor,
-                                        fontSize = selectedFontSize,
-                                        colorPalette = selectedColorPalette
-                                    ),
-                                    contentFilePath = saveContentListToFile(context, contentList)
-                                )
-                                diaryViewModel.addDiary(newDiary)
+                                val newDiary = diary?.let {
+                                    Diary(
+                                        diaryId = it.diaryId,
+                                        title = title,
+                                        content = content,
+                                        mood = mood,
+                                        logo = logo, // Thay thế R.drawable.logo bằng resource id thích hợp
+                                        createdAt = datetime,
+                                        diaryStyle = it.diaryStyle,
+                                        contentFilePath = saveContentListToFile(
+                                            context,
+                                            contentList
+                                        )
+
+                                    )
+                                }
+                                diaryViewModel.updateDiary(newDiary!!)
                                 navController.navigate(MelodyDiaryApp.DiaryScreen.name)
                                 MusicHelper.pause()
                             }
                         ) {
                             Text(
-                                text = stringResource(R.string.msg_save_btn),
+                                text = "Save",
                                 color = Color.White
                             )
                         }
@@ -272,108 +245,41 @@ fun AddDiaryScreen(
                 }
             )
         },
-        bottomBar = {
-            Column {
-                MusicConfigurationTab(
-                    onShowMusicConfigurationDialog = {
-                        showMusicConfigurationDialog = !showMusicConfigurationDialog
-                    },
-                    onPlayPauseClick = {
-                        if (!isPlayingMusic) {
-                            MusicHelper.togglePlayback(MusicHelper.currentsong) { }
-                        } else {
-                            MusicHelper.pause()
-                        }
-                        isPlayingMusic = !isPlayingMusic
 
-                    },
-                    onPlayPreviousClick = {
-                        MusicHelper.previous { }
-                    },
-                    onPlayNextClick = {
-                        MusicHelper.next { }
-                    },
-                    isPlaying = isPlayingMusic
-                )
-                Spacer(modifier = Modifier.height(3.dp))
-
-                ToolBar(
-                    onFontFormatClick = {
-                        showFontBottomSheet = true
-                    },
-                    onPaletteClick = {
-                        showPaletteBottomSheet = true
-                    },
-                    onIconClick = {
-                        showIconBottomSheet = true
-                    },
-                    onImageClick = {
-                        showImageBottomSheet = true
-                    }
-                )
-            }
-
-        }
-    ) { paddingValue ->
+        ) { paddingValue ->
         LazyColumn(
             modifier = modifier
                 .fillMaxSize()
-                .background(selectedColorPalette),
+                .background(diaryStyle.colorPalette),
             contentPadding = paddingValue
-
         ) {
-            item {
-                DateDetailInDiaryWithSelection(
-                    date = datetime.format(formatter),
-                    time = datetime.format(timeFormatter),
-                    thu = DayOfWeekConverter.convertToThu(datetime.dayOfWeek.toString()),
-                    logo,
-                    onPickEmoteClick = {
-                        showBottomSheet = !showBottomSheet
-                    },
-                    onDateTimePickerClick = {
-                        openDialog = true
-                    },
-                    enabled = true
-                )
-            }
+            diary?.let {
 
-            item {
-                BorderlessTextField(
-                    value = title,
-                    placeholder = "Title",
-                    onValueChange = {
-                        title = it
-                    },
-                    enable = true,
-                    textStyle = TextStyle(
-                        fontFamily = when (selectedFontStyle) {
-                            "Serif" -> FontFamily.Serif
-                            "Sans-serif" -> FontFamily.SansSerif
-                            "Monospace" -> FontFamily.Monospace
-                            "Cursive" -> FontFamily.Cursive
-                            "Fantasy" -> FontFamily.Default
-                            else -> FontFamily.Default
+                item {
+                    DateDetailInDiaryWithSelection(
+                        date = it.createdAt.format(formatter),
+                        time = it.createdAt.format(timeFormatter),
+                        thu = DayOfWeekConverter.convertToThu(it.createdAt.dayOfWeek.toString()),
+                        logo,
+                        onPickEmoteClick = {
+                            showBottomSheet = !showBottomSheet
                         },
-                        fontSize = selectedFontSize.value.sp + 10.sp,
-                        color = selectedColor
+                        onDateTimePickerClick = {
+                            openDialog = true
+                        },
+                        enabled = true
                     )
-                )
-            }
-
-            itemsIndexed(contentList) { index, (type, value) ->
-                if (type == "text") {
-                    DiaryTextField(
-                        value = byteArrayToString(value),
-                        placeholder = "Start to write now ...",
+                }
+                item {
+                    BorderlessTextField(
+                        value = title,
+                        placeholder = "Title",
                         onValueChange = {
-                            val updatedContentList = contentList.toMutableList()
-                            updatedContentList[index] = "text" to stringToByteArray(it)
-                            contentList = updatedContentList
+                            title = it
                         },
                         enable = true,
                         textStyle = TextStyle(
-                            fontFamily = when (selectedFontStyle) {
+                            fontFamily = when (diaryStyle.fontStyle) {
                                 "Serif" -> FontFamily.Serif
                                 "Sans-serif" -> FontFamily.SansSerif
                                 "Monospace" -> FontFamily.Monospace
@@ -381,26 +287,52 @@ fun AddDiaryScreen(
                                 "Fantasy" -> FontFamily.Default
                                 else -> FontFamily.Default
                             },
-                            fontSize = selectedFontSize,
-                            color = selectedColor
+                            color = diaryStyle.color,
+                            fontSize = diaryStyle.fontSize.plus(10.sp)
                         )
                     )
-                } else {
-                    ImageContentWrapper(
-                        imageByteArray = value,
-                        onDeleteClick = {
-                            val updatedContentList = contentList.toMutableList()
-                            updatedContentList.removeAt(index)
-                            contentList = updatedContentList
-                        },
-                        onShrinkClick = {
-                            isShrink = !isShrink
-                        }, isShrink = isShrink
-                    )
                 }
+                itemsIndexed(contentList) { index, (type, value) ->
+                    if (type == "text") {
+                        DiaryTextField(
+                            value = byteArrayToString(value),
+                            placeholder = "Start to write now ...",
+                            onValueChange = {
+                                val updatedContentList = contentList.toMutableList()
+                                updatedContentList[index] = "text" to stringToByteArray(it)
+                                contentList = updatedContentList
+                            },
+                            enable = true,
+                            textStyle = TextStyle(
+                                fontFamily = when (diaryStyle.fontStyle) {
+                                    "Serif" -> FontFamily.Serif
+                                    "Sans-serif" -> FontFamily.SansSerif
+                                    "Monospace" -> FontFamily.Monospace
+                                    "Cursive" -> FontFamily.Cursive
+                                    "Fantasy" -> FontFamily.Default
+                                    else -> FontFamily.Default
+                                },
+                                color = diaryStyle.color,
+                                fontSize = diaryStyle.fontSize
+                            )
+                        )
+                    } else {
+
+                        ImageContentWrapper(
+                            imageByteArray = value,
+                            onDeleteClick = {
+                                val updatedContentList = contentList.toMutableList()
+                                updatedContentList.removeAt(index)
+                                contentList = updatedContentList
+                            },
+                            onShrinkClick = {
+                                isShrink = !isShrink
+                            }, isShrink = isShrink
+                        )
+                    }
+                }
+
             }
-
-
         }
 
         if (showBottomSheet) {
@@ -451,7 +383,7 @@ fun AddDiaryScreen(
                                     logo = R.drawable.ic_cry
                                     scope.launch {
                                         MusicHelper.pause()
-                                        musicViewModel.populateMusicList("sadness, ${AppConstants.EMOTION_FUN} music")
+                                        musicViewModel.populateMusicList("sadnees, ${AppConstants.EMOTION_CRY} music")
                                         MusicHelper.playSequential(onPlaybackCompleted = {})
                                     }
                                 },
@@ -479,7 +411,7 @@ fun AddDiaryScreen(
                                 Image(
                                     painter = painterResource(R.drawable.ic_neutral),
                                     contentDescription = null,
-                                    modifier = Modifier.size(36.dp)
+                                    modifier = Modifier.size(32.dp)
                                 )
                             }
                         }
@@ -499,7 +431,7 @@ fun AddDiaryScreen(
                                 Image(
                                     painter = painterResource(R.drawable.ic_fear),
                                     contentDescription = null,
-                                    modifier = Modifier.size(36.dp)
+                                    modifier = Modifier.size(32.dp)
                                 )
                             }
                         }
@@ -543,7 +475,6 @@ fun AddDiaryScreen(
                                 )
                             }
                         }
-
                     }
                     Spacer(modifier = Modifier.height(10.dp))
 
@@ -552,13 +483,7 @@ fun AddDiaryScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         TextButton(
-                            onClick = {
-                                Toast.makeText(
-                                    context,
-                                    "Feature is under construction",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
+                            onClick = {}
                         ) {
                             Text(
                                 text = stringResource(R.string.btn_them_tam_trang),
@@ -571,109 +496,8 @@ fun AddDiaryScreen(
                             modifier = Modifier.size(32.dp)
                         )
                     }
-
                 }
             }
-        }
-
-        if (showFontBottomSheet) {
-            ModalBottomSheet(
-                onDismissRequest = {
-                    showFontBottomSheet = false
-                }
-            ) {
-                FontSelectionContent(
-                    selectedFontStyle = selectedFontStyle,
-                    onFontStyleChange = { style ->
-                        selectedFontStyle = style
-                    },
-                    selectedFontSize = selectedFontSize,
-                    onFontSizeChange = { size ->
-                        selectedFontSize = size
-                    },
-                    selectedColor = selectedColor,
-                    onColorChange = { color ->
-                        selectedColor = color
-                    }
-
-                )
-            }
-        }
-
-        if (showIconBottomSheet) {
-            ModalBottomSheet(
-                onDismissRequest = {
-                    showIconBottomSheet = false
-                }
-            ) {
-                ComposeEmojiPickerBottomSheetUI(
-                    onEmojiClick = { emoji ->
-                        showIconBottomSheet = false
-                        selectedEmoji = emoji.character
-                        val updatedContentList = contentList.toMutableList()
-                        val currentText =
-                            byteArrayToString(updatedContentList[contentList.size - 1].second) + selectedEmoji
-                        updatedContentList[contentList.size - 1] =
-                            "text" to stringToByteArray(currentText)
-                        contentList = updatedContentList
-                    },
-                    searchText = searchText,
-                    updateSearchText = { updatedSearchText ->
-                        searchText = updatedSearchText
-                    },
-                )
-            }
-        }
-
-        if (showPaletteBottomSheet) {
-            ModalBottomSheet(
-                onDismissRequest = {
-                    showPaletteBottomSheet = false
-                },
-                containerColor = Color.White
-
-            ) {
-                PaletteSelection(
-                    color = selectedColorPalette,
-                    onColorChange = {
-                        selectedColorPalette = it
-                    }
-                )
-            }
-        }
-
-        if (showImageBottomSheet) {
-            ModalBottomSheet(
-                onDismissRequest = {
-                    showImageBottomSheet = !showImageBottomSheet
-                }
-            ) {
-                ImageSelection(
-                    selectedImageUri = selectedImageUri,
-                    onImageSelected = { uri ->
-                        selectedImageUri = uri
-                        val pair: Pair<String, ByteArray> = Pair(
-                            "image", context.contentResolver.openInputStream(
-                                selectedImageUri!!
-                            )?.readBytes()!!
-                        )
-                        contentList.add(pair)
-                        val temp: Pair<String, ByteArray> = Pair("text", stringToByteArray(""))
-                        contentList.add(temp)
-                        showImageBottomSheet = !showImageBottomSheet
-                    }
-                )
-            }
-        }
-
-        if (showMusicConfigurationDialog) {
-            MusicConfigurationDialog(
-                onDismiss = {
-                    showMusicConfigurationDialog = !showMusicConfigurationDialog
-                },
-                giaiDieuName = MusicHelper.currentsong.title,
-
-                )
         }
     }
 }

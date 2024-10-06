@@ -93,5 +93,7 @@
     <string name="title_backup">Sao lưu trên thiết bị</string>
     <string name="title_import">Khôi phục ghi chú từ thiết bị</string>
     <string name="title_google_account">Tài khoản Google</string>
+    <string name="msg_new_status">Chọn trạng thái mới</string>
+    <string name="msg_save_btn">Lưu</string>
 
 </resources>

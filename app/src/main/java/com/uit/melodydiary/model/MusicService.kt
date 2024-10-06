@@ -56,3 +56,12 @@ data class GeneratedMusicInfo(
     @SerializedName("fileContentUrl")
     val fileContentUrl: String
 )
+
+fun GeneratedMusicDto.toMusicSmall(): MusicSmall {
+    return MusicSmall(
+        musicId = 0,
+        title = "Giai điệu ${this.value.fileId}",
+        url = this.value.fileContentUrl,
+        duration = this.value.duration.toFloat(),
+    )
+}
