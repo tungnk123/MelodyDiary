@@ -21,7 +21,7 @@ interface DiaryDao {
 
 
     @Query("SELECT * FROM diary_table WHERE diary_id = :diaryId")
-    fun getDiaryById(diaryId:Int): Diary
+    fun getDiaryById(diaryId: Int): Diary
 
     @Query("DELETE FROM diary_table WHERE diary_id = :id")
     suspend fun deleteDiaryById(id: Int)
@@ -41,12 +41,13 @@ interface DiaryDao {
     @Query("SELECT * FROM album_table ")
     fun getAllAlbum(): Flow<List<Album>>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMusic(music: MusicSmall)
 
 
     @Query("SELECT * FROM music_table ")
     fun getAllMusic(): List<MusicSmall>
+
     @Query("SELECT * FROM music_table WHERE albumId =:albumId ")
     fun getMusicInAlbum(albumId: Int): List<MusicSmall>
 }
