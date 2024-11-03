@@ -13,5 +13,9 @@ data class MusicSmall(
     @DrawableRes val logo: Int = R.drawable.ic_music,
     val url: String = "https://un-silent-backend-develop-2.azurewebsites.net/api/v1/musics/file/1UcXwx_lSJdhPVny_EYzpd_nCI93mul5n",
     val duration: Float = 15f,
-    var albumId: Int = 0
+    var albumId: Int = 0,
+    val groupId: String = "",
+    val emotion: String = Emotion.Fun.emotion,
+    val genre: String = Genre.Lofi.genreName,
+    val instrument: String = Instrument.Piano.instrumentName
 )

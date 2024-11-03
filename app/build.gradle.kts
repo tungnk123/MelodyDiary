@@ -1,5 +1,3 @@
-import com.android.build.api.dsl.Packaging
-
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
@@ -102,39 +100,44 @@ dependencies {
     implementation("androidx.room:room-ktx:$room_version")
 
     // gson
-    implementation ("com.google.code.gson:gson:2.10.1")
+    implementation("com.google.code.gson:gson:2.10.1")
 
 
     // Retrofit
     implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
-    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
 
     // Coil
     implementation("io.coil-kt:coil-compose:2.4.0")
 
     // The compose calendar library
-    implementation ("com.kizitonwose.calendar:compose:2.5.0")
+    implementation("com.kizitonwose.calendar:compose:2.5.0")
 
     // chart
     implementation("com.github.jaikeerthick:Composable-Graphs:v1.2.3") //ex: v1.2.3
-    implementation ("com.github.tehras:charts:0.2.4-alpha")
+    implementation("com.github.tehras:charts:0.2.4-alpha")
 
     implementation("androidx.core:core-splashscreen:1.0.1")
 
     //icon
-    implementation ("com.github.Abhimanyu14:compose-emoji-picker:1.0.0-alpha16")
+    implementation("com.github.Abhimanyu14:compose-emoji-picker:1.0.0-alpha16")
     val emoji2_version = "1.4.0"
     implementation("androidx.emoji2:emoji2:$emoji2_version")
 
     // google sign in
-    implementation ("com.google.android.gms:play-services-auth:21.2.0")
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
 
     // drive
-    implementation ("com.google.api-client:google-api-client-android:1.33.2")
-    implementation ("com.google.api-client:google-api-client-gson:1.33.2")
+    implementation("com.google.api-client:google-api-client-android:1.33.2")
+    implementation("com.google.api-client:google-api-client-gson:1.33.2")
+
+    // logging
+    implementation("com.squareup.okhttp3:okhttp:4.9.3")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
+
 
 //    implementation("com.google.api-client:google-api-client-android:1.26.0") {
 //        exclude(group = "org.apache.httpcomponents")
@@ -145,9 +148,5 @@ dependencies {
         exclude(group = "org.apache.httpcomponents")
         exclude(module = "guava-jdk5")
     }
-
-
-
-
 
 }

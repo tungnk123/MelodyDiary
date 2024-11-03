@@ -38,7 +38,7 @@ import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
 import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -213,7 +213,7 @@ fun DiaryTab(
                                 )
                                 val genString =
                                     "Đây là một bài nhạc có giai điệu $selectedGiaiDieu, nhạc cụ $selectedNhacCu và có nội dung là $musicViewModel.currentDiary.content"
-                                val result = musicViewModel.fetchMusic(genString)
+                                val result = musicViewModel.generateMusic(genString)
                                 val size = musicList.size + 1
                                 musicList = musicList.toMutableList()
                                     .apply { add(MusicSmall(title = "Melody $size", url = result)) }
@@ -443,11 +443,7 @@ fun MyDropDown(
                     onClick = {
                         onSelectedItemChange(item)
                         expanded = false
-                        if (item == "Other") {
-                            canWrite = true
-                        } else {
-                            canWrite = false
-                        }
+                        canWrite = item == "Other"
                     }
                 )
             }
@@ -536,7 +532,9 @@ fun GenMusicWrapper(
         }
         Spacer(modifier = Modifier.height(10.dp))
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 10.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 10.dp),
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -602,12 +600,14 @@ fun PickDiary(
         onExpandedChange = {
             expanded = it
         },
-        modifier = modifier.clip(RoundedCornerShape(8.dp))
+        modifier = modifier
+            .clip(RoundedCornerShape(8.dp))
             .padding(horizontal = 20.dp, vertical = 10.dp)
     ) {
 
         Card(
-            modifier = modifier.fillMaxWidth()
+            modifier = modifier
+                .fillMaxWidth()
                 .height(80.dp)
                 .menuAnchor(),
             shape = RoundedCornerShape(
@@ -702,13 +702,17 @@ fun DiaryMenuItemWithClose(
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxSize().background(mygreen)
+            modifier = Modifier
+                .fillMaxSize()
+                .background(mygreen)
         ) {
             Spacer(modifier = Modifier.weight(1f))
             Image(
                 painter = painterResource(diary.logo),
                 contentDescription = diary.title,
-                modifier = Modifier.size(32.dp).padding(start = 10.dp)
+                modifier = Modifier
+                    .size(32.dp)
+                    .padding(start = 10.dp)
             )
             Spacer(modifier = Modifier.width(10.dp))
             Text(
@@ -719,7 +723,7 @@ fun DiaryMenuItemWithClose(
             IconButton(
                 onClick = onCloseClick,
             ) {
-                androidx.compose.material3.Icon(
+                Icon(
                     imageVector = Icons.Default.Close,
                     contentDescription = null
                 )
@@ -822,7 +826,10 @@ fun MusicItem(
                 )
                 Spacer(modifier = Modifier.width(5.dp))
                 Box(
-                    modifier = Modifier.width(2.dp).height(32.dp).background(Color.Black)
+                    modifier = Modifier
+                        .width(2.dp)
+                        .height(32.dp)
+                        .background(Color.Black)
                 )
                 Spacer(modifier = Modifier.width(5.dp))
                 Text(
@@ -926,7 +933,8 @@ fun AddAlbum(
     onAddAlbumClick: () -> Unit
 ) {
     Card(
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth()
             .height(80.dp)
             .clickable {
                 onAddAlbumClick()
@@ -978,7 +986,9 @@ fun PlaylistTab(
 
     if (showAlbumList) {
         Column(
-            modifier = modifier.fillMaxSize().padding(20.dp)
+            modifier = modifier
+                .fillMaxSize()
+                .padding(20.dp)
         ) {
             AddAlbum(
                 onAddAlbumClick = {
@@ -1055,7 +1065,9 @@ fun AlbumItem(
         album.logo, 0, album.logo.size
     )
     Card(
-        modifier = modifier.fillMaxWidth().padding(top = 10.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(top = 10.dp),
         elevation = CardDefaults.cardElevation(2.dp),
         shape = RoundedCornerShape(10.dp),
         colors = CardDefaults.cardColors(
@@ -1064,13 +1076,17 @@ fun AlbumItem(
         onClick = { onItemClick(album) }
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(10.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Image(
                 bitmap = bitmap.asImageBitmap(),
                 contentDescription = null,
-                modifier = Modifier.width(122.dp).height(90.dp),
+                modifier = Modifier
+                    .width(122.dp)
+                    .height(90.dp),
                 contentScale = ContentScale.Crop
             )
 
@@ -1117,7 +1133,7 @@ fun AlbumDetailScreen(
                 onClick = onClose,
             ) {
                 Icon(
-                    imageVector = Icons.Default.ArrowBack,
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = null
                 )
             }
@@ -1126,7 +1142,9 @@ fun AlbumDetailScreen(
         Image(
             bitmap = bitmap.asImageBitmap(),
             contentDescription = null,
-            modifier = Modifier.width(122.dp).height(90.dp),
+            modifier = Modifier
+                .width(122.dp)
+                .height(90.dp),
             contentScale = ContentScale.Crop
         )
 
@@ -1142,7 +1160,9 @@ fun AlbumDetailScreen(
         )
 
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 10.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 10.dp),
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {

@@ -44,9 +44,11 @@ interface DiaryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMusic(music: MusicSmall)
 
-
     @Query("SELECT * FROM music_table ")
     fun getAllMusic(): List<MusicSmall>
+
+    @Query("SELECT * FROM music_table WHERE emotion = :emotion")
+    fun getAllMusicByEmotion(emotion: String): List<MusicSmall>
 
     @Query("SELECT * FROM music_table WHERE albumId =:albumId ")
     fun getMusicInAlbum(albumId: Int): List<MusicSmall>

@@ -1,6 +1,6 @@
 package com.uit.melodydiary.model
 
-enum class Emotion(emotion: String) {
+enum class Emotion(val emotion: String) {
     Fun("joy"),
     Cry("cry"),
     Sad("sad"),
@@ -8,3 +8,5 @@ enum class Emotion(emotion: String) {
     Disgust("disgust"),
     Angry("angry"),
 }
+
+

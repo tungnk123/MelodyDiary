@@ -61,6 +61,7 @@ import androidx.navigation.NavHostController
 import com.uit.melodydiary.MelodyDiaryApp
 import com.uit.melodydiary.R
 import com.uit.melodydiary.model.Diary
+import com.uit.melodydiary.model.Emotion
 import com.uit.melodydiary.ui.addDiary.components.BorderlessTextField
 import com.uit.melodydiary.ui.addDiary.components.DateDetailInDiaryWithSelection
 import com.uit.melodydiary.ui.addDiary.components.DiaryTextField
@@ -129,52 +130,39 @@ fun EditDiaryScreen(
         )
     }
     if (openDialog) {
-        DatePickerDialog(
-            onDismissRequest = {
-                openDialog = false
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        openDialog = false
-                        openTimeDialog = true
-                    },
-                    enabled = datePickerState.selectedDateMillis != null
-                ) {
-                    Text("OK")
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = {
-                        openDialog = false
-                    }
-                ) {
-                    Text("Cancel")
-                }
+        DatePickerDialog(onDismissRequest = {
+            openDialog = false
+        }, confirmButton = {
+            TextButton(
+                onClick = {
+                    openDialog = false
+                    openTimeDialog = true
+                }, enabled = datePickerState.selectedDateMillis != null
+            ) {
+                Text("OK")
             }
-        ) {
+        }, dismissButton = {
+            TextButton(onClick = {
+                openDialog = false
+            }) {
+                Text("Cancel")
+            }
+        }) {
             DatePicker(state = datePickerState)
         }
     }
 
     if (openTimeDialog) {
-        TimePickerDialog(
-            onCancel = {
-                openTimeDialog = false
-            },
-            onConfirm = {
-                openTimeDialog = false
-                val selectedDateMillis = datePickerState.selectedDateMillis ?: 0
-                val selectedHour = timePickerState.hour
-                val selectedMinute = timePickerState.minute
-                datetime = Instant.ofEpochMilli(selectedDateMillis)
-                    .atZone(ZoneId.systemDefault())
-                    .toLocalDateTime()
-                    .withHour(selectedHour)
-                    .withMinute(selectedMinute)
-            }
-        ) {
+        TimePickerDialog(onCancel = {
+            openTimeDialog = false
+        }, onConfirm = {
+            openTimeDialog = false
+            val selectedDateMillis = datePickerState.selectedDateMillis ?: 0
+            val selectedHour = timePickerState.hour
+            val selectedMinute = timePickerState.minute
+            datetime = Instant.ofEpochMilli(selectedDateMillis).atZone(ZoneId.systemDefault())
+                .toLocalDateTime().withHour(selectedHour).withMinute(selectedMinute)
+        }) {
             TimePicker(state = timePickerState)
         }
     }
@@ -182,19 +170,16 @@ fun EditDiaryScreen(
     Scaffold(
         modifier = modifier,
         topBar = {
-            CenterAlignedTopAppBar(
-                modifier = Modifier,
+            CenterAlignedTopAppBar(modifier = Modifier,
                 colors = TopAppBarDefaults.topAppBarColors().copy(
                     containerColor = diaryStyle.colorPalette
                 ),
                 navigationIcon = {
 
-                    IconButton(
-                        onClick = {
-                            navController.popBackStack()
-                            MusicHelper.pause()
-                        }
-                    ) {
+                    IconButton(onClick = {
+                        navController.popBackStack()
+                        MusicHelper.pause()
+                    }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Default.ArrowBack,
                             contentDescription = null
@@ -213,37 +198,32 @@ fun EditDiaryScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Spacer(modifier = Modifier.width(5.dp))
-                        Button(
-                            onClick = {
-                                val newDiary = diary?.let {
-                                    Diary(
-                                        diaryId = it.diaryId,
-                                        title = title,
-                                        content = content,
-                                        mood = mood,
-                                        logo = logo, // Thay thế R.drawable.logo bằng resource id thích hợp
-                                        createdAt = datetime,
-                                        diaryStyle = it.diaryStyle,
-                                        contentFilePath = saveContentListToFile(
-                                            context,
-                                            contentList
-                                        )
-
+                        Button(onClick = {
+                            val newDiary = diary?.let {
+                                Diary(
+                                    diaryId = it.diaryId,
+                                    title = title,
+                                    content = content,
+                                    mood = mood,
+                                    logo = logo, // Thay thế R.drawable.logo bằng resource id thích hợp
+                                    createdAt = datetime,
+                                    diaryStyle = it.diaryStyle,
+                                    contentFilePath = saveContentListToFile(
+                                        context, contentList
                                     )
-                                }
-                                diaryViewModel.updateDiary(newDiary!!)
-                                navController.navigate(MelodyDiaryApp.DiaryScreen.name)
-                                MusicHelper.pause()
+
+                                )
                             }
-                        ) {
+                            diaryViewModel.updateDiary(newDiary!!)
+                            navController.navigate(MelodyDiaryApp.DiaryScreen.name)
+                            MusicHelper.pause()
+                        }) {
                             Text(
-                                text = "Save",
-                                color = Color.White
+                                text = "Save", color = Color.White
                             )
                         }
                     }
-                }
-            )
+                })
         },
 
         ) { paddingValue ->
@@ -272,13 +252,9 @@ fun EditDiaryScreen(
                 }
                 item {
                     BorderlessTextField(
-                        value = title,
-                        placeholder = "Title",
-                        onValueChange = {
+                        value = title, placeholder = "Title", onValueChange = {
                             title = it
-                        },
-                        enable = true,
-                        textStyle = TextStyle(
+                        }, enable = true, textStyle = TextStyle(
                             fontFamily = when (diaryStyle.fontStyle) {
                                 "Serif" -> FontFamily.Serif
                                 "Sans-serif" -> FontFamily.SansSerif
@@ -286,9 +262,7 @@ fun EditDiaryScreen(
                                 "Cursive" -> FontFamily.Cursive
                                 "Fantasy" -> FontFamily.Default
                                 else -> FontFamily.Default
-                            },
-                            color = diaryStyle.color,
-                            fontSize = diaryStyle.fontSize.plus(10.sp)
+                            }, color = diaryStyle.color, fontSize = diaryStyle.fontSize.plus(10.sp)
                         )
                     )
                 }
@@ -311,23 +285,18 @@ fun EditDiaryScreen(
                                     "Cursive" -> FontFamily.Cursive
                                     "Fantasy" -> FontFamily.Default
                                     else -> FontFamily.Default
-                                },
-                                color = diaryStyle.color,
-                                fontSize = diaryStyle.fontSize
+                                }, color = diaryStyle.color, fontSize = diaryStyle.fontSize
                             )
                         )
                     } else {
 
-                        ImageContentWrapper(
-                            imageByteArray = value,
-                            onDeleteClick = {
-                                val updatedContentList = contentList.toMutableList()
-                                updatedContentList.removeAt(index)
-                                contentList = updatedContentList
-                            },
-                            onShrinkClick = {
-                                isShrink = !isShrink
-                            }, isShrink = isShrink
+                        ImageContentWrapper(imageByteArray = value, onDeleteClick = {
+                            val updatedContentList = contentList.toMutableList()
+                            updatedContentList.removeAt(index)
+                            contentList = updatedContentList
+                        }, onShrinkClick = {
+                            isShrink = !isShrink
+                        }, isShrink = isShrink
                         )
                     }
                 }
@@ -339,12 +308,12 @@ fun EditDiaryScreen(
             ModalBottomSheet(
                 onDismissRequest = {
                     showBottomSheet = false
-                },
-                sheetState = sheetState,
-                modifier = Modifier.fillMaxWidth()
+                }, sheetState = sheetState, modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
-                    modifier = Modifier.height(300.dp).fillMaxWidth(),
+                    modifier = Modifier
+                        .height(300.dp)
+                        .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(
@@ -363,7 +332,7 @@ fun EditDiaryScreen(
                                     logo = R.drawable.ic_face
                                     scope.launch {
                                         MusicHelper.pause()
-                                        musicViewModel.populateMusicList(AppConstants.EMOTION_FUN)
+                                        musicViewModel.populateMusicList(Emotion.Fun.emotion)
                                         MusicHelper.playSequential(onPlaybackCompleted = {})
                                     }
                                 },
@@ -383,7 +352,7 @@ fun EditDiaryScreen(
                                     logo = R.drawable.ic_cry
                                     scope.launch {
                                         MusicHelper.pause()
-                                        musicViewModel.populateMusicList("sadnees, ${AppConstants.EMOTION_CRY} music")
+                                        musicViewModel.populateMusicList(Emotion.Sad.emotion)
                                         MusicHelper.playSequential(onPlaybackCompleted = {})
                                     }
                                 },
@@ -403,7 +372,7 @@ fun EditDiaryScreen(
                                     logo = R.drawable.ic_neutral
                                     scope.launch {
                                         MusicHelper.pause()
-                                        musicViewModel.populateMusicList(AppConstants.EMOTION_SAD)
+                                        musicViewModel.populateMusicList(Emotion.Cry.emotion)
                                         MusicHelper.playSequential(onPlaybackCompleted = {})
                                     }
                                 },
@@ -423,7 +392,7 @@ fun EditDiaryScreen(
                                     logo = R.drawable.ic_fear
                                     scope.launch {
                                         MusicHelper.pause()
-                                        musicViewModel.populateMusicList(AppConstants.EMOTION_FEAR)
+                                        musicViewModel.populateMusicList(Emotion.Fear.emotion)
                                         MusicHelper.playSequential(onPlaybackCompleted = {})
                                     }
                                 },
@@ -443,7 +412,7 @@ fun EditDiaryScreen(
                                     logo = R.drawable.ic_disgust
                                     scope.launch {
                                         MusicHelper.pause()
-                                        musicViewModel.populateMusicList(AppConstants.EMOTION_DISGUST)
+                                        musicViewModel.populateMusicList(Emotion.Disgust.emotion)
                                         MusicHelper.playSequential(onPlaybackCompleted = {})
                                     }
                                 },
@@ -463,7 +432,7 @@ fun EditDiaryScreen(
                                     logo = R.drawable.ic_angry
                                     scope.launch {
                                         MusicHelper.pause()
-                                        musicViewModel.populateMusicList(AppConstants.EMOTION_ANGRY)
+                                        musicViewModel.populateMusicList(Emotion.Angry.emotion)
                                         MusicHelper.playSequential(onPlaybackCompleted = {})
                                     }
                                 },
@@ -482,9 +451,7 @@ fun EditDiaryScreen(
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        TextButton(
-                            onClick = {}
-                        ) {
+                        TextButton(onClick = {}) {
                             Text(
                                 text = stringResource(R.string.btn_them_tam_trang),
                                 color = Color.Blue

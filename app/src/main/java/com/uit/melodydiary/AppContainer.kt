@@ -12,23 +12,23 @@ import com.uit.melodydiary.network.MusicApiService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 class AppContainer(private val context: Context) {
     private val timeout: Long = 5
-    val okHttpClient = OkHttpClient.Builder()
-        .connectTimeout(timeout, TimeUnit.MINUTES)
-        .readTimeout(timeout, TimeUnit.MINUTES)
-        .writeTimeout(timeout, TimeUnit.MINUTES)
-        .build()
+    val loggingInterceptor = HttpLoggingInterceptor().apply {
+        level = HttpLoggingInterceptor.Level.BODY
+    }
+    val okHttpClient = OkHttpClient.Builder().connectTimeout(timeout, TimeUnit.MINUTES)
+        .readTimeout(timeout, TimeUnit.MINUTES).writeTimeout(timeout, TimeUnit.MINUTES)
+        .addInterceptor(loggingInterceptor).build()
     private val baseUrl = "https://un-silent-backend-mobile.azurewebsites.net"
-    private val retrofit: Retrofit = Retrofit.Builder()
-        .addConverterFactory(GsonConverterFactory.create())
-        .baseUrl(baseUrl)
-        .client(okHttpClient)
-        .build()
+    private val retrofit: Retrofit =
+        Retrofit.Builder().addConverterFactory(GsonConverterFactory.create()).baseUrl(baseUrl)
+            .client(okHttpClient).build()
     val warmUpApiService = retrofit.create(MusicApiService::class.java)
     val applicationScope = CoroutineScope(SupervisorJob())
     val database by lazy {
@@ -48,7 +48,7 @@ class AppContainer(private val context: Context) {
     }
 
     val musicRepository: MusicRepository by lazy {
-        MusicRepository(retrofit.create(MusicApiService::class.java))
+        MusicRepository(retrofit.create(MusicApiService::class.java), dao = database.diaryDao())
     }
 
     val albumRepository: AlbumRepository by lazy {

@@ -76,19 +76,24 @@ fun MelodyDiaryApp(
     var isHomeScreen by remember {
         mutableStateOf(false)
     }
-    isHomeScreen = navController.currentBackStackEntryAsState().value?.destination?.route == MelodyDiaryApp.DiaryScreen.name
+    isHomeScreen =
+        navController.currentBackStackEntryAsState().value?.destination?.route == MelodyDiaryApp.DiaryScreen.name
     var isMusicScreen by remember {
         mutableStateOf(false)
     }
-    isMusicScreen = navController.currentBackStackEntryAsState().value?.destination?.route == MelodyDiaryApp.MusicScreen.name
+    isMusicScreen =
+        navController.currentBackStackEntryAsState().value?.destination?.route == MelodyDiaryApp.MusicScreen.name
     var isReportScreen by remember {
         mutableStateOf(false)
     }
-    isReportScreen = navController.currentBackStackEntryAsState().value?.destination?.route == MelodyDiaryApp.ReportScreen.name
+    isReportScreen =
+        navController.currentBackStackEntryAsState().value?.destination?.route == MelodyDiaryApp.ReportScreen.name
     var isProfileScreen by remember {
         mutableStateOf(false)
     }
-    isProfileScreen = navController.currentBackStackEntryAsState().value?.destination?.route == MelodyDiaryApp.ProfileScreen.name
+    isProfileScreen =
+        navController.currentBackStackEntryAsState().value?.destination?.route == MelodyDiaryApp.ProfileScreen.name
+
     MelodyDiaryTheme {
         // A surface container using the 'background' color from the theme
         Surface(
@@ -111,7 +116,8 @@ fun MelodyDiaryApp(
                     modifier = Modifier.padding(innerPadding)
                 ) {
 
-                    composable(route = MelodyDiaryApp.DiaryScreen.name
+                    composable(
+                        route = MelodyDiaryApp.DiaryScreen.name
                     ) {
                         DiaryScreen(diaryViewModel = diaryViewModel, navController = navController)
                     }
@@ -121,7 +127,11 @@ fun MelodyDiaryApp(
                     }
 
                     composable(route = MelodyDiaryApp.AddDiaryScreen.name) {
-                        AddDiaryScreen(diaryViewModel = diaryViewModel, musicViewModel = musicViewModel , navController = navController)
+                        AddDiaryScreen(
+                            diaryViewModel = diaryViewModel,
+                            musicViewModel = musicViewModel,
+                            navController = navController
+                        )
                     }
 
                     composable(
@@ -277,10 +287,12 @@ fun BottomNavigationWithFab(
         )
     }
 }
+
 @Composable
 fun DiamondFab(
     onClick: () -> Unit,
-    modifier: Modifier = Modifier) {
+    modifier: Modifier = Modifier
+) {
     Box(
         modifier = modifier.height(100.dp),
         contentAlignment = Alignment.CenterEnd
@@ -310,7 +322,7 @@ fun DiamondFab(
 @Preview
 @Composable
 fun DiamondFabPreview() {
-    DiamondFab(onClick = {}, Modifier.padding(bottom = 30.dp),)
+    DiamondFab(onClick = {}, Modifier.padding(bottom = 30.dp))
 }
 
 @Preview(showBackground = true, backgroundColor = 0xFFF5F0EE)
@@ -334,7 +346,7 @@ fun PreviewApp() {
             color = MaterialTheme.colorScheme.background
         ) {
             val diaryViewModel: DiaryViewModel = viewModel(factory = DiaryViewModel.Factory)
-            DiaryScreen(diaryViewModel = diaryViewModel , navController = rememberNavController())
+            DiaryScreen(diaryViewModel = diaryViewModel, navController = rememberNavController())
         }
     }
 }

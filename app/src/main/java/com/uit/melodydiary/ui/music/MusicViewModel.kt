@@ -28,8 +28,7 @@ import java.time.LocalDateTime
 private const val FETCH_INTERVAL = 5000L
 
 class MusicViewModel(
-    private val musicRepository: MusicRepository,
-    private val albumRepository: AlbumRepository
+    private val musicRepository: MusicRepository, private val albumRepository: AlbumRepository
 ) : ViewModel() {
 
     var albumList: StateFlow<List<Album>> = MutableStateFlow(mutableListOf())
@@ -44,10 +43,12 @@ class MusicViewModel(
         contentFilePath = ""
     )
 
-    suspend fun fetchMusic(lyric: String): String {
+    suspend fun generateMusic(
+        emotion: String = "", genre: String = "", instrument: String = ""
+    ): String {
         try {
             val musicResponse = withContext(Dispatchers.IO) {
-                musicRepository.getGeneratedMusicByLyric(lyric)
+                musicRepository.generateMusic(emotion)
             }
             return musicResponse.value.fileContentUrl
         } catch (e: Exception) {
@@ -56,12 +57,27 @@ class MusicViewModel(
         }
     }
 
-    suspend fun populateMusicList(lyric: String) {
+    fun populateMusicList(emotion: String) {
         try {
             viewModelScope.launch(Dispatchers.IO) {
-                val generatedMusicDto = musicRepository.getGeneratedMusicByLyric(lyric)
-                Log.d("Test request", generatedMusicDto.toString())
-                MusicHelper.addSongToFront(generatedMusicDto.toMusicSmall())
+                val musicList = musicRepository.getAllLocalSmallMusicsByEmotion(emotion)
+                Log.d("test_request", "Local music list: $musicList")
+                musicList.forEach {
+                    MusicHelper.addSongToFront(it)
+                }
+
+                val musicGroup = musicRepository.getGeneratedMusicList(
+                    emotion = emotion
+                )
+                Log.d("test_request", "Remote music list: $musicGroup")
+                musicGroup.forEach {
+                    val remoteMusicList = it.musics.map { music ->
+                        music.toMusicSmall()
+                    }
+                    remoteMusicList.forEach {
+                        MusicHelper.addSongToFront(it)
+                    }
+                }
             }
         } catch (e: Exception) {
             Log.e("fetchMusic", "Error fetching music: ${e.message}", e)
@@ -70,7 +86,6 @@ class MusicViewModel(
     }
 
     fun insertAlbum(album: Album) {
-
         viewModelScope.launch(Dispatchers.IO) {
             albumRepository.insertAlbum(album)
         }
@@ -87,7 +102,6 @@ class MusicViewModel(
     }
 
     fun insertMusic(music: MusicSmall) {
-
         viewModelScope.launch(Dispatchers.IO) {
             albumRepository.insertMusic(music)
         }

@@ -62,17 +62,18 @@ import com.uit.melodydiary.MelodyDiaryApp
 import com.uit.melodydiary.R
 import com.uit.melodydiary.model.Diary
 import com.uit.melodydiary.model.DiaryStyle
+import com.uit.melodydiary.model.Emotion
 import com.uit.melodydiary.ui.addDiary.components.BorderlessTextField
 import com.uit.melodydiary.ui.addDiary.components.DateDetailInDiaryWithSelection
 import com.uit.melodydiary.ui.addDiary.components.DiaryTextField
 import com.uit.melodydiary.ui.addDiary.components.ImageContentWrapper
+import com.uit.melodydiary.ui.addDiary.components.MusicConfigurationDialog
 import com.uit.melodydiary.ui.addDiary.components.TimePickerDialog
 import com.uit.melodydiary.ui.addDiary.components.ToolBar
 import com.uit.melodydiary.ui.components.FontSelectionContent
 import com.uit.melodydiary.ui.components.ImageSelection
 import com.uit.melodydiary.ui.components.PaletteSelection
 import com.uit.melodydiary.ui.diary.DiaryViewModel
-import com.uit.melodydiary.ui.music.MusicConfigurationDialog
 import com.uit.melodydiary.ui.music.MusicConfigurationTab
 import com.uit.melodydiary.ui.music.MusicViewModel
 import com.uit.melodydiary.ui.theme.mygreen
@@ -153,168 +154,138 @@ fun AddDiaryScreen(
     }
 
     LaunchedEffect(Unit) {
-        MusicHelper.togglePlayback(MusicHelper.currentsong) {}
+        AppConstants.demoList.forEach { item ->
+            musicViewModel.insertMusic(item)
+        }
     }
 
     if (openDialog) {
-        DatePickerDialog(
-            onDismissRequest = {
-                openDialog = false
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        openDialog = false
-                        openTimeDialog = true
-                    },
-                    enabled = datePickerState.selectedDateMillis != null
-                ) {
-                    Text("OK")
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = {
-                        openDialog = false
-                    }
-                ) {
-                    Text("Cancel")
-                }
+        DatePickerDialog(onDismissRequest = {
+            openDialog = false
+        }, confirmButton = {
+            TextButton(
+                onClick = {
+                    openDialog = false
+                    openTimeDialog = true
+                }, enabled = datePickerState.selectedDateMillis != null
+            ) {
+                Text("OK")
             }
-        ) {
+        }, dismissButton = {
+            TextButton(onClick = {
+                openDialog = false
+            }) {
+                Text("Cancel")
+            }
+        }) {
             DatePicker(state = datePickerState)
         }
     }
 
     if (openTimeDialog) {
-        TimePickerDialog(
-            onCancel = {
-                openTimeDialog = false
-            },
-            onConfirm = {
-                openTimeDialog = false
-                val selectedDateMillis = datePickerState.selectedDateMillis ?: 0
-                val selectedHour = timePickerState.hour
-                val selectedMinute = timePickerState.minute
-                datetime = Instant.ofEpochMilli(selectedDateMillis)
-                    .atZone(ZoneId.systemDefault())
-                    .toLocalDateTime()
-                    .withHour(selectedHour)
-                    .withMinute(selectedMinute)
-            }
-        ) {
+        TimePickerDialog(onCancel = {
+            openTimeDialog = false
+        }, onConfirm = {
+            openTimeDialog = false
+            val selectedDateMillis = datePickerState.selectedDateMillis ?: 0
+            val selectedHour = timePickerState.hour
+            val selectedMinute = timePickerState.minute
+            datetime = Instant.ofEpochMilli(selectedDateMillis).atZone(ZoneId.systemDefault())
+                .toLocalDateTime().withHour(selectedHour).withMinute(selectedMinute)
+        }) {
             TimePicker(state = timePickerState)
         }
     }
 
-    Scaffold(
-        modifier = modifier,
-        topBar = {
-            CenterAlignedTopAppBar(
-                modifier = Modifier.background(selectedColorPalette),
-                colors = TopAppBarDefaults.topAppBarColors().copy(
-                    containerColor = selectedColorPalette
-                ),
-                navigationIcon = {
+    Scaffold(modifier = modifier, topBar = {
+        CenterAlignedTopAppBar(modifier = Modifier.background(selectedColorPalette),
+            colors = TopAppBarDefaults.topAppBarColors().copy(
+                containerColor = selectedColorPalette
+            ),
+            navigationIcon = {
 
-                    IconButton(
-                        onClick = {
-                            navController.popBackStack()
-                            MusicHelper.pause()
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                            contentDescription = null
+                IconButton(onClick = {
+                    navController.popBackStack()
+                    MusicHelper.pause()
+                }) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                        contentDescription = null
+                    )
+                }
+            },
+            title = {
+                Text(
+                    text = stringResource(R.string.title_viet_nhat_ky),
+                    style = MaterialTheme.typography.titleLarge
+                )
+            },
+            actions = {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(end = 16.dp)
+                ) {
+                    Spacer(modifier = Modifier.width(5.dp))
+                    Button(onClick = {
+                        val newDiary = Diary(
+                            diaryId = 0,
+                            title = title,
+                            content = content,
+                            mood = mood,
+                            logo = logo,
+                            createdAt = datetime,
+                            diaryStyle = DiaryStyle(
+                                fontStyle = selectedFontStyle,
+                                color = selectedColor,
+                                fontSize = selectedFontSize,
+                                colorPalette = selectedColorPalette
+                            ),
+                            contentFilePath = saveContentListToFile(context, contentList)
+                        )
+                        diaryViewModel.addDiary(newDiary)
+                        navController.navigate(MelodyDiaryApp.DiaryScreen.name)
+                        MusicHelper.pause()
+                    }) {
+                        Text(
+                            text = stringResource(R.string.msg_save_btn), color = Color.White
                         )
                     }
-                },
-                title = {
-                    Text(
-                        text = stringResource(R.string.title_viet_nhat_ky),
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                },
-                actions = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(end = 16.dp)
-                    ) {
-                        Spacer(modifier = Modifier.width(5.dp))
-                        Button(
-                            onClick = {
-                                val newDiary = Diary(
-                                    diaryId = 0,
-                                    title = title,
-                                    content = content,
-                                    mood = mood,
-                                    logo = logo,
-                                    createdAt = datetime,
-                                    diaryStyle = DiaryStyle(
-                                        fontStyle = selectedFontStyle,
-                                        color = selectedColor,
-                                        fontSize = selectedFontSize,
-                                        colorPalette = selectedColorPalette
-                                    ),
-                                    contentFilePath = saveContentListToFile(context, contentList)
-                                )
-                                diaryViewModel.addDiary(newDiary)
-                                navController.navigate(MelodyDiaryApp.DiaryScreen.name)
-                                MusicHelper.pause()
-                            }
-                        ) {
-                            Text(
-                                text = stringResource(R.string.msg_save_btn),
-                                color = Color.White
-                            )
-                        }
-                    }
                 }
+            })
+    }, bottomBar = {
+        Column {
+            MusicConfigurationTab(onShowMusicConfigurationDialog = {
+                showMusicConfigurationDialog = !showMusicConfigurationDialog
+            }, onPlayPauseClick = {
+                if (!isPlayingMusic) {
+                    MusicHelper.currentSong?.let { MusicHelper.togglePlayback(it) { } }
+                } else {
+                    MusicHelper.pause()
+                }
+                isPlayingMusic = !isPlayingMusic
+
+            }, onPlayPreviousClick = {
+                MusicHelper.pause()
+                MusicHelper.previous { }
+            }, onPlayNextClick = {
+                MusicHelper.pause()
+                MusicHelper.next { }
+            }, isPlaying = isPlayingMusic
             )
-        },
-        bottomBar = {
-            Column {
-                MusicConfigurationTab(
-                    onShowMusicConfigurationDialog = {
-                        showMusicConfigurationDialog = !showMusicConfigurationDialog
-                    },
-                    onPlayPauseClick = {
-                        if (!isPlayingMusic) {
-                            MusicHelper.togglePlayback(MusicHelper.currentsong) { }
-                        } else {
-                            MusicHelper.pause()
-                        }
-                        isPlayingMusic = !isPlayingMusic
+            Spacer(modifier = Modifier.height(3.dp))
 
-                    },
-                    onPlayPreviousClick = {
-                        MusicHelper.previous { }
-                    },
-                    onPlayNextClick = {
-                        MusicHelper.next { }
-                    },
-                    isPlaying = isPlayingMusic
-                )
-                Spacer(modifier = Modifier.height(3.dp))
-
-                ToolBar(
-                    onFontFormatClick = {
-                        showFontBottomSheet = true
-                    },
-                    onPaletteClick = {
-                        showPaletteBottomSheet = true
-                    },
-                    onIconClick = {
-                        showIconBottomSheet = true
-                    },
-                    onImageClick = {
-                        showImageBottomSheet = true
-                    }
-                )
-            }
-
+            ToolBar(onFontFormatClick = {
+                showFontBottomSheet = true
+            }, onPaletteClick = {
+                showPaletteBottomSheet = true
+            }, onIconClick = {
+                showIconBottomSheet = true
+            }, onImageClick = {
+                showImageBottomSheet = true
+            })
         }
-    ) { paddingValue ->
+
+    }) { paddingValue ->
         LazyColumn(
             modifier = modifier
                 .fillMaxSize()
@@ -340,13 +311,9 @@ fun AddDiaryScreen(
 
             item {
                 BorderlessTextField(
-                    value = title,
-                    placeholder = "Title",
-                    onValueChange = {
+                    value = title, placeholder = "Title", onValueChange = {
                         title = it
-                    },
-                    enable = true,
-                    textStyle = TextStyle(
+                    }, enable = true, textStyle = TextStyle(
                         fontFamily = when (selectedFontStyle) {
                             "Serif" -> FontFamily.Serif
                             "Sans-serif" -> FontFamily.SansSerif
@@ -354,9 +321,7 @@ fun AddDiaryScreen(
                             "Cursive" -> FontFamily.Cursive
                             "Fantasy" -> FontFamily.Default
                             else -> FontFamily.Default
-                        },
-                        fontSize = selectedFontSize.value.sp + 10.sp,
-                        color = selectedColor
+                        }, fontSize = selectedFontSize.value.sp + 10.sp, color = selectedColor
                     )
                 )
             }
@@ -380,22 +345,17 @@ fun AddDiaryScreen(
                                 "Cursive" -> FontFamily.Cursive
                                 "Fantasy" -> FontFamily.Default
                                 else -> FontFamily.Default
-                            },
-                            fontSize = selectedFontSize,
-                            color = selectedColor
+                            }, fontSize = selectedFontSize, color = selectedColor
                         )
                     )
                 } else {
-                    ImageContentWrapper(
-                        imageByteArray = value,
-                        onDeleteClick = {
-                            val updatedContentList = contentList.toMutableList()
-                            updatedContentList.removeAt(index)
-                            contentList = updatedContentList
-                        },
-                        onShrinkClick = {
-                            isShrink = !isShrink
-                        }, isShrink = isShrink
+                    ImageContentWrapper(imageByteArray = value, onDeleteClick = {
+                        val updatedContentList = contentList.toMutableList()
+                        updatedContentList.removeAt(index)
+                        contentList = updatedContentList
+                    }, onShrinkClick = {
+                        isShrink = !isShrink
+                    }, isShrink = isShrink
                     )
                 }
             }
@@ -407,12 +367,12 @@ fun AddDiaryScreen(
             ModalBottomSheet(
                 onDismissRequest = {
                     showBottomSheet = false
-                },
-                sheetState = sheetState,
-                modifier = Modifier.fillMaxWidth()
+                }, sheetState = sheetState, modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
-                    modifier = Modifier.height(300.dp).fillMaxWidth(),
+                    modifier = Modifier
+                        .height(300.dp)
+                        .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(
@@ -431,7 +391,8 @@ fun AddDiaryScreen(
                                     logo = R.drawable.ic_face
                                     scope.launch {
                                         MusicHelper.pause()
-                                        musicViewModel.populateMusicList(AppConstants.EMOTION_FUN)
+                                        MusicHelper.clearAllMusic()
+                                        musicViewModel.populateMusicList(Emotion.Fun.emotion)
                                         MusicHelper.playSequential(onPlaybackCompleted = {})
                                     }
                                 },
@@ -451,7 +412,8 @@ fun AddDiaryScreen(
                                     logo = R.drawable.ic_cry
                                     scope.launch {
                                         MusicHelper.pause()
-                                        musicViewModel.populateMusicList("sadness, ${AppConstants.EMOTION_FUN} music")
+                                        MusicHelper.clearAllMusic()
+                                        musicViewModel.populateMusicList(Emotion.Cry.emotion)
                                         MusicHelper.playSequential(onPlaybackCompleted = {})
                                     }
                                 },
@@ -471,6 +433,7 @@ fun AddDiaryScreen(
                                     logo = R.drawable.ic_neutral
                                     scope.launch {
                                         MusicHelper.pause()
+                                        MusicHelper.clearAllMusic()
                                         musicViewModel.populateMusicList(AppConstants.EMOTION_SAD)
                                         MusicHelper.playSequential(onPlaybackCompleted = {})
                                     }
@@ -491,6 +454,7 @@ fun AddDiaryScreen(
                                     logo = R.drawable.ic_fear
                                     scope.launch {
                                         MusicHelper.pause()
+                                        MusicHelper.clearAllMusic()
                                         musicViewModel.populateMusicList(AppConstants.EMOTION_FEAR)
                                         MusicHelper.playSequential(onPlaybackCompleted = {})
                                     }
@@ -511,6 +475,7 @@ fun AddDiaryScreen(
                                     logo = R.drawable.ic_disgust
                                     scope.launch {
                                         MusicHelper.pause()
+                                        MusicHelper.clearAllMusic()
                                         musicViewModel.populateMusicList(AppConstants.EMOTION_DISGUST)
                                         MusicHelper.playSequential(onPlaybackCompleted = {})
                                     }
@@ -531,6 +496,7 @@ fun AddDiaryScreen(
                                     logo = R.drawable.ic_angry
                                     scope.launch {
                                         MusicHelper.pause()
+                                        MusicHelper.clearAllMusic()
                                         musicViewModel.populateMusicList(AppConstants.EMOTION_ANGRY)
                                         MusicHelper.playSequential(onPlaybackCompleted = {})
                                     }
@@ -551,15 +517,11 @@ fun AddDiaryScreen(
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        TextButton(
-                            onClick = {
-                                Toast.makeText(
-                                    context,
-                                    "Feature is under construction",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        ) {
+                        TextButton(onClick = {
+                            Toast.makeText(
+                                context, "Feature is under construction", Toast.LENGTH_SHORT
+                            ).show()
+                        }) {
                             Text(
                                 text = stringResource(R.string.btn_them_tam_trang),
                                 color = Color.Blue
@@ -577,13 +539,10 @@ fun AddDiaryScreen(
         }
 
         if (showFontBottomSheet) {
-            ModalBottomSheet(
-                onDismissRequest = {
-                    showFontBottomSheet = false
-                }
-            ) {
-                FontSelectionContent(
-                    selectedFontStyle = selectedFontStyle,
+            ModalBottomSheet(onDismissRequest = {
+                showFontBottomSheet = false
+            }) {
+                FontSelectionContent(selectedFontStyle = selectedFontStyle,
                     onFontStyleChange = { style ->
                         selectedFontStyle = style
                     },
@@ -601,11 +560,9 @@ fun AddDiaryScreen(
         }
 
         if (showIconBottomSheet) {
-            ModalBottomSheet(
-                onDismissRequest = {
-                    showIconBottomSheet = false
-                }
-            ) {
+            ModalBottomSheet(onDismissRequest = {
+                showIconBottomSheet = false
+            }) {
                 ComposeEmojiPickerBottomSheetUI(
                     onEmojiClick = { emoji ->
                         showIconBottomSheet = false
@@ -629,51 +586,42 @@ fun AddDiaryScreen(
             ModalBottomSheet(
                 onDismissRequest = {
                     showPaletteBottomSheet = false
-                },
-                containerColor = Color.White
+                }, containerColor = Color.White
 
             ) {
-                PaletteSelection(
-                    color = selectedColorPalette,
-                    onColorChange = {
-                        selectedColorPalette = it
-                    }
-                )
+                PaletteSelection(color = selectedColorPalette, onColorChange = {
+                    selectedColorPalette = it
+                })
             }
         }
 
         if (showImageBottomSheet) {
-            ModalBottomSheet(
-                onDismissRequest = {
+            ModalBottomSheet(onDismissRequest = {
+                showImageBottomSheet = !showImageBottomSheet
+            }) {
+                ImageSelection(selectedImageUri = selectedImageUri, onImageSelected = { uri ->
+                    selectedImageUri = uri
+                    val pair: Pair<String, ByteArray> = Pair(
+                        "image", context.contentResolver.openInputStream(
+                            selectedImageUri!!
+                        )?.readBytes()!!
+                    )
+                    contentList.add(pair)
+                    val temp: Pair<String, ByteArray> = Pair("text", stringToByteArray(""))
+                    contentList.add(temp)
                     showImageBottomSheet = !showImageBottomSheet
-                }
-            ) {
-                ImageSelection(
-                    selectedImageUri = selectedImageUri,
-                    onImageSelected = { uri ->
-                        selectedImageUri = uri
-                        val pair: Pair<String, ByteArray> = Pair(
-                            "image", context.contentResolver.openInputStream(
-                                selectedImageUri!!
-                            )?.readBytes()!!
-                        )
-                        contentList.add(pair)
-                        val temp: Pair<String, ByteArray> = Pair("text", stringToByteArray(""))
-                        contentList.add(temp)
-                        showImageBottomSheet = !showImageBottomSheet
-                    }
-                )
+                })
             }
         }
 
         if (showMusicConfigurationDialog) {
-            MusicConfigurationDialog(
-                onDismiss = {
-                    showMusicConfigurationDialog = !showMusicConfigurationDialog
-                },
-                giaiDieuName = MusicHelper.currentsong.title,
-
+            MusicHelper.currentSong?.let {
+                MusicConfigurationDialog(
+                    onDismiss = {
+                        showMusicConfigurationDialog = !showMusicConfigurationDialog
+                    }, giaiDieuName = it.title, currentEmotion = mood + " music"
                 )
+            }
         }
     }
 }

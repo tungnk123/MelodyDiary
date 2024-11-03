@@ -16,3 +16,11 @@ data class MusicGroup(
     @SerializedName("musics") val musics: List<GeneratedMusic>
 )
 
+fun GeneratedMusic.toMusicSmall() = MusicSmall(
+    title = this.fileId,
+    url = this.fileContentUrl,
+    groupId = this.groupId,
+    emotion = this.emotion,
+    genre = this.genre,
+    instrument = this.instrument
+)
