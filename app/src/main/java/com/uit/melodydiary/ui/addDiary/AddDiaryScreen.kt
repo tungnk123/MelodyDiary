@@ -370,11 +370,18 @@ fun AddDiaryScreen(
                             contentList = updatedContentList
                         },
                         onDetectDot = {
+//                            val inputForGemini = context.getString(
+//                                R.string.msg_prompt_detect_emotion_gemini,
+//                                byteArrayToString(value)
+//                            )
+//                            musicViewModel.callGeminiToDetectEmotion(inputForGemini)
+                            val lyric = byteArrayToString(value)
                             Log.d(
-                                "test_dot",
-                                "Dot enter"
+                                "test_lyric",
+                                "Current lyric: $lyric"
                             )
-                            musicViewModel.callGemini("Write me a story")
+                            MusicHelper.clearAllMusic()
+                            musicViewModel.populateMusicListByLyric(lyric)
                         },
                         enable = true,
                         textStyle = TextStyle(

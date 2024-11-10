@@ -108,6 +108,36 @@ class MusicViewModel(
         }
     }
 
+    fun populateMusicListByLyric(lyric: String) {
+        try {
+            viewModelScope.launch(Dispatchers.IO) {
+                val musicGroup = musicRepository.getGeneratedMusicListByLyric(
+                    lyric = lyric
+                )
+                musicGroup.forEach {
+                    val remoteMusicList = it.musics.map { music ->
+                        music.toMusicSmall()
+                    }
+                    remoteMusicList.forEach {
+                        MusicHelper.addSongToEnd(it)
+                    }
+                }
+                Log.d(
+                    "test_song",
+                    "Current song queue: ${MusicHelper.songQueue}"
+                )
+            }
+        }
+        catch (e: Exception) {
+            Log.e(
+                "fetchMusic",
+                "Error fetching music: ${e.message}",
+                e
+            )
+            throw e
+        }
+    }
+
     fun getAllMusicByGroupId(groupId: String) =
         musicRepository.getAllLocalSmallMusicsByGroupId(groupId)
 
@@ -140,12 +170,11 @@ class MusicViewModel(
         }
     }
 
-
     fun setSelectedDiary(diary: Diary) {
         currentDiary = diary
     }
 
-    fun callGemini(input: String) {
+    fun callGeminiToDetectEmotion(input: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val response = generativeModel.generateContent(input)
             Log.d(

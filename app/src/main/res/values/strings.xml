@@ -98,4 +98,16 @@
     <string name="msg_new_status">Group face for new status</string>
     <string name="msg_save_btn">Save</string>
 
+    <string name="msg_prompt_detect_emotion_gemini" translatable="false">
+        Xác định cảm xúc chủ đạo của đoạn văn bản sau đây trong sáu cảm xúc chính: vui vẻ (Fun), khóc lóc (Cry), buồn bã (Sad), sợ hãi (Fear), ghê tởm (Disgust), giận dữ (Angry). Trả về một trong sáu giá trị này:
+
+        Đoạn văn bản:
+
+        %s
+
+        Yêu cầu đầu ra: Trả về một từ duy nhất tương ứng với cảm xúc, lựa chọn từ một trong sáu giá trị: joy, cry, sadness, fear, disgust, angry. (Giống y sì ví dụ, không in hoa. Ví dụ: joy)
+
+        Ví dụ: Với đoạn văn bản đầu vào: "Hôm nay là một ngày tuyệt vời, tôi rất vui khi được gặp gỡ bạn bè.", hệ thống sẽ trả về: Fun.
+
+    </string>
 </resources>
