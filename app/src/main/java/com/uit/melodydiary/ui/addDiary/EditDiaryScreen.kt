@@ -130,39 +130,48 @@ fun EditDiaryScreen(
         )
     }
     if (openDialog) {
-        DatePickerDialog(onDismissRequest = {
-            openDialog = false
-        }, confirmButton = {
-            TextButton(
-                onClick = {
-                    openDialog = false
-                    openTimeDialog = true
-                }, enabled = datePickerState.selectedDateMillis != null
-            ) {
-                Text("OK")
-            }
-        }, dismissButton = {
-            TextButton(onClick = {
+        DatePickerDialog(
+            onDismissRequest = {
                 openDialog = false
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        openDialog = false
+                        openTimeDialog = true
+                    },
+                    enabled = datePickerState.selectedDateMillis != null
+                ) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    openDialog = false
+                }) {
+                    Text("Cancel")
+                }
             }) {
-                Text("Cancel")
-            }
-        }) {
             DatePicker(state = datePickerState)
         }
     }
 
     if (openTimeDialog) {
-        TimePickerDialog(onCancel = {
-            openTimeDialog = false
-        }, onConfirm = {
-            openTimeDialog = false
-            val selectedDateMillis = datePickerState.selectedDateMillis ?: 0
-            val selectedHour = timePickerState.hour
-            val selectedMinute = timePickerState.minute
-            datetime = Instant.ofEpochMilli(selectedDateMillis).atZone(ZoneId.systemDefault())
-                .toLocalDateTime().withHour(selectedHour).withMinute(selectedMinute)
-        }) {
+        TimePickerDialog(
+            onCancel = {
+                openTimeDialog = false
+            },
+            onConfirm = {
+                openTimeDialog = false
+                val selectedDateMillis = datePickerState.selectedDateMillis ?: 0
+                val selectedHour = timePickerState.hour
+                val selectedMinute = timePickerState.minute
+                datetime = Instant.ofEpochMilli(selectedDateMillis)
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDateTime()
+                    .withHour(selectedHour)
+                    .withMinute(selectedMinute)
+            }) {
             TimePicker(state = timePickerState)
         }
     }
@@ -171,9 +180,10 @@ fun EditDiaryScreen(
         modifier = modifier,
         topBar = {
             CenterAlignedTopAppBar(modifier = Modifier,
-                colors = TopAppBarDefaults.topAppBarColors().copy(
-                    containerColor = diaryStyle.colorPalette
-                ),
+                colors = TopAppBarDefaults.topAppBarColors()
+                    .copy(
+                        containerColor = diaryStyle.colorPalette
+                    ),
                 navigationIcon = {
 
                     IconButton(onClick = {
@@ -209,7 +219,8 @@ fun EditDiaryScreen(
                                     createdAt = datetime,
                                     diaryStyle = it.diaryStyle,
                                     contentFilePath = saveContentListToFile(
-                                        context, contentList
+                                        context,
+                                        contentList
                                     )
 
                                 )
@@ -219,7 +230,8 @@ fun EditDiaryScreen(
                             MusicHelper.pause()
                         }) {
                             Text(
-                                text = "Save", color = Color.White
+                                text = "Save",
+                                color = Color.White
                             )
                         }
                     }
@@ -252,9 +264,13 @@ fun EditDiaryScreen(
                 }
                 item {
                     BorderlessTextField(
-                        value = title, placeholder = "Title", onValueChange = {
+                        value = title,
+                        placeholder = "Title",
+                        onValueChange = {
                             title = it
-                        }, enable = true, textStyle = TextStyle(
+                        },
+                        enable = true,
+                        textStyle = TextStyle(
                             fontFamily = when (diaryStyle.fontStyle) {
                                 "Serif" -> FontFamily.Serif
                                 "Sans-serif" -> FontFamily.SansSerif
@@ -262,7 +278,9 @@ fun EditDiaryScreen(
                                 "Cursive" -> FontFamily.Cursive
                                 "Fantasy" -> FontFamily.Default
                                 else -> FontFamily.Default
-                            }, color = diaryStyle.color, fontSize = diaryStyle.fontSize.plus(10.sp)
+                            },
+                            color = diaryStyle.color,
+                            fontSize = diaryStyle.fontSize.plus(10.sp)
                         )
                     )
                 }
@@ -285,18 +303,24 @@ fun EditDiaryScreen(
                                     "Cursive" -> FontFamily.Cursive
                                     "Fantasy" -> FontFamily.Default
                                     else -> FontFamily.Default
-                                }, color = diaryStyle.color, fontSize = diaryStyle.fontSize
+                                },
+                                color = diaryStyle.color,
+                                fontSize = diaryStyle.fontSize
                             )
                         )
-                    } else {
+                    }
+                    else {
 
-                        ImageContentWrapper(imageByteArray = value, onDeleteClick = {
-                            val updatedContentList = contentList.toMutableList()
-                            updatedContentList.removeAt(index)
-                            contentList = updatedContentList
-                        }, onShrinkClick = {
-                            isShrink = !isShrink
-                        }, isShrink = isShrink
+                        ImageContentWrapper(imageByteArray = value,
+                            onDeleteClick = {
+                                val updatedContentList = contentList.toMutableList()
+                                updatedContentList.removeAt(index)
+                                contentList = updatedContentList
+                            },
+                            onShrinkClick = {
+                                isShrink = !isShrink
+                            },
+                            isShrink = isShrink
                         )
                     }
                 }
@@ -308,7 +332,9 @@ fun EditDiaryScreen(
             ModalBottomSheet(
                 onDismissRequest = {
                     showBottomSheet = false
-                }, sheetState = sheetState, modifier = Modifier.fillMaxWidth()
+                },
+                sheetState = sheetState,
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
                     modifier = Modifier
@@ -333,7 +359,7 @@ fun EditDiaryScreen(
                                     scope.launch {
                                         MusicHelper.pause()
                                         musicViewModel.populateMusicList(Emotion.Fun.emotion)
-                                        MusicHelper.playSequential(onPlaybackCompleted = {})
+                                        MusicHelper.playSequential()
                                     }
                                 },
                             ) {
@@ -353,7 +379,7 @@ fun EditDiaryScreen(
                                     scope.launch {
                                         MusicHelper.pause()
                                         musicViewModel.populateMusicList(Emotion.Sad.emotion)
-                                        MusicHelper.playSequential(onPlaybackCompleted = {})
+                                        MusicHelper.playSequential()
                                     }
                                 },
                             ) {
@@ -373,7 +399,7 @@ fun EditDiaryScreen(
                                     scope.launch {
                                         MusicHelper.pause()
                                         musicViewModel.populateMusicList(Emotion.Cry.emotion)
-                                        MusicHelper.playSequential(onPlaybackCompleted = {})
+                                        MusicHelper.playSequential()
                                     }
                                 },
                             ) {
@@ -393,7 +419,7 @@ fun EditDiaryScreen(
                                     scope.launch {
                                         MusicHelper.pause()
                                         musicViewModel.populateMusicList(Emotion.Fear.emotion)
-                                        MusicHelper.playSequential(onPlaybackCompleted = {})
+                                        MusicHelper.playSequential()
                                     }
                                 },
                             ) {
@@ -413,7 +439,7 @@ fun EditDiaryScreen(
                                     scope.launch {
                                         MusicHelper.pause()
                                         musicViewModel.populateMusicList(Emotion.Disgust.emotion)
-                                        MusicHelper.playSequential(onPlaybackCompleted = {})
+                                        MusicHelper.playSequential()
                                     }
                                 },
                             ) {
@@ -433,7 +459,7 @@ fun EditDiaryScreen(
                                     scope.launch {
                                         MusicHelper.pause()
                                         musicViewModel.populateMusicList(Emotion.Angry.emotion)
-                                        MusicHelper.playSequential(onPlaybackCompleted = {})
+                                        MusicHelper.playSequential()
                                     }
                                 },
                             ) {

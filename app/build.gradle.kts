@@ -149,4 +149,17 @@ dependencies {
         exclude(module = "guava-jdk5")
     }
 
+    // exo player
+    implementation(libs.androidx.media3.media3.exoplayer3)
+    implementation(libs.androidx.media3.media3.exoplayer.dash)
+    implementation(libs.androidx.media3.media3.exoplayer.hls)
+    implementation(libs.androidx.media3.media3.exoplayer.rtsp)
+    implementation(libs.androidx.media3.media3.exoplayer.smoothstreaming)
+    implementation(libs.androidx.media3.media3.session)
+    implementation(libs.androidx.media3.media3.container)
+    implementation(libs.androidx.media3.media3.datasource.rtmp)
+    implementation(libs.androidx.media3.media3.datasource.okhttp)
+    implementation(libs.androidx.media3.media3.extractor)
+    implementation(libs.androidx.media3.media3.ui)
+
 }

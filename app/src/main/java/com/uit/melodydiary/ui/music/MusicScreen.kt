@@ -96,26 +96,24 @@ import java.time.LocalDateTime
 fun MusicScreen(
     modifier: Modifier = Modifier,
     musicViewModel: MusicViewModel,
-    navController: NavController
+    navController: NavController,
 ) {
     val diaryViewModel: DiaryViewModel = viewModel(factory = DiaryViewModel.Factory)
     diaryViewModel.getDiaryFromDatabase()
 
     musicViewModel.getAllAlbum()
     val albumList = musicViewModel.albumList.collectAsState()
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(R.string.title_music),
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                },
-
+    Scaffold(topBar = {
+        TopAppBar(
+            title = {
+                Text(
+                    text = stringResource(R.string.title_music),
+                    style = MaterialTheme.typography.titleLarge
                 )
-        }
-    ) { innerPadding ->
+            },
+
+            )
+    }) { innerPadding ->
 
         DiaryTab(
             modifier = Modifier.padding(innerPadding),
@@ -132,7 +130,7 @@ fun DiaryTab(
     modifier: Modifier = Modifier,
     musicViewModel: MusicViewModel,
     diaryViewModel: DiaryViewModel,
-    albumList: List<Album>
+    albumList: List<Album>,
 ) {
     var selectedTabIndex by remember { mutableStateOf(0) }
     var musicList by remember { mutableStateOf(mutableListOf<MusicSmall>()) }
@@ -196,16 +194,17 @@ fun DiaryTab(
         // Content for each tab
         when (selectedTabIndex) {
             0 -> {
-                GenMusicTab(
-                    musicList = musicList,
+                GenMusicTab(musicList = musicList,
                     onTaoNhacClick = {
                         if (musicViewModel.currentDiary.title == "Chọn") {
                             Toast.makeText(
                                 context,
                                 "Please select a diary to gen music!",
                                 Toast.LENGTH_LONG
-                            ).show()
-                        } else {
+                            )
+                                .show()
+                        }
+                        else {
                             scope.launch {
                                 Log.i(
                                     "giai_dieu",
@@ -216,7 +215,14 @@ fun DiaryTab(
                                 val result = musicViewModel.generateMusic(genString)
                                 val size = musicList.size + 1
                                 musicList = musicList.toMutableList()
-                                    .apply { add(MusicSmall(title = "Melody $size", url = result)) }
+                                    .apply {
+                                        add(
+                                            MusicSmall(
+                                                title = "Melody $size",
+                                                url = result
+                                            )
+                                        )
+                                    }
                             }
                         }
                     },
@@ -226,8 +232,10 @@ fun DiaryTab(
                                 context,
                                 "Please select a music to expose!",
                                 Toast.LENGTH_LONG
-                            ).show()
-                        } else {
+                            )
+                                .show()
+                        }
+                        else {
                             isAlbumSelectionDialogVisible = true
                         }
                     },
@@ -244,46 +252,43 @@ fun DiaryTab(
                     selectedMusicSmall = selectedMusicSmall,
                     onSelectedMusicChange = {
                         selectedMusicSmall = it
-                    }
-                )
+                    })
             }
 
             1 -> {
-                PlaylistTab(
-                    modifier = Modifier.weight(1f),
+                PlaylistTab(modifier = Modifier.weight(1f),
                     musicViewModel = musicViewModel,
                     albumList = albumList,
                     showAlbumList = true,
                     selectedAlbum = selectedAlbum,
-                    onAlbumSelected = { album -> selectedAlbum = album }
-                )
+                    onAlbumSelected = { album -> selectedAlbum = album })
             }
         }
 
         selectedAlbum?.let { album ->
-            AlbumDetailScreen(
-                album = album,
+            AlbumDetailScreen(album = album,
                 onClose = { selectedAlbum = null },
                 selectedMusicSmall = selectedMusicSmall,
                 onSelectedMusicChange = {
                     selectedMusicSmall = it
                 },
-                musicList = musicViewModel.musicSmallList.filter { it.albumId == album.albumId }
-            )
+                musicList = musicViewModel.musicSmallList.filter { it.albumId == album.albumId })
         }
         if (isAlbumSelectionDialogVisible) {
-            AlbumSelectionDialog(
-                albumList = albumList,
+            AlbumSelectionDialog(albumList = albumList,
                 onAlbumSelected = { album ->
                     selectedMusicSmall.albumId = album.albumId
 
                     musicViewModel.insertMusic(selectedMusicSmall)
-                    Toast.makeText(context, "Exposed to ${album.title}", Toast.LENGTH_SHORT)
+                    Toast.makeText(
+                        context,
+                        "Exposed to ${album.title}",
+                        Toast.LENGTH_SHORT
+                    )
                         .show()
                     isAlbumSelectionDialogVisible = false
                 },
-                onDismissRequest = { isAlbumSelectionDialogVisible = false }
-            )
+                onDismissRequest = { isAlbumSelectionDialogVisible = false })
         }
     }
 }
@@ -292,12 +297,11 @@ fun DiaryTab(
 fun AlbumSelectionDialog(
     albumList: List<Album>,
     onAlbumSelected: (Album) -> Unit,
-    onDismissRequest: () -> Unit
+    onDismissRequest: () -> Unit,
 ) {
     var selectedAlbum by remember { mutableStateOf<Album?>(null) }
 
-    AlertDialog(
-        onDismissRequest = onDismissRequest,
+    AlertDialog(onDismissRequest = onDismissRequest,
         title = {
             Text(
                 text = stringResource(R.string.text_select_album),
@@ -307,13 +311,11 @@ fun AlbumSelectionDialog(
         text = {
             LazyColumn {
                 items(albumList) { album ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { selectedAlbum = album }
-                            .background(if (album == selectedAlbum) Color.Gray else Color.Transparent)
-                            .padding(8.dp)
-                    ) {
+                    Row(modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { selectedAlbum = album }
+                        .background(if (album == selectedAlbum) Color.Gray else Color.Transparent)
+                        .padding(8.dp)) {
                         Text(
                             text = album.title,
                             fontWeight = if (album == selectedAlbum) FontWeight.Bold else FontWeight.Normal
@@ -334,7 +336,10 @@ fun AlbumSelectionDialog(
                 ),
                 shape = RoundedCornerShape(20.dp)
             ) {
-                Text(text = stringResource(R.string.btn_xac_nhan), color = Color.Black)
+                Text(
+                    text = stringResource(R.string.btn_xac_nhan),
+                    color = Color.Black
+                )
             }
         },
         dismissButton = {
@@ -351,8 +356,7 @@ fun AlbumSelectionDialog(
                     color = Color.White
                 )
             }
-        }
-    )
+        })
 }
 
 
@@ -370,7 +374,7 @@ fun GenMusicTab(
     onSelectedNhacCuChange: (String) -> Unit,
     selectedMusicSmall: MusicSmall,
     onSelectedMusicChange: (MusicSmall) -> Unit,
-    musicViewModel: MusicViewModel
+    musicViewModel: MusicViewModel,
 ) {
     Column(
         modifier = modifier
@@ -397,13 +401,16 @@ fun GenMusicTab(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(
+    ExperimentalMaterial3Api::class,
+    ExperimentalMaterialApi::class
+)
 @Composable
 fun MyDropDown(
     list: List<String>,
     selectedItem: String = "Choose",
     onSelectedItemChange: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     var expanded by remember { mutableStateOf(false) }
     var canWrite by remember {
@@ -429,23 +436,19 @@ fun MyDropDown(
             modifier = Modifier.menuAnchor()
         )
 
-        ExposedDropdownMenu(
-            expanded = expanded,
+        ExposedDropdownMenu(expanded = expanded,
             onDismissRequest = {
                 expanded = false
-            }
-        ) {
+            }) {
             list.forEach { item ->
-                DropdownMenuItem(
-                    text = {
-                        Text(text = item)
-                    },
+                DropdownMenuItem(text = {
+                    Text(text = item)
+                },
                     onClick = {
                         onSelectedItemChange(item)
                         expanded = false
                         canWrite = item == "Other"
-                    }
-                )
+                    })
             }
         }
     }
@@ -461,7 +464,7 @@ fun GenMusicWrapper(
     selectedNhacCu: String,
     onSelectedGiaiDieuChange: (String) -> Unit,
     onSelectedNhacCuChange: (String) -> Unit,
-    musicViewModel: MusicViewModel
+    musicViewModel: MusicViewModel,
 ) {
     val theLoaiList: MutableList<String> = mutableListOf(
         "Pop Music",
@@ -495,7 +498,10 @@ fun GenMusicWrapper(
             musicViewModel = musicViewModel
         )
         Row(
-            modifier = Modifier.padding(horizontal = 20.dp, vertical = 5.dp),
+            modifier = Modifier.padding(
+                horizontal = 20.dp,
+                vertical = 5.dp
+            ),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -504,16 +510,17 @@ fun GenMusicWrapper(
                 style = MaterialTheme.typography.titleMedium
             )
             Spacer(modifier = Modifier.width(10.dp))
-            MyDropDown(
-                list = theLoaiList,
+            MyDropDown(list = theLoaiList,
                 selectedItem = selectedGiaiDieu,
                 onSelectedItemChange = {
                     onSelectedGiaiDieuChange(it)
-                }
-            )
+                })
         }
         Row(
-            modifier = Modifier.padding(horizontal = 20.dp, vertical = 5.dp),
+            modifier = Modifier.padding(
+                horizontal = 20.dp,
+                vertical = 5.dp
+            ),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -522,19 +529,20 @@ fun GenMusicWrapper(
                 style = MaterialTheme.typography.titleMedium
             )
             Spacer(modifier = Modifier.width(10.dp))
-            MyDropDown(
-                list = nhacCuList,
+            MyDropDown(list = nhacCuList,
                 selectedItem = selectedNhacCu,
                 onSelectedItemChange = {
                     onSelectedNhacCuChange(it)
-                }
-            )
+                })
         }
         Spacer(modifier = Modifier.height(10.dp))
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 10.dp),
+                .padding(
+                    horizontal = 20.dp,
+                    vertical = 10.dp
+                ),
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -569,13 +577,16 @@ fun GenMusicWrapper(
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(
+    ExperimentalMaterial3Api::class,
+    ExperimentalMaterialApi::class
+)
 @Composable
 fun PickDiary(
     onClickChooseDiary: () -> Unit,
     list: List<Diary>,
     musicViewModel: MusicViewModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val selectedDiary = remember {
         mutableStateOf(
@@ -602,7 +613,10 @@ fun PickDiary(
         },
         modifier = modifier
             .clip(RoundedCornerShape(8.dp))
-            .padding(horizontal = 20.dp, vertical = 10.dp)
+            .padding(
+                horizontal = 20.dp,
+                vertical = 10.dp
+            )
     ) {
 
         Card(
@@ -622,7 +636,10 @@ fun PickDiary(
             colors = CardDefaults.cardColors(
                 containerColor = Color.White,
             ),
-            border = BorderStroke(2.dp, Color.Blue)
+            border = BorderStroke(
+                2.dp,
+                Color.Blue
+            )
         ) {
             if (selectedDiary.value.diaryId == 0) {
                 Row(
@@ -641,31 +658,28 @@ fun PickDiary(
                         style = MaterialTheme.typography.titleLarge
                     )
                 }
-            } else {
+            }
+            else {
                 DiaryMenuItemWithClose(diary = selectedDiary.value,
                     onCloseClick = {
                         selectedDiary.value = selectedDiary.value.copy(diaryId = 0)
                     })
             }
         }
-        ExposedDropdownMenu(
-            modifier = Modifier.fillMaxWidth(),
+        ExposedDropdownMenu(modifier = Modifier.fillMaxWidth(),
             expanded = expanded && canExpandDropdown,
             onDismissRequest = {
                 expanded = false
-            }
-        ) {
+            }) {
             list.forEach { item ->
-                DropdownMenuItem(
-                    text = {
-                        DiaryMenuItem(diary = item)
-                    },
+                DropdownMenuItem(text = {
+                    DiaryMenuItem(diary = item)
+                },
                     onClick = {
                         selectedDiary.value = item
                         musicViewModel.setSelectedDiary(selectedDiary.value)
                         expanded = false
-                    }
-                )
+                    })
             }
         }
     }
@@ -675,7 +689,7 @@ fun PickDiary(
 @Composable
 fun DiaryMenuItem(
     diary: Diary,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically
@@ -696,7 +710,7 @@ fun DiaryMenuItem(
 fun DiaryMenuItemWithClose(
     diary: Diary,
     onCloseClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Row {
         Row(
@@ -737,7 +751,7 @@ fun MusicList(
     modifier: Modifier = Modifier,
     musicList: List<MusicSmall>,
     selectedItem: MusicSmall,
-    onSelectedItemChange: (MusicSmall) -> Unit
+    onSelectedItemChange: (MusicSmall) -> Unit,
 ) {
     if (musicList.isEmpty()) {
         Box(
@@ -749,7 +763,8 @@ fun MusicList(
                 style = MaterialTheme.typography.titleMedium
             )
         }
-    } else {
+    }
+    else {
         LazyColumn {
             items(musicList) {
                 var isPlayState by remember {
@@ -759,18 +774,16 @@ fun MusicList(
                 MusicItem(musicItem = it,
                     onClickPlay = {
                         isPlayState = true
-                        MusicHelper.togglePlayback(it) {
-                            isPlayState = false
-                        }
-                    }, onClickPause = {
+                        MusicHelper.togglePlayback(it)
+                    },
+                    onClickPause = {
                         isPlayState = false
                     },
                     isPlay = isPlayState,
                     isSelected = selectedItem == it,
                     onItemSelected = {
                         onSelectedItemChange(it)
-                    }
-                )
+                    })
             }
         }
     }
@@ -786,7 +799,7 @@ fun MusicItem(
     onClickPause: () -> Unit,
     isSelected: Boolean,
     onItemSelected: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     var progress by remember {
         mutableFloatStateOf(0f)
@@ -795,7 +808,10 @@ fun MusicItem(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 10.dp),
+            .padding(
+                horizontal = 20.dp,
+                vertical = 10.dp
+            ),
         onClick = {
             onItemSelected()
         },
@@ -805,7 +821,11 @@ fun MusicItem(
             topStart = 5.dp,
             bottomEnd = 5.dp
         ),
-        border = if (isSelected) BorderStroke(2.dp, Color.Blue) else ButtonDefaults.outlinedBorder,
+        border = if (isSelected) BorderStroke(
+            2.dp,
+            Color.Blue
+        )
+        else ButtonDefaults.outlinedBorder,
         elevation = CardDefaults.cardElevation(
             2.dp
         ),
@@ -847,7 +867,8 @@ fun MusicItem(
                             modifier = Modifier.size(32.dp)
                         )
                     }
-                } else {
+                }
+                else {
                     progress++
                     IconButton(
                         onClick = onClickPlay
@@ -882,7 +903,7 @@ fun MusicItem(
 fun CustomSeekBar(
     progress: Float,
     maxProgress: Float,
-    onProgressChange: (Float) -> Unit
+    onProgressChange: (Float) -> Unit,
 ) {
     var sliderPosition by remember { mutableStateOf(progress) }
 
@@ -901,8 +922,7 @@ fun CustomSeekBar(
                     shape = RoundedCornerShape(4.dp)
                 )
         )
-        Slider(
-            value = sliderPosition,
+        Slider(value = sliderPosition,
             onValueChange = {
                 sliderPosition = it
                 onProgressChange(it)
@@ -918,19 +938,21 @@ fun CustomSeekBar(
                 Box(
                     modifier = Modifier
                         .size(10.dp)
-                        .background(Color.Black, RoundedCornerShape(percent = 50))
+                        .background(
+                            Color.Black,
+                            RoundedCornerShape(percent = 50)
+                        )
                         .align(Alignment.Center)
 
                 )
-            }
-        )
+            })
     }
 }
 
 @Composable
 fun AddAlbum(
     modifier: Modifier = Modifier,
-    onAddAlbumClick: () -> Unit
+    onAddAlbumClick: () -> Unit,
 ) {
     Card(
         modifier = modifier
@@ -951,7 +973,10 @@ fun AddAlbum(
         colors = CardDefaults.cardColors(
             containerColor = Color.White,
         ),
-        border = BorderStroke(2.dp, Color.Blue)
+        border = BorderStroke(
+            2.dp,
+            Color.Blue
+        )
     ) {
         Row(
             modifier = Modifier.fillMaxSize(),
@@ -979,7 +1004,7 @@ fun PlaylistTab(
     albumList: List<Album>,
     showAlbumList: Boolean,
     selectedAlbum: Album? = null,
-    onAlbumSelected: (Album) -> Unit
+    onAlbumSelected: (Album) -> Unit,
 ) {
 
     var isCreateAlbumDialogOpen by remember { mutableStateOf(false) }
@@ -990,26 +1015,21 @@ fun PlaylistTab(
                 .fillMaxSize()
                 .padding(20.dp)
         ) {
-            AddAlbum(
-                onAddAlbumClick = {
-                    isCreateAlbumDialogOpen = true
-                }
-            )
-            AlbumItemList(
-                albumList = albumList,
-                onItemClick = { album -> onAlbumSelected(album) }
-            )
-            CreateAlbumScreen(
-                onAlbumCreated = {
-                    musicViewModel.insertAlbum(it)
-                },
+            AddAlbum(onAddAlbumClick = {
+                isCreateAlbumDialogOpen = true
+            })
+            AlbumItemList(albumList = albumList,
+                onItemClick = { album -> onAlbumSelected(album) })
+            CreateAlbumScreen(onAlbumCreated = {
+                musicViewModel.insertAlbum(it)
+            },
                 isCreateAlbumDialogOpen = isCreateAlbumDialogOpen,
                 onCloseDialog = {
                     isCreateAlbumDialogOpen = false
-                }
-            )
+                })
         }
-    } else {
+    }
+    else {
 //        selectedAlbum?.let {
 //            AlbumDetailScreen(
 //                album = it,
@@ -1027,7 +1047,7 @@ fun PlaylistTab(
 fun AlbumItemList(
     albumList: List<Album>,
     onItemClick: (Album) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
 
     if (albumList.isEmpty()) {
@@ -1040,13 +1060,12 @@ fun AlbumItemList(
                 style = MaterialTheme.typography.titleMedium
             )
         }
-    } else {
+    }
+    else {
         LazyColumn {
             items(albumList) { album ->
-                AlbumItem(
-                    album = album,
-                    onItemClick = { onItemClick(album) }
-                )
+                AlbumItem(album = album,
+                    onItemClick = { onItemClick(album) })
             }
         }
 
@@ -1059,22 +1078,22 @@ fun AlbumItemList(
 fun AlbumItem(
     album: Album,
     modifier: Modifier = Modifier,
-    onItemClick: (Album) -> Unit
+    onItemClick: (Album) -> Unit,
 ) {
     val bitmap = BitmapFactory.decodeByteArray(
-        album.logo, 0, album.logo.size
+        album.logo,
+        0,
+        album.logo.size
     )
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(top = 10.dp),
+    Card(modifier = modifier
+        .fillMaxWidth()
+        .padding(top = 10.dp),
         elevation = CardDefaults.cardElevation(2.dp),
         shape = RoundedCornerShape(10.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White
         ),
-        onClick = { onItemClick(album) }
-    ) {
+        onClick = { onItemClick(album) }) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -1113,10 +1132,12 @@ fun AlbumDetailScreen(
     musicList: List<MusicSmall>,
     onClose: () -> Unit,
     selectedMusicSmall: MusicSmall,
-    onSelectedMusicChange: (MusicSmall) -> Unit
+    onSelectedMusicChange: (MusicSmall) -> Unit,
 ) {
     val bitmap = BitmapFactory.decodeByteArray(
-        album.logo, 0, album.logo.size
+        album.logo,
+        0,
+        album.logo.size
     )
     val context = LocalContext.current
     Column(
@@ -1162,13 +1183,20 @@ fun AlbumDetailScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 10.dp),
+                .padding(
+                    horizontal = 20.dp,
+                    vertical = 10.dp
+                ),
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Button(
                 onClick = {
-                    Toast.makeText(context, "Feature is under construction", Toast.LENGTH_SHORT)
+                    Toast.makeText(
+                        context,
+                        "Feature is under construction",
+                        Toast.LENGTH_SHORT
+                    )
                         .show()
                 },
                 colors = ButtonDefaults.buttonColors(
@@ -1184,7 +1212,11 @@ fun AlbumDetailScreen(
             Spacer(modifier = Modifier.width(20.dp))
             Button(
                 onClick = {
-                    Toast.makeText(context, "Feature is under construction", Toast.LENGTH_SHORT)
+                    Toast.makeText(
+                        context,
+                        "Feature is under construction",
+                        Toast.LENGTH_SHORT
+                    )
                         .show()
                 },
                 colors = ButtonDefaults.buttonColors(
@@ -1211,22 +1243,26 @@ fun AlbumDetailScreen(
 fun CreateAlbumScreen(
     onAlbumCreated: (Album) -> Unit,
     isCreateAlbumDialogOpen: Boolean,
-    onCloseDialog: () -> Unit
+    onCloseDialog: () -> Unit,
 ) {
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     val context = LocalContext.current
     if (isCreateAlbumDialogOpen) {
-        AlertDialog(
-            onDismissRequest = {
-                onCloseDialog()
-                title = ""
-                description = ""
-                selectedImageUri = null
-            },
+        AlertDialog(onDismissRequest = {
+            onCloseDialog()
+            title = ""
+            description = ""
+            selectedImageUri = null
+        },
             modifier = Modifier.padding(bottom = 10.dp),
-            title = { Text("Create Album", style = MaterialTheme.typography.titleLarge) },
+            title = {
+                Text(
+                    "Create Album",
+                    style = MaterialTheme.typography.titleLarge
+                )
+            },
             confirmButton = {
                 Button(
                     onClick = {
@@ -1235,7 +1271,8 @@ fun CreateAlbumScreen(
                                 albumId = 0,
                                 logo = context.contentResolver.openInputStream(
                                     selectedImageUri!!
-                                )?.readBytes()!!,
+                                )
+                                    ?.readBytes()!!,
                                 title = title,
                                 description = description
                             )
@@ -1280,32 +1317,24 @@ fun CreateAlbumScreen(
             },
             text = {
                 Column(
-                    modifier = Modifier
-                        .padding(vertical = 10.dp),
+                    modifier = Modifier.padding(vertical = 10.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    ImageSelector(
-                        selectedImageUri = selectedImageUri,
+                    ImageSelector(selectedImageUri = selectedImageUri,
                         onImageSelected = { uri ->
                             selectedImageUri = uri
-                        }
-                    )
+                        })
 
-                    OutlinedTextField(
-                        value = title,
+                    OutlinedTextField(value = title,
                         onValueChange = { title = it },
-                        label = { Text("Title") }
-                    )
+                        label = { Text("Title") })
 
-                    OutlinedTextField(
-                        value = description,
+                    OutlinedTextField(value = description,
                         onValueChange = { description = it },
-                        label = { Text("Description") }
-                    )
+                        label = { Text("Description") })
 
                 }
-            }
-        )
+            })
     }
 }
 
@@ -1313,14 +1342,13 @@ fun CreateAlbumScreen(
 @Composable
 fun ImageSelector(
     selectedImageUri: Uri?,
-    onImageSelected: (Uri) -> Unit
+    onImageSelected: (Uri) -> Unit,
 ) {
-    val photoPikcerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia(),
-        onResult = {
-            onImageSelected(it!!)
-        }
-    )
+    val photoPikcerLauncher =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.PickVisualMedia(),
+            onResult = {
+                onImageSelected(it!!)
+            })
     Column(
         modifier = Modifier.fillMaxWidth(),
     ) {
@@ -1338,9 +1366,13 @@ fun ImageSelector(
                     contentColor = Color.White,
                 )
             ) {
-                Text("Choose logo", color = Color.White)
+                Text(
+                    "Choose logo",
+                    color = Color.White
+                )
             }
-        } else {
+        }
+        else {
             AsyncImage(
                 model = selectedImageUri,
                 contentDescription = null,
@@ -1355,6 +1387,9 @@ fun ImageSelector(
 fun PreviewMusicScreen() {
     MelodyDiaryTheme {
         val musicViewModel: MusicViewModel = viewModel(factory = MusicViewModel.Factory)
-        MusicScreen(musicViewModel = musicViewModel, navController = rememberNavController())
+        MusicScreen(
+            musicViewModel = musicViewModel,
+            navController = rememberNavController()
+        )
     }
 }

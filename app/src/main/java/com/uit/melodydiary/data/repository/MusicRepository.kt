@@ -20,5 +20,9 @@ class MusicRepository(
     fun getAllLocalSmallMusicsByEmotion(emotion: String) =
         dao.getAllMusicByEmotion(emotion = emotion)
 
+    fun getAllLocalSmallMusicsByGroupId(groupId: String) =
+        dao.getAllMusicByGroupId(groupId = groupId)
+
+
     fun getAllLocalMusic() = dao.getAllMusic()
 }

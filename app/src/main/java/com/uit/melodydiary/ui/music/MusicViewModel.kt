@@ -13,6 +13,7 @@ import com.uit.melodydiary.data.repository.AlbumRepository
 import com.uit.melodydiary.data.repository.MusicRepository
 import com.uit.melodydiary.model.Album
 import com.uit.melodydiary.model.Diary
+import com.uit.melodydiary.model.Music
 import com.uit.melodydiary.model.MusicSmall
 import com.uit.melodydiary.model.toMusicSmall
 import kotlinx.coroutines.Dispatchers
@@ -28,7 +29,8 @@ import java.time.LocalDateTime
 private const val FETCH_INTERVAL = 5000L
 
 class MusicViewModel(
-    private val musicRepository: MusicRepository, private val albumRepository: AlbumRepository
+    private val musicRepository: MusicRepository,
+    private val albumRepository: AlbumRepository,
 ) : ViewModel() {
 
     var albumList: StateFlow<List<Album>> = MutableStateFlow(mutableListOf())
@@ -44,15 +46,22 @@ class MusicViewModel(
     )
 
     suspend fun generateMusic(
-        emotion: String = "", genre: String = "", instrument: String = ""
+        emotion: String = "",
+        genre: String = "",
+        instrument: String = "",
     ): String {
         try {
             val musicResponse = withContext(Dispatchers.IO) {
                 musicRepository.generateMusic(emotion)
             }
             return musicResponse.value.fileContentUrl
-        } catch (e: Exception) {
-            Log.e("fetchMusic", "Error fetching music: ${e.message}", e)
+        }
+        catch (e: Exception) {
+            Log.e(
+                "fetchMusic",
+                "Error fetching music: ${e.message}",
+                e
+            )
             throw e
         }
     }
@@ -61,29 +70,47 @@ class MusicViewModel(
         try {
             viewModelScope.launch(Dispatchers.IO) {
                 val musicList = musicRepository.getAllLocalSmallMusicsByEmotion(emotion)
-                Log.d("test_request", "Local music list: $musicList")
+                Log.d(
+                    "test_request",
+                    "Local music list: $musicList"
+                )
                 musicList.forEach {
-                    MusicHelper.addSongToFront(it)
+                    MusicHelper.addSongToEnd(it)
                 }
 
                 val musicGroup = musicRepository.getGeneratedMusicList(
                     emotion = emotion
                 )
-                Log.d("test_request", "Remote music list: $musicGroup")
+                Log.d(
+                    "test_request",
+                    "Remote music list: $musicGroup"
+                )
                 musicGroup.forEach {
                     val remoteMusicList = it.musics.map { music ->
                         music.toMusicSmall()
                     }
                     remoteMusicList.forEach {
-                        MusicHelper.addSongToFront(it)
+                        MusicHelper.addSongToEnd(it)
                     }
                 }
+                Log.d(
+                    "test_song",
+                    "Current song queue: ${MusicHelper.songQueue}"
+                )
             }
-        } catch (e: Exception) {
-            Log.e("fetchMusic", "Error fetching music: ${e.message}", e)
+        }
+        catch (e: Exception) {
+            Log.e(
+                "fetchMusic",
+                "Error fetching music: ${e.message}",
+                e
+            )
             throw e
         }
     }
+
+    fun getAllMusicByGroupId(groupId: String) =
+        musicRepository.getAllLocalSmallMusicsByGroupId(groupId)
 
     fun insertAlbum(album: Album) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -93,11 +120,12 @@ class MusicViewModel(
 
     fun getAllAlbum() {
         viewModelScope.launch {
-            albumList = albumRepository.getAlbum().stateIn(
-                scope = viewModelScope,
-                initialValue = listOf<Album>(),
-                started = SharingStarted.WhileSubscribed(1_000)
-            )
+            albumList = albumRepository.getAlbum()
+                .stateIn(
+                    scope = viewModelScope,
+                    initialValue = listOf<Album>(),
+                    started = SharingStarted.WhileSubscribed(1_000)
+                )
         }
     }
 
@@ -125,7 +153,10 @@ class MusicViewModel(
                     (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as MelodyDiaryApplication)
                 val musicRepository = application.container.musicRepository
                 val albumRepository = application.container.albumRepository
-                MusicViewModel(musicRepository, albumRepository)
+                MusicViewModel(
+                    musicRepository,
+                    albumRepository
+                )
             }
         }
     }
