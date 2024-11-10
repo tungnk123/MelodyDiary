@@ -22,7 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.IconButton
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -55,8 +55,8 @@ import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
+import com.uit.melodydiary.BuildConfig
 import com.uit.melodydiary.R
-import com.uit.melodydiary.data.WEB_CLIENT_ID
 import com.uit.melodydiary.utils.AuthResultContract
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -67,33 +67,54 @@ import java.io.ByteArrayInputStream
 @Composable
 fun BackupScreen(
     modifier: Modifier = Modifier,
-    navController: NavHostController
+    navController: NavHostController,
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val googleAccount = remember { mutableStateOf<GoogleSignInAccount?>(null) }
 
-    val sharedPref = context.getSharedPreferences("user_pref", Context.MODE_PRIVATE)
+    val sharedPref = context.getSharedPreferences(
+        "user_pref",
+        Context.MODE_PRIVATE
+    )
     var savedEmail = remember {
-        mutableStateOf(sharedPref.getString("email", "example@gmail.com"))
+        mutableStateOf(
+            sharedPref.getString(
+                "email",
+                "example@gmail.com"
+            )
+        )
     }
 
 
     val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-        .requestIdToken(WEB_CLIENT_ID)
-        .requestScopes(Scope(Scopes.DRIVE_APPFOLDER), Scope(Scopes.DRIVE_FILE))
+        .requestIdToken(BuildConfig.WEB_CLIENT_ID)
+        .requestScopes(
+            Scope(Scopes.DRIVE_APPFOLDER),
+            Scope(Scopes.DRIVE_FILE)
+        )
         .requestEmail()
         .build()
-    val googleSignInClient = GoogleSignIn.getClient(context, gso)
+    val googleSignInClient = GoogleSignIn.getClient(
+        context,
+        gso
+    )
     val signInRequestCode = 1
 
     val authResultLauncher =
         rememberLauncherForActivityResult(contract = AuthResultContract(googleSignInClient)) {
-            handleSignInResult(it, googleAccount, context as Activity)
+            handleSignInResult(
+                it,
+                googleAccount,
+                context as Activity
+            )
         }
 
     LaunchedEffect(googleAccount.value) {
-        savedEmail.value = sharedPref.getString("email", "example@gmail.com")
+        savedEmail.value = sharedPref.getString(
+            "email",
+            "example@gmail.com"
+        )
     }
 
 
@@ -109,7 +130,7 @@ fun BackupScreen(
                         }
                     ) {
                         Icon(
-                            imageVector = Icons.Default.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = null
                         )
                     }
@@ -148,25 +169,50 @@ fun BackupScreen(
                         val inputStream = ByteArrayInputStream(text.toByteArray())
 
                         // Create a file content instance
-                        val mediaContent = InputStreamContent("text/plain", inputStream)
+                        val mediaContent = InputStreamContent(
+                            "text/plain",
+                            inputStream
+                        )
 
                         // Get the Drive service instance
-                        val driveService = getDriveService(googleAccount.value!!, context)
-                        Log.d("DriveUpload", "drive service: ${driveService!!.applicationName}")
+                        val driveService = getDriveService(
+                            googleAccount.value!!,
+                            context
+                        )
+                        Log.d(
+                            "DriveUpload",
+                            "drive service: ${driveService!!.applicationName}"
+                        )
                         try {
 
-                            val driveFile = driveService.files().create(fileMetadata, mediaContent)
+                            val driveFile = driveService.files()
+                                .create(
+                                    fileMetadata,
+                                    mediaContent
+                                )
                                 .setFields("id")
                                 .execute()
                             if (driveFile != null) {
-                                Log.d("DriveUpload", "File uploaded: ${driveFile.name} (${driveFile.id})")
+                                Log.d(
+                                    "DriveUpload",
+                                    "File uploaded: ${driveFile.name} (${driveFile.id})"
+                                )
 //                                Toast.makeText(context, "File uploaded successfully", Toast.LENGTH_SHORT).show()
-                            } else {
-                                Log.e("DriveUpload", "Null Drive file received after upload")
+                            }
+                            else {
+                                Log.e(
+                                    "DriveUpload",
+                                    "Null Drive file received after upload"
+                                )
 //                                Toast.makeText(context, "File upload failed", Toast.LENGTH_SHORT).show()
                             }
-                        } catch (e: Exception) {
-                            Log.e("DriveUpload", "Error uploading file to Drive: ${e.message}", e)
+                        }
+                        catch (e: Exception) {
+                            Log.e(
+                                "DriveUpload",
+                                "Error uploading file to Drive: ${e.message}",
+                                e
+                            )
 //                            Toast.makeText(context, "File upload failed: ${e.message}", Toast.LENGTH_SHORT).show()
                         }
                     }
@@ -175,29 +221,58 @@ fun BackupScreen(
             )
             BackUpWrapper(
                 onExportClick = {
-                    Toast.makeText(context, "Feature is under construction", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        context,
+                        "Feature is under construction",
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
                 },
                 onImportClick = {
-                    Toast.makeText(context, "Feature is under construction", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        context,
+                        "Feature is under construction",
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
                 }
             )
         }
     }
 }
 
-private fun getDriveService(account: GoogleSignInAccount, context: Context): Drive? {
-    Log.d("DriveService", "Attempting to get last signed-in account...")
+private fun getDriveService(
+    account: GoogleSignInAccount,
+    context: Context,
+): Drive? {
+    Log.d(
+        "DriveService",
+        "Attempting to get last signed-in account..."
+    )
     val googleAccount = account
     val credential = GoogleAccountCredential.usingOAuth2(
         context,
-        listOf(DriveScopes.DRIVE_FILE, DriveScopes.DRIVE_APPDATA)
+        listOf(
+            DriveScopes.DRIVE_FILE,
+            DriveScopes.DRIVE_APPDATA
+        )
     )
     credential.selectedAccount = googleAccount.account!!
-    Log.d("DriveService", "Building Drive service...")
-    val drive = Drive.Builder(NetHttpTransport(), GsonFactory.getDefaultInstance(), credential)
+    Log.d(
+        "DriveService",
+        "Building Drive service..."
+    )
+    val drive = Drive.Builder(
+        NetHttpTransport(),
+        GsonFactory.getDefaultInstance(),
+        credential
+    )
         .setApplicationName(context.getString(R.string.app_name))
         .build()
-    Log.d("DriveService", "Drive service built successfully. ${drive.About()}")
+    Log.d(
+        "DriveService",
+        "Drive service built successfully. ${drive.About()}"
+    )
     return drive
 }
 
@@ -214,16 +289,40 @@ fun handleSignInResult(
             googleAccount.value = account
         }
 
-        val sharedPref = context.getSharedPreferences("user_pref", Context.MODE_PRIVATE)
+        val sharedPref = context.getSharedPreferences(
+            "user_pref",
+            Context.MODE_PRIVATE
+        )
         with(sharedPref.edit()) {
-            putString("email", email)
+            putString(
+                "email",
+                email
+            )
             apply()
         }
-        Toast.makeText(context, "Login thành công!, email: ${account?.email}", Toast.LENGTH_LONG).show()
-        Log.d("GoogleSignIn", "Account details: ${account?.email}, ${account?.idToken}")
-    } catch (e: ApiException) {
-        Toast.makeText(context, "Sign-in failed: ${e.message}", Toast.LENGTH_SHORT).show()
-        Log.e("GoogleSignIn", "Sign-in failed", e)
+        Toast.makeText(
+            context,
+            "Login thành công!, email: ${account?.email}",
+            Toast.LENGTH_LONG
+        )
+            .show()
+        Log.d(
+            "GoogleSignIn",
+            "Account details: ${account?.email}, ${account?.idToken}"
+        )
+    }
+    catch (e: ApiException) {
+        Toast.makeText(
+            context,
+            "Sign-in failed: ${e.message}",
+            Toast.LENGTH_SHORT
+        )
+            .show()
+        Log.e(
+            "GoogleSignIn",
+            "Sign-in failed",
+            e
+        )
     }
 }
 
@@ -232,11 +331,15 @@ fun SyncWrapper(
     modifier: Modifier = Modifier,
     googleAccount: String,
     onGoogleAccountClick: () -> Unit,
-    onSynchorizeClick: () -> Unit
+    onSynchorizeClick: () -> Unit,
 ) {
     Column(
-        modifier = modifier.padding(16.dp)
-            .background(Color.White, shape = RoundedCornerShape(20.dp))
+        modifier = modifier
+            .padding(16.dp)
+            .background(
+                Color.White,
+                shape = RoundedCornerShape(20.dp)
+            )
             .padding(16.dp),
     ) {
         Text(
@@ -265,11 +368,15 @@ fun SyncWrapper(
 fun BackUpWrapper(
     modifier: Modifier = Modifier,
     onExportClick: () -> Unit,
-    onImportClick: () -> Unit
+    onImportClick: () -> Unit,
 ) {
     Column(
-        modifier = modifier.padding(16.dp)
-            .background(Color.White, shape = RoundedCornerShape(20.dp))
+        modifier = modifier
+            .padding(16.dp)
+            .background(
+                Color.White,
+                shape = RoundedCornerShape(20.dp)
+            )
             .padding(16.dp),
     ) {
         Text(
@@ -300,7 +407,7 @@ fun BackupItem(
     @DrawableRes logo: Int,
     title: String,
     subtitle: String,
-    onItemClick: () -> Unit
+    onItemClick: () -> Unit,
 ) {
     Row(
         modifier = modifier
@@ -308,7 +415,10 @@ fun BackupItem(
                 onItemClick()
             }
             .fillMaxWidth()
-            .padding(vertical = 15.dp, horizontal = 10.dp),
+            .padding(
+                vertical = 15.dp,
+                horizontal = 10.dp
+            ),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(

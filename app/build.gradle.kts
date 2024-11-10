@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
@@ -7,6 +9,12 @@ plugins {
 android {
     namespace = "com.uit.melodydiary"
     compileSdk = 34
+
+    val properties = Properties()
+    properties.load(
+        project.rootProject.file("local.properties")
+            .inputStream()
+    )
 
     defaultConfig {
         applicationId = "com.uit.melodydiary"
@@ -19,6 +27,17 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        buildConfigField(
+            "String",
+            "API_KEY",
+            "\"${properties.getProperty("API_KEY")}\""
+        )
+        buildConfigField(
+            "String",
+            "WEB_CLIENT_ID",
+            "\"${properties.getProperty("WEB_CLIENT_ID")}\""
+        )
     }
 
     buildTypes {
@@ -39,6 +58,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
