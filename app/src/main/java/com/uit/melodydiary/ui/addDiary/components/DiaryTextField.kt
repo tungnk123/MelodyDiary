@@ -20,7 +20,7 @@ fun BorderlessTextField(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     enable: Boolean,
-    textStyle: TextStyle = MaterialTheme.typography.titleLarge
+    textStyle: TextStyle = MaterialTheme.typography.titleLarge,
 ) {
     TextField(
         value = value,
@@ -40,11 +40,13 @@ fun BorderlessTextField(
             disabledIndicatorColor = Color.Transparent
         ),
         textStyle = textStyle,
-        modifier = modifier.fillMaxWidth().border(
-            width = 0.dp,
-            color = Color.Transparent,
-            shape = RoundedCornerShape(0.dp)
-        ),
+        modifier = modifier
+            .fillMaxWidth()
+            .border(
+                width = 0.dp,
+                color = Color.Transparent,
+                shape = RoundedCornerShape(0.dp)
+            ),
         enabled = enable
     )
 }
@@ -54,9 +56,10 @@ fun DiaryTextField(
     value: String,
     placeholder: String,
     onValueChange: (String) -> Unit,
-    modifier: Modifier = Modifier,
     enable: Boolean,
-    textStyle: TextStyle = MaterialTheme.typography.bodyMedium
+    onDetectDot: () -> Unit,
+    modifier: Modifier = Modifier,
+    textStyle: TextStyle = MaterialTheme.typography.bodyMedium,
 ) {
     TextField(
         value = value,
@@ -66,7 +69,12 @@ fun DiaryTextField(
                 style = textStyle
             )
         },
-        onValueChange = onValueChange,
+        onValueChange = { newValue ->
+            onValueChange.invoke(newValue)
+            if (newValue.isNotEmpty() && newValue.last() == '.') {
+                onDetectDot()
+            }
+        },
         colors = TextFieldDefaults.textFieldColors(
             backgroundColor = Color.Transparent,
             cursorColor = Color.Black,

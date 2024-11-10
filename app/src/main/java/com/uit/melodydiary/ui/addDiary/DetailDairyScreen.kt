@@ -16,7 +16,7 @@ import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -56,13 +56,16 @@ import com.uit.melodydiary.utils.plus
 import java.time.format.DateTimeFormatter
 
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(
+    ExperimentalMaterial3Api::class,
+    ExperimentalMaterialApi::class
+)
 @Composable
 fun DetailDiaryScreen(
     modifier: Modifier = Modifier,
     diaryId: Int,
     diaryViewModel: DiaryViewModel,
-    navController: NavHostController
+    navController: NavHostController,
 ) {
     LaunchedEffect(diaryId) {
         diaryViewModel.getDiaryById(diaryId)
@@ -91,7 +94,7 @@ fun DetailDiaryScreen(
                         }
                     ) {
                         Icon(
-                            imageVector = Icons.Default.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = null
                         )
                     }
@@ -133,7 +136,12 @@ fun DetailDiaryScreen(
                                 onClick = {
                                     showMenu = false
                                     // Implement share action
-                                    Toast.makeText(context, "Feature is under construction", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(
+                                        context,
+                                        "Feature is under construction",
+                                        Toast.LENGTH_SHORT
+                                    )
+                                        .show()
                                 }
                             ) {
                                 Text("Share")
@@ -196,7 +204,7 @@ fun DetailDiaryScreen(
                                 else -> FontFamily.Default
                             },
                             color = diaryStyle.color,
-                            fontSize = diaryStyle.fontSize.plus(10.sp   )
+                            fontSize = diaryStyle.fontSize.plus(10.sp)
                         )
                     )
                 }
@@ -207,6 +215,7 @@ fun DetailDiaryScreen(
                             value = byteArrayToString(value),
                             placeholder = "Start to write now ...",
                             onValueChange = {},
+                            onDetectDot = {},
                             enable = false,
                             textStyle = TextStyle(
                                 fontFamily = when (diaryStyle.fontStyle) {
@@ -226,12 +235,17 @@ fun DetailDiaryScreen(
                         ImageContentWrapper(
                             imageByteArray = value,
                             onDeleteClick = {
-                                Toast.makeText(context,"Please go to Edit mode to delete", Toast.LENGTH_LONG).show()
+                                Toast.makeText(
+                                    context,
+                                    "Please go to Edit mode to delete",
+                                    Toast.LENGTH_LONG
+                                )
+                                    .show()
                             },
                             onShrinkClick = {
                                 isShrink = !isShrink
-                            }
-                            , isShrink = isShrink
+                            },
+                            isShrink = isShrink
                         )
                     }
                 }
