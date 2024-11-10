@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 3.4.0">
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 24): MelodyDiaryApp"
+        category="Correctness"
+        priority="6"
+        severity="Error"
+        summary="API level 26+ required"
+        explanation="This API requires a newer platform version."
+        errorLine1="            MelodyDiaryApp()"
+        errorLine2="            ~~~~~~~~~~~~~~"
+        url="https://developer.android.com/reference/kotlin/androidx/core/content/package-summary#MelodyDiaryApp"
+    >
+        <location
+            file="app/src/main/java/com/example/melodydiary/MainActivity.kt"
+            line="40"
+            column="13"/>
+    </issue>
+    <!-- more issues here -->
+</issues>

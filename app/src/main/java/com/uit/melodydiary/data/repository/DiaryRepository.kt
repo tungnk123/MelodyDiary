@@ -1,5 +1,6 @@
 package com.uit.melodydiary.data.repository
 
+import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.uit.melodydiary.data.LocalDiaryDataSource
@@ -17,8 +18,7 @@ class DiaryRepository(
         return localDiaryDataSource.getDiary()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    suspend fun getDiaryAtDate(date: String):Flow<List<Diary>> {
+    suspend fun getDiaryAtDate(date: String): Flow<List<Diary>> {
         return localDiaryDataSource.getDiaryAtDate(date)
     }
 

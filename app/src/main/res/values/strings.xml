@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Melody Diary</string>
+    <string name="drive_api_key" translatable="false">AIzaSyBCM7JIybSK3ehGXChk0XqkC3stJdAjsbs</string>
     <string name="bottom_navigation_diary">Diary</string>
     <string name="bottom_navigation_music">Music</string>
     <string name="bottom_navigation_report">Report</string>
@@ -19,7 +20,7 @@
             MIIEQzCCAyugAwIBAgIJAMLgh0ZkSjCNMA0GCSqGSIb3DQEBBAUAMHQxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpDYWxpZm9ybmlhMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MRQwEgYDVQQKEwtHb29nbGUgSW5jLjEQMA4GA1UECxMHQW5kcm9pZDEQMA4GA1UEAxMHQW5kcm9pZDAeFw0wODA4MjEyMzEzMzRaFw0zNjAxMDcyMzEzMzRaMHQxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpDYWxpZm9ybmlhMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MRQwEgYDVQQKEwtHb29nbGUgSW5jLjEQMA4GA1UECxMHQW5kcm9pZDEQMA4GA1UEAxMHQW5kcm9pZDCCASAwDQYJKoZIhvcNAQEBBQADggENADCCAQgCggEBAKtWLgDYO6IIrgqWbxJOKdoR8qtW0I9Y4sypEwPpt1TTcvZApxsdyxMJZ2JORland2qSGT2y5b+3JKkedxiLDmpHpDsz2WCbdxgxRczfey5YZnTJ4VZbH0xqWVW/8lGmPav5xVwnIiJS6HXk+BVKZF+JcWjAsb/GEuq/eFdpuzSqeYTcfi6idkyugwfYwXFU1+5fZKUaRKYCwkkFQVfcAs1fXA5V+++FGfvjJ/CxURaSxaBvGdGDhfXE28LWuT9ozCl5xw4Yq5OGazvV24mZVSoOO0yZ31j7kYvtwYK6NeADwbSxDdJEqO4k//0zOHKrUiGYXtqw/A0LFFtqoZKFjnkCAQOjgdkwgdYwHQYDVR0OBBYEFMd9jMIhF1Ylmn/Tgt9r45jk14alMIGmBgNVHSMEgZ4wgZuAFMd9jMIhF1Ylmn/Tgt9r45jk14aloXikdjB0MQswCQYDVQQGEwJVUzETMBEGA1UECBMKQ2FsaWZvcm5pYTEWMBQGA1UEBxMNTW91bnRhaW4gVmlldzEUMBIGA1UEChMLR29vZ2xlIEluYy4xEDAOBgNVBAsTB0FuZHJvaWQxEDAOBgNVBAMTB0FuZHJvaWSCCQDC4IdGZEowjTAMBgNVHRMEBTADAQH/MA0GCSqGSIb3DQEBBAUAA4IBAQBt0lLO74UwLDYKqs6Tm8/yzKkEu116FmH4rkaymUIE0P9KaMftGlMexFlaYjzmB2OxZyl6euNXEsQH8gjwyxCUKRJNexBiGcCEyj6z+a1fuHHvkiaai+KL8W1EyNmgjmyy8AW7P+LLlkR+ho5zEHatRbM/YAnqGcFh5iZBqpknHf1SKMXFh4dd239FJ1jWYfbMDMy3NS5CTMQ2XFI1MvcyUTdZPErjQfTbQe3aDQsQcafEQPD+nqActifKZ0Np0IS9L9kR/wbNvyz6ENwPiTrjV2KRkEjH78ZMcUQXg0L3BYHJ3lc69Vs5Ddf9uUGGMYldX3WfMBEmh/9iFBDAaTCK
         </item>
     </string-array>
-    
+
     <string name="diary_route">diary</string>
     <string name="music_route">music</string>
     <string name="report_route">report</string>
@@ -27,6 +28,7 @@
     <string name="add_diary_route">add_diary</string>
     <string name="detail_diary_route">detail_diary</string>
     <string name="edit_diary_route">edit_diary</string>
+    <string name="backup_route">backup</string>
 
     <string name="title_diary">My Dairy</string>
     <string name="title_music">My Music Studio</string>
@@ -34,7 +36,7 @@
     <string name="title_settings">Settings</string>
     <string name="tab_name_danh_sach">List Diary</string>
     <string name="tab_name_lich">Calendar</string>
-    
+
     <string name="title_example">Sad day</string>
     <string name="description_example">Lorem Ipsum is simply dummy text of the printing and typesetting industry.</string>
 
@@ -86,5 +88,14 @@
     <string name="title_feedback">Feedback</string>
     <string name="title_rate_us">Rate us</string>
     <string name="title_footer">Version 1.0 @2024, CFF Inc</string>
+
+
+    <string name="title_backup_screen">Synchronize and Backup</string>
+    <string name="title_sync">Synchronize</string>
+    <string name="title_backup">Backup data on device</string>
+    <string name="title_import">Import data from device</string>
+    <string name="title_google_account">Google account</string>
+    <string name="msg_new_status">Group face for new status</string>
+    <string name="msg_save_btn">Save</string>
 
 </resources>

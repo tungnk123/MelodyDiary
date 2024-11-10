@@ -48,6 +48,7 @@ import com.uit.melodydiary.ui.diary.DiaryScreen
 import com.uit.melodydiary.ui.diary.DiaryViewModel
 import com.uit.melodydiary.ui.music.MusicScreen
 import com.uit.melodydiary.ui.music.MusicViewModel
+import com.uit.melodydiary.ui.profile.BackupScreen
 import com.uit.melodydiary.ui.profile.ProfileScreen
 import com.uit.melodydiary.ui.report.ReportScreen
 import com.uit.melodydiary.ui.theme.MelodyDiaryTheme
@@ -60,7 +61,8 @@ enum class MelodyDiaryApp(@StringRes val title: Int) {
     ProfileScreen(title = R.string.profile_route),
     AddDiaryScreen(title = R.string.add_diary_route),
     DetailDiaryScreen(title = R.string.detail_diary_route),
-    EditDiaryScreen(title = R.string.edit_diary_route)
+    EditDiaryScreen(title = R.string.edit_diary_route),
+    BackUpScreen(title = R.string.backup_route)
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -74,19 +76,24 @@ fun MelodyDiaryApp(
     var isHomeScreen by remember {
         mutableStateOf(false)
     }
-    isHomeScreen = navController.currentBackStackEntryAsState().value?.destination?.route == MelodyDiaryApp.DiaryScreen.name
+    isHomeScreen =
+        navController.currentBackStackEntryAsState().value?.destination?.route == MelodyDiaryApp.DiaryScreen.name
     var isMusicScreen by remember {
         mutableStateOf(false)
     }
-    isMusicScreen = navController.currentBackStackEntryAsState().value?.destination?.route == MelodyDiaryApp.MusicScreen.name
+    isMusicScreen =
+        navController.currentBackStackEntryAsState().value?.destination?.route == MelodyDiaryApp.MusicScreen.name
     var isReportScreen by remember {
         mutableStateOf(false)
     }
-    isReportScreen = navController.currentBackStackEntryAsState().value?.destination?.route == MelodyDiaryApp.ReportScreen.name
+    isReportScreen =
+        navController.currentBackStackEntryAsState().value?.destination?.route == MelodyDiaryApp.ReportScreen.name
     var isProfileScreen by remember {
         mutableStateOf(false)
     }
-    isProfileScreen = navController.currentBackStackEntryAsState().value?.destination?.route == MelodyDiaryApp.ProfileScreen.name
+    isProfileScreen =
+        navController.currentBackStackEntryAsState().value?.destination?.route == MelodyDiaryApp.ProfileScreen.name
+
     MelodyDiaryTheme {
         // A surface container using the 'background' color from the theme
         Surface(
@@ -109,7 +116,8 @@ fun MelodyDiaryApp(
                     modifier = Modifier.padding(innerPadding)
                 ) {
 
-                    composable(route = MelodyDiaryApp.DiaryScreen.name
+                    composable(
+                        route = MelodyDiaryApp.DiaryScreen.name
                     ) {
                         DiaryScreen(diaryViewModel = diaryViewModel, navController = navController)
                     }
@@ -119,7 +127,11 @@ fun MelodyDiaryApp(
                     }
 
                     composable(route = MelodyDiaryApp.AddDiaryScreen.name) {
-                        AddDiaryScreen(diaryViewModel = diaryViewModel, musicViewModel = musicViewModel , navController = navController)
+                        AddDiaryScreen(
+                            diaryViewModel = diaryViewModel,
+                            musicViewModel = musicViewModel,
+                            navController = navController
+                        )
                     }
 
                     composable(
@@ -162,7 +174,15 @@ fun MelodyDiaryApp(
                         )
                     }
                     composable(route = MelodyDiaryApp.ProfileScreen.name) {
-                        ProfileScreen()
+                        ProfileScreen(
+                            navController = navController
+                        )
+                    }
+
+                    composable(route = MelodyDiaryApp.BackUpScreen.name) {
+                        BackupScreen(
+                            navController = navController
+                        )
                     }
 
                 }
@@ -267,10 +287,12 @@ fun BottomNavigationWithFab(
         )
     }
 }
+
 @Composable
 fun DiamondFab(
     onClick: () -> Unit,
-    modifier: Modifier = Modifier) {
+    modifier: Modifier = Modifier
+) {
     Box(
         modifier = modifier.height(100.dp),
         contentAlignment = Alignment.CenterEnd
@@ -300,7 +322,7 @@ fun DiamondFab(
 @Preview
 @Composable
 fun DiamondFabPreview() {
-    DiamondFab(onClick = {}, Modifier.padding(bottom = 30.dp),)
+    DiamondFab(onClick = {}, Modifier.padding(bottom = 30.dp))
 }
 
 @Preview(showBackground = true, backgroundColor = 0xFFF5F0EE)
@@ -324,7 +346,7 @@ fun PreviewApp() {
             color = MaterialTheme.colorScheme.background
         ) {
             val diaryViewModel: DiaryViewModel = viewModel(factory = DiaryViewModel.Factory)
-            DiaryScreen(diaryViewModel = diaryViewModel , navController = rememberNavController())
+            DiaryScreen(diaryViewModel = diaryViewModel, navController = rememberNavController())
         }
     }
 }

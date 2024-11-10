@@ -48,9 +48,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -71,8 +73,12 @@ import com.uit.melodydiary.ui.components.SimpleCalendarTitle
 import com.uit.melodydiary.ui.theme.MelodyDiaryTheme
 import com.uit.melodydiary.ui.theme.mygreen
 import com.uit.melodydiary.utils.DayOfWeekConverter
+import com.uit.melodydiary.utils.byteArrayToString
 import com.uit.melodydiary.utils.hasDiaryOnDay
+import com.uit.melodydiary.utils.loadContentListFromFile
+import com.uit.melodydiary.utils.plus
 import com.uit.melodydiary.utils.rememberFirstMostVisibleMonth
+import com.uit.melodydiary.utils.stringToByteArray
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.YearMonth
@@ -329,6 +335,7 @@ fun DiaryItem(
 ) {
     val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM")
     val timeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+    val diaryStyle = item.diaryStyle
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -343,7 +350,7 @@ fun DiaryItem(
             2.dp
         ),
         colors = CardDefaults.cardColors(
-            containerColor = mygreen,
+            containerColor = diaryStyle.colorPalette,
         ),
         onClick = onItemClick
     ) {
@@ -357,14 +364,37 @@ fun DiaryItem(
                 statusLogoRes = item.logo
             )
             Text(
-                text = item.title,
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Medium),
+                text = if (!item.title.isNullOrEmpty()) item.title else "Title",
+                style = TextStyle(
+                    fontFamily = when (diaryStyle.fontStyle) {
+                        "Serif" -> FontFamily.Serif
+                        "Sans-serif" -> FontFamily.SansSerif
+                        "Monospace" -> FontFamily.Monospace
+                        "Cursive" -> FontFamily.Cursive
+                        "Fantasy" -> FontFamily.Default
+                        else -> FontFamily.Default
+                    },
+                    color = diaryStyle.color,
+                    fontSize = diaryStyle.fontSize.value.sp + 10.sp
+                ),
             )
-
+            val textItem = loadContentListFromFile(item.contentFilePath).firstOrNull { it.first == "text" }
+            val textContent: ByteArray = textItem?.second ?: stringToByteArray("")
             Text(
-                text = item.content,
-                color = Color.Gray,
-                )
+                text = byteArrayToString(textContent),
+                style = TextStyle(
+                    fontFamily = when (diaryStyle.fontStyle) {
+                        "Serif" -> FontFamily.Serif
+                        "Sans-serif" -> FontFamily.SansSerif
+                        "Monospace" -> FontFamily.Monospace
+                        "Cursive" -> FontFamily.Cursive
+                        "Fantasy" -> FontFamily.Default
+                        else -> FontFamily.Default
+                    },
+                    color = diaryStyle.color,
+                    fontSize = diaryStyle.fontSize
+                ),
+            )
         }
     }
 }
