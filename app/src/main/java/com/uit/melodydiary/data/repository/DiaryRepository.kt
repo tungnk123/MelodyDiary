@@ -18,8 +18,7 @@ class DiaryRepository(
         return localDiaryDataSource.getDiary()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    suspend fun getDiaryAtDate(date: String):Flow<List<Diary>> {
+    suspend fun getDiaryAtDate(date: String): Flow<List<Diary>> {
         return localDiaryDataSource.getDiaryAtDate(date)
     }
 

@@ -6,7 +6,7 @@ import com.uit.melodydiary.model.MusicSmall
 import kotlinx.coroutines.flow.Flow
 
 class AlbumRepository(
-    val diaryDao: DiaryDao
+    val diaryDao: DiaryDao,
 ) {
     suspend fun getAlbum(): Flow<List<Album>> {
         return diaryDao.getAllAlbum()
@@ -20,7 +20,7 @@ class AlbumRepository(
         diaryDao.insertMusic(music)
     }
 
-    fun getMusicFromAblum(albumId:Int): List<MusicSmall> {
+    fun getMusicFromAlbum(albumId: Int): List<MusicSmall> {
         return diaryDao.getMusicInAlbum(albumId)
     }
 
