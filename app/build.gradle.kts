@@ -38,6 +38,11 @@ android {
             "WEB_CLIENT_ID",
             "\"${properties.getProperty("WEB_CLIENT_ID")}\""
         )
+        buildConfigField(
+            "String",
+            "GEMINI_API_KEY",
+            "\"${properties.getProperty("GEMINI_API_KEY")}\""
+        )
     }
 
     buildTypes {
@@ -181,5 +186,8 @@ dependencies {
     implementation(libs.androidx.media3.media3.datasource.okhttp)
     implementation(libs.androidx.media3.media3.extractor)
     implementation(libs.androidx.media3.media3.ui)
+
+    // gemini
+    implementation(libs.generativeai)
 
 }

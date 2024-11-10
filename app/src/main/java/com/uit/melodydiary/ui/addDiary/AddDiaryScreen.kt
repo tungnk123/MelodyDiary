@@ -3,6 +3,7 @@ package com.uit.melodydiary.ui.addDiary
 
 import MusicHelper
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -367,6 +368,13 @@ fun AddDiaryScreen(
                             val updatedContentList = contentList.toMutableList()
                             updatedContentList[index] = "text" to stringToByteArray(it)
                             contentList = updatedContentList
+                        },
+                        onDetectDot = {
+                            Log.d(
+                                "test_dot",
+                                "Dot enter"
+                            )
+                            musicViewModel.callGemini("Write me a story")
                         },
                         enable = true,
                         textStyle = TextStyle(
