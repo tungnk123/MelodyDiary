@@ -1,11 +1,13 @@
 package com.uit.melodydiary
 
+import MusicHelper
 import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
 import com.uit.melodydiary.ui.profile.setLocale
 import com.uit.melodydiary.utils.PreferenceUtils
 import kotlinx.coroutines.launch
@@ -17,21 +19,19 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val scope = rememberCoroutineScope()
-
+            val context = LocalContext.current
             LaunchedEffect(Unit) {
                 scope.launch {
                     try {
                         appContainer.warmUpApiService.warmUp()
-
-                    } catch (e: Exception) {
+                        MusicHelper.initializeExoPlayer(context)
 
                     }
-                }
-                scope.launch {
-
+                    catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
             }
-
             MelodyDiaryApp()
         }
     }
@@ -39,7 +39,10 @@ class MainActivity : ComponentActivity() {
     override fun attachBaseContext(newBase: Context?) {
         super.attachBaseContext(newBase)
         val savedLanguage = PreferenceUtils.getLanguage(this)
-        setLocale(newBase!!, savedLanguage)
+        setLocale(
+            newBase!!,
+            savedLanguage
+        )
     }
 }
 

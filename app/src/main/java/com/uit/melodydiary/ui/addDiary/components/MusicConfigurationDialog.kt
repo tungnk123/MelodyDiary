@@ -25,24 +25,25 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.uit.melodydiary.R
+import com.uit.melodydiary.model.Emotion
 import com.uit.melodydiary.ui.music.MyDropDown
-import com.uit.melodydiary.utils.AppConstants
 
 @Composable
 fun MusicConfigurationDialog(
     onDismiss: () -> Unit,
     currentEmotion: String,
+    onCurrentEmotionChange: (String) -> Unit,
     giaiDieuName: String,
 ) {
-    val theLoaiList: MutableList<String> = mutableListOf(
-        AppConstants.MUSIC_FUN,
-        AppConstants.MUSIC_CRY,
-        AppConstants.MUSIC_SAD,
-        AppConstants.MUSIC_FEAR,
-        AppConstants.MUSIC_DISGUST,
-        AppConstants.MUSIC_ANGRY
+    val emotionList: MutableList<String> = mutableListOf(
+        Emotion.Fun.emotion,
+        Emotion.Cry.emotion,
+        Emotion.Sad.emotion,
+        Emotion.Fear.emotion,
+        Emotion.Disgust.emotion,
+        Emotion.Angry.emotion,
     )
-    val selectedGiaiDieu = remember {
+    val selectedEmotion = remember {
         mutableStateOf(currentEmotion)
     }
     Dialog(onDismissRequest = onDismiss) {
@@ -82,9 +83,13 @@ fun MusicConfigurationDialog(
                         style = MaterialTheme.typography.titleMedium
                     )
                     Spacer(modifier = Modifier.width(5.dp))
-                    MyDropDown(list = theLoaiList,
-                        selectedItem = selectedGiaiDieu.value,
-                        onSelectedItemChange = { selectedGiaiDieu.value = it })
+                    MyDropDown(
+                        list = emotionList,
+                        selectedItem = selectedEmotion.value,
+                        onSelectedItemChange = { currentEmotion ->
+                            selectedEmotion.value = currentEmotion
+                            onCurrentEmotionChange.invoke(currentEmotion)
+                        })
                 }
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(

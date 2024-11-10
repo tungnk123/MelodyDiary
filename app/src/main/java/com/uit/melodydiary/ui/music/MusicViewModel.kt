@@ -70,20 +70,12 @@ class MusicViewModel(
         try {
             viewModelScope.launch(Dispatchers.IO) {
                 val musicList = musicRepository.getAllLocalSmallMusicsByEmotion(emotion)
-                Log.d(
-                    "test_request",
-                    "Local music list: $musicList"
-                )
                 musicList.forEach {
                     MusicHelper.addSongToEnd(it)
                 }
 
                 val musicGroup = musicRepository.getGeneratedMusicList(
                     emotion = emotion
-                )
-                Log.d(
-                    "test_request",
-                    "Remote music list: $musicGroup"
                 )
                 musicGroup.forEach {
                     val remoteMusicList = it.musics.map { music ->
@@ -120,7 +112,8 @@ class MusicViewModel(
 
     fun getAllAlbum() {
         viewModelScope.launch {
-            albumList = albumRepository.getAlbum()
+            albumList = albumRepository
+                .getAlbum()
                 .stateIn(
                     scope = viewModelScope,
                     initialValue = listOf<Album>(),

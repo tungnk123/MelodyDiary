@@ -83,8 +83,6 @@ import com.uit.melodydiary.utils.byteArrayToString
 import com.uit.melodydiary.utils.plus
 import com.uit.melodydiary.utils.saveContentListToFile
 import com.uit.melodydiary.utils.stringToByteArray
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDateTime
@@ -127,7 +125,7 @@ fun AddDiaryScreen(
     val datePickerState = rememberDatePickerState()
     val timePickerState = rememberTimePickerState()
     var mood by remember {
-        mutableStateOf(AppConstants.EMOTION_FUN)
+        mutableStateOf(Emotion.Fun.emotion)
     }
     var showFontBottomSheet by remember { mutableStateOf(false) }
     var showIconBottomSheet by remember { mutableStateOf(false) }
@@ -162,7 +160,6 @@ fun AddDiaryScreen(
         AppConstants.demoList.forEach { item ->
             musicViewModel.insertMusic(item)
         }
-        MusicHelper.initializeExoPlayer(context)
     }
 
     if (openDialog) {
@@ -221,7 +218,8 @@ fun AddDiaryScreen(
 
                     IconButton(onClick = {
                         navController.popBackStack()
-                        MusicHelper.pause()
+                        MusicHelper.clearAllMusic()
+                        MusicHelper.releaseExoPlayer()
                     }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Default.ArrowBack,
@@ -232,7 +230,7 @@ fun AddDiaryScreen(
                 title = {
                     Text(
                         text = stringResource(R.string.title_viet_nhat_ky),
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.titleMedium
                     )
                 },
                 actions = {
@@ -262,7 +260,8 @@ fun AddDiaryScreen(
                             )
                             diaryViewModel.addDiary(newDiary)
                             navController.navigate(MelodyDiaryApp.DiaryScreen.name)
-                            MusicHelper.pause()
+                            MusicHelper.clearAllMusic()
+                            MusicHelper.releaseExoPlayer()
                         }) {
                             Text(
                                 text = stringResource(R.string.msg_save_btn),
@@ -280,7 +279,7 @@ fun AddDiaryScreen(
                     },
                     onPlayPauseClick = {
                         if (!isPlayingMusic) {
-                            MusicHelper.currentSong?.let { MusicHelper.togglePlayback(it) }
+                            MusicHelper.resume()
                         }
                         else {
                             MusicHelper.pause()
@@ -289,23 +288,9 @@ fun AddDiaryScreen(
 
                     },
                     onPlayPreviousClick = {
-                        Toast.makeText(
-                            context,
-                            "Previous click",
-                            Toast.LENGTH_LONG
-                        )
-                            .show()
-                        MusicHelper.pause()
                         MusicHelper.previous { }
                     },
                     onPlayNextClick = {
-                        Toast.makeText(
-                            context,
-                            "Next click",
-                            Toast.LENGTH_LONG
-                        )
-                            .show()
-                        MusicHelper.pause()
                         MusicHelper.next { }
                     },
                     isPlaying = isPlayingMusic
@@ -442,12 +427,11 @@ fun AddDiaryScreen(
                         item {
                             IconButton(
                                 onClick = {
-                                    mood = AppConstants.EMOTION_FUN
+                                    mood = Emotion.Fun.emotion
                                     showBottomSheet = false
                                     logo = R.drawable.ic_face
                                     scope.launch {
                                         musicViewModel.populateMusicList(Emotion.Fun.emotion)
-                                        delay(1000L)
                                         MusicHelper.playSequential()
                                     }
                                 },
@@ -462,7 +446,7 @@ fun AddDiaryScreen(
                         item {
                             IconButton(
                                 onClick = {
-                                    mood = AppConstants.EMOTION_CRY
+                                    mood = Emotion.Cry.emotion
                                     showBottomSheet = false
                                     logo = R.drawable.ic_cry
                                     scope.launch {
@@ -481,13 +465,11 @@ fun AddDiaryScreen(
                         item {
                             IconButton(
                                 onClick = {
-                                    mood = AppConstants.EMOTION_SAD
+                                    mood = Emotion.Sad.emotion
                                     showBottomSheet = false
                                     logo = R.drawable.ic_neutral
                                     scope.launch {
-                                        MusicHelper.pause()
-                                        MusicHelper.clearAllMusic()
-                                        musicViewModel.populateMusicList(AppConstants.EMOTION_SAD)
+                                        musicViewModel.populateMusicList(Emotion.Sad.emotion)
                                         MusicHelper.playSequential()
                                     }
                                 },
@@ -502,13 +484,11 @@ fun AddDiaryScreen(
                         item {
                             IconButton(
                                 onClick = {
-                                    mood = AppConstants.EMOTION_FEAR
+                                    mood = Emotion.Fear.emotion
                                     showBottomSheet = false
                                     logo = R.drawable.ic_fear
                                     scope.launch {
-                                        MusicHelper.pause()
-                                        MusicHelper.clearAllMusic()
-                                        musicViewModel.populateMusicList(AppConstants.EMOTION_FEAR)
+                                        musicViewModel.populateMusicList(Emotion.Fear.emotion)
                                         MusicHelper.playSequential()
                                     }
                                 },
@@ -523,13 +503,11 @@ fun AddDiaryScreen(
                         item {
                             IconButton(
                                 onClick = {
-                                    mood = AppConstants.EMOTION_DISGUST
+                                    mood = Emotion.Disgust.emotion
                                     showBottomSheet = false
                                     logo = R.drawable.ic_disgust
                                     scope.launch {
-                                        MusicHelper.pause()
-                                        MusicHelper.clearAllMusic()
-                                        musicViewModel.populateMusicList(AppConstants.EMOTION_DISGUST)
+                                        musicViewModel.populateMusicList(Emotion.Disgust.emotion)
                                         MusicHelper.playSequential()
                                     }
                                 },
@@ -544,13 +522,11 @@ fun AddDiaryScreen(
                         item {
                             IconButton(
                                 onClick = {
-                                    mood = AppConstants.EMOTION_ANGRY
+                                    mood = Emotion.Angry.emotion
                                     showBottomSheet = false
                                     logo = R.drawable.ic_angry
                                     scope.launch {
-                                        MusicHelper.pause()
-                                        MusicHelper.clearAllMusic()
-                                        musicViewModel.populateMusicList(AppConstants.EMOTION_ANGRY)
+                                        musicViewModel.populateMusicList(Emotion.Angry.emotion)
                                         MusicHelper.playSequential()
                                     }
                                 },
@@ -680,13 +656,23 @@ fun AddDiaryScreen(
 
         if (showMusicConfigurationDialog) {
             MusicHelper.currentSong?.let {
-                MusicConfigurationDialog(
-                    onDismiss = {
-                        showMusicConfigurationDialog = !showMusicConfigurationDialog
-                    },
+                MusicConfigurationDialog(onDismiss = {
+                    showMusicConfigurationDialog = !showMusicConfigurationDialog
+                },
                     giaiDieuName = it.title,
-                    currentEmotion = mood + " music"
-                )
+                    currentEmotion = mood,
+                    onCurrentEmotionChange = { emotion ->
+                        Toast.makeText(
+                            context,
+                            "Change emotion to $emotion",
+                            Toast.LENGTH_LONG
+                        )
+                            .show()
+                        mood = emotion
+                        MusicHelper.clearAllMusic()
+                        musicViewModel.populateMusicList(emotion)
+                        MusicHelper.playSequential()
+                    })
             }
         }
     }

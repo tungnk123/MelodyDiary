@@ -22,7 +22,7 @@ object MusicHelper {
                 addListener(object : Player.Listener {
                     override fun onPlaybackStateChanged(state: Int) {
                         if (state == Player.STATE_ENDED) {
-                            playNextSongInQueue {}
+                            next {}
                         }
                     }
 
@@ -39,6 +39,14 @@ object MusicHelper {
 
     fun togglePlayback(music: MusicSmall) {
         currentSong = music
+        Log.d(
+            TAG,
+            "Current song queue: $songQueue"
+        )
+        Log.d(
+            TAG,
+            "Current song: $music"
+        )
         setNewMusicSource(music.url)
     }
 
@@ -59,6 +67,10 @@ object MusicHelper {
 
     fun pause() {
         exoPlayer?.pause()
+    }
+
+    fun resume() {
+        exoPlayer?.play()
     }
 
     fun next(onPlaybackCompleted: () -> Unit) {
@@ -96,8 +108,10 @@ object MusicHelper {
     }
 
     fun addSongToEnd(music: MusicSmall) {
-        songQueue.addLast(music)
-        maintainQueueSize()
+        if (!songQueue.contains(music)) {
+            songQueue.addLast(music)
+            maintainQueueSize()
+        }
     }
 
     fun playSequential() {
@@ -119,20 +133,11 @@ object MusicHelper {
         }
     }
 
-    private fun playNextSongInQueue(onPlaybackCompleted: () -> Unit) {
-        if (songQueue.isNotEmpty()) {
-            togglePlayback(songQueue.first())
-        }
-        else {
-            onPlaybackCompleted()
-        }
-    }
-
     fun clearAllMusic() {
         songQueue.clear()
     }
 
-    private fun releaseExoPlayer() {
+    fun releaseExoPlayer() {
         exoPlayer?.release()
         exoPlayer = null
     }
