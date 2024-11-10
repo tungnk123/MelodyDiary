@@ -431,6 +431,7 @@ fun AddDiaryScreen(
                                     showBottomSheet = false
                                     logo = R.drawable.ic_face
                                     scope.launch {
+                                        MusicHelper.clearAllMusic()
                                         musicViewModel.populateMusicList(Emotion.Fun.emotion)
                                         MusicHelper.playSequential()
                                     }
@@ -450,6 +451,7 @@ fun AddDiaryScreen(
                                     showBottomSheet = false
                                     logo = R.drawable.ic_cry
                                     scope.launch {
+                                        MusicHelper.clearAllMusic()
                                         musicViewModel.populateMusicList(Emotion.Cry.emotion)
                                         MusicHelper.playSequential()
                                     }
@@ -469,6 +471,7 @@ fun AddDiaryScreen(
                                     showBottomSheet = false
                                     logo = R.drawable.ic_neutral
                                     scope.launch {
+                                        MusicHelper.clearAllMusic()
                                         musicViewModel.populateMusicList(Emotion.Sad.emotion)
                                         MusicHelper.playSequential()
                                     }
@@ -488,6 +491,7 @@ fun AddDiaryScreen(
                                     showBottomSheet = false
                                     logo = R.drawable.ic_fear
                                     scope.launch {
+                                        MusicHelper.clearAllMusic()
                                         musicViewModel.populateMusicList(Emotion.Fear.emotion)
                                         MusicHelper.playSequential()
                                     }
@@ -507,6 +511,7 @@ fun AddDiaryScreen(
                                     showBottomSheet = false
                                     logo = R.drawable.ic_disgust
                                     scope.launch {
+                                        MusicHelper.clearAllMusic()
                                         musicViewModel.populateMusicList(Emotion.Disgust.emotion)
                                         MusicHelper.playSequential()
                                     }
@@ -526,6 +531,7 @@ fun AddDiaryScreen(
                                     showBottomSheet = false
                                     logo = R.drawable.ic_angry
                                     scope.launch {
+                                        MusicHelper.clearAllMusic()
                                         musicViewModel.populateMusicList(Emotion.Angry.emotion)
                                         MusicHelper.playSequential()
                                     }
