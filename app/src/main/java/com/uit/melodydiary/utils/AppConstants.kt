@@ -56,4 +56,11 @@ object AppConstants {
         ),
     )
 
+    val fakeUrlList = listOf(
+        "https://un-silent-backend-mobile.azurewebsites.net/api/v1/musics/file/1QFxYBQiVS1KY2fkr9vD76H6N4MwON4rL",
+        "https://un-silent-backend-mobile.azurewebsites.net/api/v1/musics/file/1SvlJVMjq2vKpHeE5NK2CoxwN-iPKM_GQ",
+        "https://un-silent-backend-mobile.azurewebsites.net/api/v1/musics/file/1RcM0jIfJyGy-f-wXMFTP6yGcqZvCuxAd",
+        "https://un-silent-backend-mobile.azurewebsites.net/api/v1/musics/file/16HHstNVNVawYyOs3XxeFiw5IlM99SuuY",
+        "https://un-silent-backend-mobile.azurewebsites.net/api/v1/musics/file/1RrRAQ0KSMeJVtb4e-NYyOGtsJxB003mI"
+    )
 }

@@ -87,6 +87,7 @@ import com.uit.melodydiary.ui.diary.DiaryViewModel
 import com.uit.melodydiary.ui.theme.MelodyDiaryTheme
 import com.uit.melodydiary.ui.theme.musicItemColor
 import com.uit.melodydiary.ui.theme.mygreen
+import com.uit.melodydiary.utils.AppConstants
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
@@ -219,7 +220,7 @@ fun DiaryTab(
                                         add(
                                             MusicSmall(
                                                 title = "Melody $size",
-                                                url = result
+                                                url = AppConstants.fakeUrlList.random()
                                             )
                                         )
                                     }
