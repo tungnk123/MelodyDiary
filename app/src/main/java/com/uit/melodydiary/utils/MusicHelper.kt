@@ -3,26 +3,72 @@ import android.util.Log
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.DefaultDataSource
+import androidx.media3.datasource.cache.CacheDataSink
+import androidx.media3.datasource.cache.CacheDataSource
+import androidx.media3.datasource.cache.LeastRecentlyUsedCacheEvictor
+import androidx.media3.datasource.cache.SimpleCache
+import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import com.uit.melodydiary.model.MusicSmall
 import java.util.ArrayDeque
 
+@UnstableApi
 object MusicHelper {
     private const val TAG = "MusicHelper"
     private const val MAX_SIZE = 10
-    private var exoPlayer: ExoPlayer? = null
     val songQueue = ArrayDeque<MusicSmall>(MAX_SIZE)
     var currentSong: MusicSmall? = null
     private var currentSongIndex = 0
+    private var exoPlayer: ExoPlayer? = null
+    private var simpleCache: SimpleCache? = null
 
     fun initializeExoPlayer(context: Context) {
+        // Initialize cache for audio files
+        simpleCache = SimpleCache(
+            context.cacheDir,
+            LeastRecentlyUsedCacheEvictor(50 * 1024 * 1024)  // 50 MB cache
+        )
+
+        val loadControl = DefaultLoadControl.Builder()
+            .setBufferDurationsMs(
+                10000,
+                20000,
+                1000,
+                3000
+            )
+            .build()
+
+        val cacheDataSourceFactory = CacheDataSource.Factory()
+            .setCache(simpleCache!!)
+            .setUpstreamDataSourceFactory(DefaultDataSource.Factory(context))
+            .setCacheWriteDataSinkFactory(
+                CacheDataSink.Factory()
+                    .setCache(simpleCache!!)
+            )
+            .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR)
+
         exoPlayer = ExoPlayer.Builder(context)
+            .setLoadControl(loadControl)
+            .setMediaSourceFactory(DefaultMediaSourceFactory(cacheDataSourceFactory))
             .build()
             .apply {
                 addListener(object : Player.Listener {
                     override fun onPlaybackStateChanged(state: Int) {
+                        Log.d(
+                            TAG,
+                            "Playback state changed: $state"
+                        )
                         if (state == Player.STATE_ENDED) {
                             next {}
+                        }
+                        else if (state == Player.STATE_READY) {
+                            Log.d(
+                                TAG,
+                                "ExoPlayer is ready to play."
+                            )
                         }
                     }
 
@@ -35,32 +81,40 @@ object MusicHelper {
                     }
                 })
             }
+        Log.d(
+            TAG,
+            "ExoPlayer initialized."
+        )
     }
 
     fun togglePlayback(music: MusicSmall) {
         currentSong = music
         Log.d(
             TAG,
-            "Current song queue: $songQueue"
-        )
-        Log.d(
-            TAG,
-            "Current song: $music"
+            "Attempting to play: ${music.title}"
         )
         setNewMusicSource(music.url)
     }
 
     private fun setNewMusicSource(url: String) {
+        if (exoPlayer == null) {
+            Log.e(
+                TAG,
+                "ExoPlayer is not initialized."
+            )
+            return
+        }
         exoPlayer?.apply {
             stop()
-            clearMediaItems()
             val mediaItem = MediaItem.fromUri(url)
             setMediaItem(mediaItem)
+
+            // Prepare and ensure playback starts only when ready
             prepare()
             playWhenReady = true
             Log.d(
                 TAG,
-                "ExoPlayer is prepared, starting playback"
+                "Media source set, preparing ExoPlayer."
             )
         }
     }
@@ -80,6 +134,10 @@ object MusicHelper {
             togglePlayback(nextSong)
         }
         else {
+            Log.d(
+                TAG,
+                "Song queue is empty."
+            )
             onPlaybackCompleted()
         }
     }
@@ -92,6 +150,10 @@ object MusicHelper {
             togglePlayback(previousSong)
         }
         else {
+            Log.d(
+                TAG,
+                "Song queue is empty."
+            )
             onPlaybackCompleted()
         }
     }
@@ -138,7 +200,13 @@ object MusicHelper {
     }
 
     fun releaseExoPlayer() {
-        exoPlayer?.release()
-        exoPlayer = null
+//        exoPlayer?.release()
+//        exoPlayer = null
+        simpleCache?.release()
+        simpleCache = null
+        Log.d(
+            TAG,
+            "ExoPlayer and cache released."
+        )
     }
 }
