@@ -22,7 +22,7 @@ object MusicHelper {
     val songQueue = ArrayDeque<MusicSmall>(MAX_SIZE)
     var currentSong: MusicSmall? = null
     private var currentSongIndex = 0
-    private var exoPlayer: ExoPlayer? = null
+    var exoPlayer: ExoPlayer? = null
     private var simpleCache: SimpleCache? = null
 
     fun initializeExoPlayer(context: Context) {
@@ -200,8 +200,8 @@ object MusicHelper {
     }
 
     fun releaseExoPlayer() {
-//        exoPlayer?.release()
-//        exoPlayer = null
+        exoPlayer?.release()
+        exoPlayer = null
         simpleCache?.release()
         simpleCache = null
         Log.d(

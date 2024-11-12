@@ -53,6 +53,7 @@ import com.uit.melodydiary.ui.theme.MelodyDiaryTheme
 import com.github.tehras.charts.bar.BarChart
 import com.github.tehras.charts.bar.BarChartData
 import com.github.tehras.charts.bar.renderer.label.SimpleValueDrawer
+import com.uit.melodydiary.model.Emotion
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -69,12 +70,12 @@ fun ReportScreen(
 
     val moodCountMap: MutableMap<String, Int> = remember {
         mutableMapOf(
-            "Fun" to 0,
-            "Cry" to 0,
-            "Sad" to 0,
-            "Disgust" to 0,
-            "Fear" to 0,
-            "Angry" to 0
+            Emotion.Fun.emotion to 0,
+            Emotion.Cry.emotion to 0,
+            Emotion.Sad.emotion to 0,
+            Emotion.Disgust.emotion to 0,
+            Emotion.Fear.emotion to 0,
+            Emotion.Angry.emotion to 0
         )
     }
 
@@ -190,44 +191,44 @@ fun BieuDoTamTrang(
             PieChart(
                 modifier = modifier.size(100.dp),
                 data = mapOf(
-                    Pair("Fun", moodCountMap["Fun"]!!),
-                    Pair("Cry", moodCountMap["Cry"]!!),
-                    Pair("Sad", moodCountMap["Sad"]!!),
-                    Pair("Disgust", moodCountMap["Disgust"]!!),
-                    Pair("Fear", moodCountMap["Fear"]!!),
-                    Pair("Angry", moodCountMap["Angry"]!!),
+                    Pair("Fun", moodCountMap[Emotion.Fun.emotion]!!),
+                    Pair("Cry", moodCountMap[Emotion.Cry.emotion]!!),
+                    Pair("Sad", moodCountMap[Emotion.Sad.emotion]!!),
+                    Pair("Disgust", moodCountMap[Emotion.Disgust.emotion]!!),
+                    Pair("Fear", moodCountMap[Emotion.Fear.emotion]!!),
+                    Pair("Angry", moodCountMap[Emotion.Angry.emotion]!!),
                 )
             )
             Column {
                 TamTrangItem(
                     color = Color.Blue,
                     tamTrang = "Fun",
-                    phanTram = (moodCountMap["Fun"]!!.toFloat() / sumCount * 100).toInt()
+                    phanTram = (moodCountMap[Emotion.Fun.emotion]!!.toFloat() / sumCount * 100).toInt()
                 )
                 TamTrangItem(
                     color = Color.Magenta,
                     tamTrang = "Cry",
-                    phanTram = (moodCountMap["Cry"]!!.toFloat() / sumCount * 100).toInt()
+                    phanTram = (moodCountMap[Emotion.Cry.emotion]!!.toFloat() / sumCount * 100).toInt()
                 )
                 TamTrangItem(
                     color = Color.Green,
                     tamTrang = "Sad",
-                    phanTram = (moodCountMap["Sad"]!!.toFloat() / sumCount * 100).toInt()
+                    phanTram = (moodCountMap[Emotion.Sad.emotion]!!.toFloat() / sumCount * 100).toInt()
                 )
                 TamTrangItem(
                     color = Color.DarkGray,
                     tamTrang = "Disgust",
-                    phanTram = (moodCountMap["Disgust"]!!.toFloat() / sumCount * 100).toInt()
+                    phanTram = (moodCountMap[Emotion.Disgust.emotion]!!.toFloat() / sumCount * 100).toInt()
                 )
                 TamTrangItem(
                     color = Color.Yellow,
                     tamTrang = "Fear",
-                    phanTram = (moodCountMap["Fear"]!!.toFloat() / sumCount * 100).toInt()
+                    phanTram = (moodCountMap[Emotion.Fear.emotion]!!.toFloat() / sumCount * 100).toInt()
                 )
                 TamTrangItem(
                     color = Color.Red,
                     tamTrang = "Angry",
-                    phanTram = (moodCountMap["Angry"]!!.toFloat() / sumCount * 100).toInt()
+                    phanTram = (moodCountMap[Emotion.Angry.emotion]!!.toFloat() / sumCount * 100).toInt()
                 )
             }
         }
@@ -292,32 +293,32 @@ fun MyBarChartParent(
         barChartData = BarChartData(bars = listOf(
             BarChartData.Bar(
                 label = "Fun",
-                value = moodCountMap["Fun"]!!.toFloat(),
+                value = moodCountMap[Emotion.Fun.emotion]!!.toFloat(),
                 color = Blue
             ),
             BarChartData.Bar(
                 label = "Cry",
-                value = moodCountMap["Cry"]!!.toFloat(),
+                value = moodCountMap[Emotion.Cry.emotion]!!.toFloat(),
                 color = Color.Magenta
             ),
             BarChartData.Bar(
                 label = "Sad",
-                value = moodCountMap["Sad"]!!.toFloat(),
+                value = moodCountMap[Emotion.Sad.emotion]!!.toFloat(),
                 color = Color.Green
             ),
             BarChartData.Bar(
                 label = "Disgust",
-                value = moodCountMap["Disgust"]!!.toFloat(),
+                value = moodCountMap[Emotion.Disgust.emotion]!!.toFloat(),
                 color = Color.DarkGray
             ),
             BarChartData.Bar(
                 label = "Fear",
-                value = moodCountMap["Fear"]!!.toFloat(),
+                value = moodCountMap[Emotion.Fear.emotion]!!.toFloat(),
                 color =Color.Yellow
             ),
             BarChartData.Bar(
                 label = "Angry",
-                value = moodCountMap["Angry"]!!.toFloat(),
+                value = moodCountMap[Emotion.Angry.emotion]!!.toFloat(),
                 color = Red
             )
         ),
