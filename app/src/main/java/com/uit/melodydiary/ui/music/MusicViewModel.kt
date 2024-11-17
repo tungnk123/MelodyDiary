@@ -7,13 +7,14 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.google.ai.client.generativeai.GenerativeModel
+import com.uit.melodydiary.BuildConfig
 import com.uit.melodydiary.MelodyDiaryApplication
 import com.uit.melodydiary.R
 import com.uit.melodydiary.data.repository.AlbumRepository
 import com.uit.melodydiary.data.repository.MusicRepository
 import com.uit.melodydiary.model.Album
 import com.uit.melodydiary.model.Diary
-import com.uit.melodydiary.model.Music
 import com.uit.melodydiary.model.MusicSmall
 import com.uit.melodydiary.model.toMusicSmall
 import kotlinx.coroutines.Dispatchers
@@ -44,6 +45,12 @@ class MusicViewModel(
         mood = "fun",
         contentFilePath = ""
     )
+    val generativeModel by lazy {
+        GenerativeModel(
+            modelName = "gemini-1.5-flash",
+            apiKey = BuildConfig.GEMINI_API_KEY
+        )
+    }
 
     suspend fun generateMusic(
         emotion: String = "",
@@ -101,6 +108,36 @@ class MusicViewModel(
         }
     }
 
+    fun populateMusicListByLyric(lyric: String) {
+        try {
+            viewModelScope.launch(Dispatchers.IO) {
+                val musicGroup = musicRepository.getGeneratedMusicListByLyric(
+                    lyric = lyric
+                )
+                musicGroup.forEach {
+                    val remoteMusicList = it.musics.map { music ->
+                        music.toMusicSmall()
+                    }
+                    remoteMusicList.forEach {
+                        MusicHelper.addSongToEnd(it)
+                    }
+                }
+                Log.d(
+                    "test_song",
+                    "Current song queue: ${MusicHelper.songQueue}"
+                )
+            }
+        }
+        catch (e: Exception) {
+            Log.e(
+                "fetchMusic",
+                "Error fetching music: ${e.message}",
+                e
+            )
+            throw e
+        }
+    }
+
     fun getAllMusicByGroupId(groupId: String) =
         musicRepository.getAllLocalSmallMusicsByGroupId(groupId)
 
@@ -112,8 +149,7 @@ class MusicViewModel(
 
     fun getAllAlbum() {
         viewModelScope.launch {
-            albumList = albumRepository
-                .getAlbum()
+            albumList = albumRepository.getAlbum()
                 .stateIn(
                     scope = viewModelScope,
                     initialValue = listOf<Album>(),
@@ -134,9 +170,18 @@ class MusicViewModel(
         }
     }
 
-
     fun setSelectedDiary(diary: Diary) {
         currentDiary = diary
+    }
+
+    fun callGeminiToDetectEmotion(input: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = generativeModel.generateContent(input)
+            Log.d(
+                "test_gemini",
+                response.text.toString()
+            )
+        }
     }
 
     companion object {

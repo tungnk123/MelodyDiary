@@ -76,6 +76,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
@@ -87,6 +88,8 @@ import com.uit.melodydiary.ui.diary.DiaryViewModel
 import com.uit.melodydiary.ui.theme.MelodyDiaryTheme
 import com.uit.melodydiary.ui.theme.musicItemColor
 import com.uit.melodydiary.ui.theme.mygreen
+import com.uit.melodydiary.utils.AppConstants
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
@@ -124,6 +127,7 @@ fun MusicScreen(
     }
 }
 
+@androidx.annotation.OptIn(UnstableApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DiaryTab(
@@ -156,6 +160,9 @@ fun DiaryTab(
     val context = LocalContext.current
     LaunchedEffect(isAlbumSelectionDialogVisible) {
         musicViewModel.getAllMusic()
+        if (MusicHelper.exoPlayer == null) {
+            MusicHelper.initializeExoPlayer(context)
+        }
     }
     Column(
         modifier = modifier.fillMaxSize()
@@ -213,13 +220,14 @@ fun DiaryTab(
                                 val genString =
                                     "Đây là một bài nhạc có giai điệu $selectedGiaiDieu, nhạc cụ $selectedNhacCu và có nội dung là $musicViewModel.currentDiary.content"
                                 val result = musicViewModel.generateMusic(genString)
+                                delay(2_000L)
                                 val size = musicList.size + 1
                                 musicList = musicList.toMutableList()
                                     .apply {
                                         add(
                                             MusicSmall(
                                                 title = "Melody $size",
-                                                url = result
+                                                url = AppConstants.fakeUrlList.random()
                                             )
                                         )
                                     }
@@ -746,6 +754,7 @@ fun DiaryMenuItemWithClose(
     }
 }
 
+@androidx.annotation.OptIn(UnstableApi::class)
 @Composable
 fun MusicList(
     modifier: Modifier = Modifier,
@@ -775,9 +784,11 @@ fun MusicList(
                     onClickPlay = {
                         isPlayState = true
                         MusicHelper.togglePlayback(it)
+                        MusicHelper.resume()
                     },
                     onClickPause = {
                         isPlayState = false
+                        MusicHelper.pause()
                     },
                     isPlay = isPlayState,
                     isSelected = selectedItem == it,

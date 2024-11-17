@@ -3,6 +3,7 @@ package com.uit.melodydiary.ui.addDiary
 
 import MusicHelper
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -56,6 +57,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavHostController
 import com.makeappssimple.abhimanyu.composeemojipicker.ComposeEmojiPickerBottomSheetUI
 import com.uit.melodydiary.MelodyDiaryApp
@@ -83,6 +85,7 @@ import com.uit.melodydiary.utils.byteArrayToString
 import com.uit.melodydiary.utils.plus
 import com.uit.melodydiary.utils.saveContentListToFile
 import com.uit.melodydiary.utils.stringToByteArray
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDateTime
@@ -90,6 +93,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 
+@androidx.annotation.OptIn(UnstableApi::class)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddDiaryScreen(
@@ -159,6 +163,9 @@ fun AddDiaryScreen(
     LaunchedEffect(Unit) {
         AppConstants.demoList.forEach { item ->
             musicViewModel.insertMusic(item)
+        }
+        if (MusicHelper.exoPlayer == null) {
+            MusicHelper.initializeExoPlayer(context)
         }
     }
 
@@ -368,6 +375,20 @@ fun AddDiaryScreen(
                             updatedContentList[index] = "text" to stringToByteArray(it)
                             contentList = updatedContentList
                         },
+                        onDetectDot = {
+//                            val inputForGemini = context.getString(
+//                                R.string.msg_prompt_detect_emotion_gemini,
+//                                byteArrayToString(value)
+//                            )
+//                            musicViewModel.callGeminiToDetectEmotion(inputForGemini)
+                            val lyric = byteArrayToString(value)
+                            Log.d(
+                                "test_lyric",
+                                "Current lyric: $lyric"
+                            )
+                            MusicHelper.clearAllMusic()
+                            musicViewModel.populateMusicListByLyric(lyric)
+                        },
                         enable = true,
                         textStyle = TextStyle(
                             fontFamily = when (selectedFontStyle) {
@@ -433,7 +454,8 @@ fun AddDiaryScreen(
                                     scope.launch {
                                         MusicHelper.clearAllMusic()
                                         musicViewModel.populateMusicList(Emotion.Fun.emotion)
-                                        MusicHelper.playSequential()
+                                        delay(3_000L)
+                                        MusicHelper.next {}
                                     }
                                 },
                             ) {
@@ -453,7 +475,8 @@ fun AddDiaryScreen(
                                     scope.launch {
                                         MusicHelper.clearAllMusic()
                                         musicViewModel.populateMusicList(Emotion.Cry.emotion)
-                                        MusicHelper.playSequential()
+                                        delay(3_000L)
+                                        MusicHelper.next {}
                                     }
                                 },
                             ) {
@@ -473,7 +496,8 @@ fun AddDiaryScreen(
                                     scope.launch {
                                         MusicHelper.clearAllMusic()
                                         musicViewModel.populateMusicList(Emotion.Sad.emotion)
-                                        MusicHelper.playSequential()
+                                        delay(3_000L)
+                                        MusicHelper.next {}
                                     }
                                 },
                             ) {
@@ -493,7 +517,8 @@ fun AddDiaryScreen(
                                     scope.launch {
                                         MusicHelper.clearAllMusic()
                                         musicViewModel.populateMusicList(Emotion.Fear.emotion)
-                                        MusicHelper.playSequential()
+                                        delay(3_000L)
+                                        MusicHelper.next {}
                                     }
                                 },
                             ) {
@@ -513,7 +538,8 @@ fun AddDiaryScreen(
                                     scope.launch {
                                         MusicHelper.clearAllMusic()
                                         musicViewModel.populateMusicList(Emotion.Disgust.emotion)
-                                        MusicHelper.playSequential()
+                                        delay(3_000L)
+                                        MusicHelper.next {}
                                     }
                                 },
                             ) {

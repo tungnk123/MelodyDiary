@@ -1,6 +1,7 @@
 package com.uit.melodydiary.data.repository
 
 import com.uit.melodydiary.data.DiaryDao
+import com.uit.melodydiary.model.MusicRequest
 import com.uit.melodydiary.network.MusicApiService
 
 class MusicRepository(
@@ -16,6 +17,18 @@ class MusicRepository(
         emotion = emotion,
         genre = genre,
         instrument = instrument
+    )
+
+    suspend fun getGeneratedMusicListByLyric(
+        lyric: String = "",
+        genre: String = "",
+        instrument: String = "",
+    ) = apiService.getGeneratedMusicByLyricVer2(
+        MusicRequest(
+            lyric = lyric,
+            genre = genre,
+            instrument
+        )
     )
 
     suspend fun generateMusic(lyric: String) = apiService.getGeneratedMusicByLyric(lyric)

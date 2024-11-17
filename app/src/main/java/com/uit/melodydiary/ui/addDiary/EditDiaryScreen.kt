@@ -295,6 +295,7 @@ fun EditDiaryScreen(
                                 contentList = updatedContentList
                             },
                             enable = true,
+                            onDetectDot = {},
                             textStyle = TextStyle(
                                 fontFamily = when (diaryStyle.fontStyle) {
                                     "Serif" -> FontFamily.Serif
@@ -311,7 +312,8 @@ fun EditDiaryScreen(
                     }
                     else {
 
-                        ImageContentWrapper(imageByteArray = value,
+                        ImageContentWrapper(
+                            imageByteArray = value,
                             onDeleteClick = {
                                 val updatedContentList = contentList.toMutableList()
                                 updatedContentList.removeAt(index)
