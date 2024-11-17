@@ -2,11 +2,13 @@ package com.uit.melodydiary.ui.music
 
 import MusicHelper
 import android.util.Log
+import androidx.annotation.OptIn
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.media3.common.util.UnstableApi
 import com.google.ai.client.generativeai.GenerativeModel
 import com.uit.melodydiary.BuildConfig
 import com.uit.melodydiary.MelodyDiaryApplication
@@ -26,8 +28,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 
-
-private const val FETCH_INTERVAL = 5000L
 
 class MusicViewModel(
     private val musicRepository: MusicRepository,
@@ -73,6 +73,7 @@ class MusicViewModel(
         }
     }
 
+    @OptIn(UnstableApi::class)
     fun populateMusicList(emotion: String) {
         try {
             viewModelScope.launch(Dispatchers.IO) {
@@ -108,6 +109,7 @@ class MusicViewModel(
         }
     }
 
+    @OptIn(UnstableApi::class)
     fun populateMusicListByLyric(lyric: String) {
         try {
             viewModelScope.launch(Dispatchers.IO) {

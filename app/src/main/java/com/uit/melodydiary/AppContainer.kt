@@ -22,17 +22,35 @@ class AppContainer(private val context: Context) {
     val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
     }
-    val okHttpClient = OkHttpClient.Builder().connectTimeout(timeout, TimeUnit.MINUTES)
-        .readTimeout(timeout, TimeUnit.MINUTES).writeTimeout(timeout, TimeUnit.MINUTES)
-        .addInterceptor(loggingInterceptor).build()
+    val okHttpClient = OkHttpClient.Builder()
+        .connectTimeout(
+            timeout,
+            TimeUnit.MINUTES
+        )
+        .readTimeout(
+            timeout,
+            TimeUnit.MINUTES
+        )
+        .writeTimeout(
+            timeout,
+            TimeUnit.MINUTES
+        )
+        .addInterceptor(loggingInterceptor)
+        .build()
     private val baseUrl = "https://un-silent-backend-mobile.azurewebsites.net"
     private val retrofit: Retrofit =
-        Retrofit.Builder().addConverterFactory(GsonConverterFactory.create()).baseUrl(baseUrl)
-            .client(okHttpClient).build()
+        Retrofit.Builder()
+            .addConverterFactory(GsonConverterFactory.create())
+            .baseUrl(baseUrl)
+            .client(okHttpClient)
+            .build()
     val warmUpApiService = retrofit.create(MusicApiService::class.java)
     val applicationScope = CoroutineScope(SupervisorJob())
     val database by lazy {
-        DiaryRoomDatabase.getDatabase(context, applicationScope)
+        DiaryRoomDatabase.getDatabase(
+            context,
+            applicationScope
+        )
     }
 
     val localDiaryDataSource: LocalDiaryDataSource by lazy {
@@ -44,11 +62,17 @@ class AppContainer(private val context: Context) {
     }
 
     val diaryRepository: DiaryRepository by lazy {
-        DiaryRepository(localDiaryDataSource, remoteDiaryDataSource)
+        DiaryRepository(
+            localDiaryDataSource,
+            remoteDiaryDataSource
+        )
     }
 
     val musicRepository: MusicRepository by lazy {
-        MusicRepository(retrofit.create(MusicApiService::class.java), dao = database.diaryDao())
+        MusicRepository(
+            retrofit.create(MusicApiService::class.java),
+            dao = database.diaryDao()
+        )
     }
 
     val albumRepository: AlbumRepository by lazy {

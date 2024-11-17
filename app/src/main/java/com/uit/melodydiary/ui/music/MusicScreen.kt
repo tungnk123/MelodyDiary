@@ -79,6 +79,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import androidx.work.WorkManager
 import coil.compose.AsyncImage
 import com.uit.melodydiary.R
 import com.uit.melodydiary.model.Album
@@ -89,6 +90,7 @@ import com.uit.melodydiary.ui.theme.MelodyDiaryTheme
 import com.uit.melodydiary.ui.theme.musicItemColor
 import com.uit.melodydiary.ui.theme.mygreen
 import com.uit.melodydiary.utils.AppConstants
+import com.uit.melodydiary.worker.MusicWorker
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -219,7 +221,10 @@ fun DiaryTab(
                                 )
                                 val genString =
                                     "Đây là một bài nhạc có giai điệu $selectedGiaiDieu, nhạc cụ $selectedNhacCu và có nội dung là $musicViewModel.currentDiary.content"
-                                val result = musicViewModel.generateMusic(genString)
+//                                val result = musicViewModel.generateMusic(genString)
+                                val workManager = WorkManager.getInstance(context)
+                                MusicWorker.scheduleMusicWorker(workManager, genString)
+
                                 delay(2_000L)
                                 val size = musicList.size + 1
                                 musicList = musicList.toMutableList()

@@ -190,4 +190,8 @@ dependencies {
     // gemini
     implementation(libs.generativeai)
 
+    // worker
+    implementation("androidx.work:work-runtime-ktx:2.8.1")
+
+
 }
