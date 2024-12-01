@@ -2,14 +2,9 @@ package com.uit.melodydiary.ui.music
 
 
 import MusicHelper
-import android.graphics.BitmapFactory
-import android.net.Uri
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -38,7 +33,6 @@ import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
 import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -48,7 +42,6 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -67,8 +60,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -79,11 +70,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import coil.compose.AsyncImage
 import com.uit.melodydiary.R
 import com.uit.melodydiary.model.Album
 import com.uit.melodydiary.model.Diary
 import com.uit.melodydiary.model.MusicSmall
+import com.uit.melodydiary.ui.album.AddAlbum
+import com.uit.melodydiary.ui.album.AlbumDetailScreen
+import com.uit.melodydiary.ui.album.AlbumItemList
+import com.uit.melodydiary.ui.album.CreateAlbumScreen
 import com.uit.melodydiary.ui.diary.DiaryViewModel
 import com.uit.melodydiary.ui.theme.MelodyDiaryTheme
 import com.uit.melodydiary.ui.theme.musicItemColor
@@ -204,11 +198,12 @@ fun DiaryTab(
                 GenMusicTab(musicList = musicList,
                     onTaoNhacClick = {
                         if (musicViewModel.currentDiary.title == "Chọn") {
-                            Toast.makeText(
-                                context,
-                                "Please select a diary to gen music!",
-                                Toast.LENGTH_LONG
-                            )
+                            Toast
+                                .makeText(
+                                    context,
+                                    "Please select a diary to gen music!",
+                                    Toast.LENGTH_LONG
+                                )
                                 .show()
                         }
                         else {
@@ -222,7 +217,8 @@ fun DiaryTab(
                                 val result = musicViewModel.generateMusic(genString)
                                 delay(2_000L)
                                 val size = musicList.size + 1
-                                musicList = musicList.toMutableList()
+                                musicList = musicList
+                                    .toMutableList()
                                     .apply {
                                         add(
                                             MusicSmall(
@@ -236,11 +232,12 @@ fun DiaryTab(
                     },
                     onXuatBanClick = {
                         if (selectedMusicSmall.title == "Melody") {
-                            Toast.makeText(
-                                context,
-                                "Please select a music to expose!",
-                                Toast.LENGTH_LONG
-                            )
+                            Toast
+                                .makeText(
+                                    context,
+                                    "Please select a music to expose!",
+                                    Toast.LENGTH_LONG
+                                )
                                 .show()
                         }
                         else {
@@ -288,11 +285,12 @@ fun DiaryTab(
                     selectedMusicSmall.albumId = album.albumId
 
                     musicViewModel.insertMusic(selectedMusicSmall)
-                    Toast.makeText(
-                        context,
-                        "Exposed to ${album.title}",
-                        Toast.LENGTH_SHORT
-                    )
+                    Toast
+                        .makeText(
+                            context,
+                            "Exposed to ${album.title}",
+                            Toast.LENGTH_SHORT
+                        )
                         .show()
                     isAlbumSelectionDialogVisible = false
                 },
@@ -1051,345 +1049,6 @@ fun PlaylistTab(
 //                }
 //            )
 //        }
-    }
-}
-
-@Composable
-fun AlbumItemList(
-    albumList: List<Album>,
-    onItemClick: (Album) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-
-    if (albumList.isEmpty()) {
-        Box(
-            modifier = modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = stringResource(R.string.text_danh_sach_album_trong),
-                style = MaterialTheme.typography.titleMedium
-            )
-        }
-    }
-    else {
-        LazyColumn {
-            items(albumList) { album ->
-                AlbumItem(album = album,
-                    onItemClick = { onItemClick(album) })
-            }
-        }
-
-
-    }
-
-}
-
-@Composable
-fun AlbumItem(
-    album: Album,
-    modifier: Modifier = Modifier,
-    onItemClick: (Album) -> Unit,
-) {
-    val bitmap = BitmapFactory.decodeByteArray(
-        album.logo,
-        0,
-        album.logo.size
-    )
-    Card(modifier = modifier
-        .fillMaxWidth()
-        .padding(top = 10.dp),
-        elevation = CardDefaults.cardElevation(2.dp),
-        shape = RoundedCornerShape(10.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        ),
-        onClick = { onItemClick(album) }) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            Image(
-                bitmap = bitmap.asImageBitmap(),
-                contentDescription = null,
-                modifier = Modifier
-                    .width(122.dp)
-                    .height(90.dp),
-                contentScale = ContentScale.Crop
-            )
-
-            Column {
-                Text(
-                    text = album.title,
-                    style = MaterialTheme.typography.titleLarge
-                )
-                Spacer(modifier = Modifier.height(5.dp))
-                Text(
-                    text = album.description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray
-                )
-            }
-
-        }
-    }
-}
-
-@Composable
-fun AlbumDetailScreen(
-    album: Album,
-    musicList: List<MusicSmall>,
-    onClose: () -> Unit,
-    selectedMusicSmall: MusicSmall,
-    onSelectedMusicChange: (MusicSmall) -> Unit,
-) {
-    val bitmap = BitmapFactory.decodeByteArray(
-        album.logo,
-        0,
-        album.logo.size
-    )
-    val context = LocalContext.current
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Row(
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            IconButton(
-                onClick = onClose,
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = null
-                )
-            }
-        }
-
-        Image(
-            bitmap = bitmap.asImageBitmap(),
-            contentDescription = null,
-            modifier = Modifier
-                .width(122.dp)
-                .height(90.dp),
-            contentScale = ContentScale.Crop
-        )
-
-        Spacer(modifier = Modifier.height(5.dp))
-        Text(
-            text = album.title,
-            style = MaterialTheme.typography.titleLarge
-        )
-        Spacer(modifier = Modifier.height(3.dp))
-        Text(
-            text = "${album.count} đoạn nhạc",
-            style = MaterialTheme.typography.titleMedium
-        )
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = 20.dp,
-                    vertical = 10.dp
-                ),
-            horizontalArrangement = Arrangement.SpaceAround,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Button(
-                onClick = {
-                    Toast.makeText(
-                        context,
-                        "Feature is under construction",
-                        Toast.LENGTH_SHORT
-                    )
-                        .show()
-                },
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = MaterialTheme.colorScheme.primary
-                ),
-                shape = RoundedCornerShape(20.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.btn_phat_tuan_tu),
-                    color = Color.White
-                )
-            }
-            Spacer(modifier = Modifier.width(20.dp))
-            Button(
-                onClick = {
-                    Toast.makeText(
-                        context,
-                        "Feature is under construction",
-                        Toast.LENGTH_SHORT
-                    )
-                        .show()
-                },
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = mygreen
-                ),
-                shape = RoundedCornerShape(20.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.btn_phat_ngau_nhien),
-                    color = Color.Black
-                )
-            }
-        }
-
-        MusicList(
-            musicList = musicList,
-            selectedItem = selectedMusicSmall,
-            onSelectedItemChange = onSelectedMusicChange
-        )
-    }
-}
-
-@Composable
-fun CreateAlbumScreen(
-    onAlbumCreated: (Album) -> Unit,
-    isCreateAlbumDialogOpen: Boolean,
-    onCloseDialog: () -> Unit,
-) {
-    var title by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
-    val context = LocalContext.current
-    if (isCreateAlbumDialogOpen) {
-        AlertDialog(onDismissRequest = {
-            onCloseDialog()
-            title = ""
-            description = ""
-            selectedImageUri = null
-        },
-            modifier = Modifier.padding(bottom = 10.dp),
-            title = {
-                Text(
-                    "Create Album",
-                    style = MaterialTheme.typography.titleLarge
-                )
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        if (title.isNotBlank() && description.isNotBlank() && selectedImageUri != null) {
-                            val newAlbum = Album(
-                                albumId = 0,
-                                logo = context.contentResolver.openInputStream(
-                                    selectedImageUri!!
-                                )
-                                    ?.readBytes()!!,
-                                title = title,
-                                description = description
-                            )
-                            onAlbumCreated(newAlbum)
-                        }
-                        onCloseDialog()
-                        title = ""
-                        description = ""
-                        selectedImageUri = null
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = mygreen
-                    ),
-                    shape = RoundedCornerShape(20.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.btn_xac_nhan),
-                        color = Color.Black
-                    )
-                }
-
-            },
-            dismissButton = {
-                Button(
-                    onClick = {
-                        onCloseDialog()
-                        title = ""
-                        description = ""
-                        selectedImageUri = null
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = Color.Red
-                    ),
-                    shape = RoundedCornerShape(20.dp),
-                    modifier = Modifier.padding(bottom = 10.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.btn_close),
-                        color = Color.White
-                    )
-                }
-            },
-            text = {
-                Column(
-                    modifier = Modifier.padding(vertical = 10.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    ImageSelector(selectedImageUri = selectedImageUri,
-                        onImageSelected = { uri ->
-                            selectedImageUri = uri
-                        })
-
-                    OutlinedTextField(value = title,
-                        onValueChange = { title = it },
-                        label = { Text("Title") })
-
-                    OutlinedTextField(value = description,
-                        onValueChange = { description = it },
-                        label = { Text("Description") })
-
-                }
-            })
-    }
-}
-
-
-@Composable
-fun ImageSelector(
-    selectedImageUri: Uri?,
-    onImageSelected: (Uri) -> Unit,
-) {
-    val photoPikcerLauncher =
-        rememberLauncherForActivityResult(contract = ActivityResultContracts.PickVisualMedia(),
-            onResult = {
-                onImageSelected(it!!)
-            })
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Text(
-            text = "Choose logo for album"
-        )
-        if (selectedImageUri == null) {
-            Button(
-                onClick = {
-                    photoPikcerLauncher.launch(
-                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                    )
-                },
-                colors = ButtonDefaults.buttonColors(
-                    contentColor = Color.White,
-                )
-            ) {
-                Text(
-                    "Choose logo",
-                    color = Color.White
-                )
-            }
-        }
-        else {
-            AsyncImage(
-                model = selectedImageUri,
-                contentDescription = null,
-                modifier = Modifier.size(100.dp),
-            )
-        }
     }
 }
 
