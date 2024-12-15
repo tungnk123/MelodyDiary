@@ -1,7 +1,12 @@
 package com.uit.melodydiary.ui.album
 
+import MusicHelper
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.OptIn
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -31,20 +36,30 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.media3.common.util.UnstableApi
 import com.uit.melodydiary.R
 import com.uit.melodydiary.model.Album
 import com.uit.melodydiary.model.MusicSmall
 import com.uit.melodydiary.ui.music.MusicList
 import com.uit.melodydiary.ui.theme.mygreen
 
+@OptIn(UnstableApi::class)
 @Composable
 fun AlbumDetailScreen(
     album: Album,
     musicList: List<MusicSmall>,
     onClose: () -> Unit,
+    onAddMusic: (Uri) -> Unit,
     selectedMusicSmall: MusicSmall,
     onSelectedMusicChange: (MusicSmall) -> Unit,
 ) {
+    val filePickerLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            onAddMusic(uri)
+        }
+    }
     val bitmap = BitmapFactory.decodeByteArray(
         album.logo,
         0,
@@ -57,7 +72,7 @@ fun AlbumDetailScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
-            horizontalArrangement = Arrangement.Start,
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -71,7 +86,8 @@ fun AlbumDetailScreen(
             }
 
             IconButton(onClick = {
-                // TODO: Add function for select local music
+                filePickerLauncher.launch("audio/*")
+
             }) {
                 Icon(
                     imageVector = Icons.Filled.AddCircle,
@@ -96,7 +112,7 @@ fun AlbumDetailScreen(
         )
         Spacer(modifier = Modifier.height(3.dp))
         Text(
-            text = "${album.count} đoạn nhạc",
+            text = "${musicList.size} đoạn nhạc",
             style = MaterialTheme.typography.titleMedium
         )
 
@@ -112,13 +128,7 @@ fun AlbumDetailScreen(
         ) {
             Button(
                 onClick = {
-                    Toast
-                        .makeText(
-                            context,
-                            "Feature is under construction",
-                            Toast.LENGTH_SHORT
-                        )
-                        .show()
+                    MusicHelper.playSequential()
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary
@@ -133,13 +143,7 @@ fun AlbumDetailScreen(
             Spacer(modifier = Modifier.width(20.dp))
             Button(
                 onClick = {
-                    Toast
-                        .makeText(
-                            context,
-                            "Feature is under construction",
-                            Toast.LENGTH_SHORT
-                        )
-                        .show()
+                    MusicHelper.playRandom { }
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = mygreen

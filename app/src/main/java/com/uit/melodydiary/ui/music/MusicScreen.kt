@@ -96,6 +96,7 @@ fun MusicScreen(
     navController: NavController,
 ) {
     val diaryViewModel: DiaryViewModel = viewModel(factory = DiaryViewModel.Factory)
+
     diaryViewModel.getDiaryFromDatabase()
 
     musicViewModel.getAllAlbum()
@@ -131,8 +132,8 @@ fun DiaryTab(
     albumList: List<Album>,
 ) {
     var selectedTabIndex by remember { mutableStateOf(0) }
-    var musicList by remember { mutableStateOf(mutableListOf<MusicSmall>()) }
-    var musicListFromDB by remember { mutableStateOf(listOf<MusicSmall>()) }
+    var generatedMusicList by remember { mutableStateOf(mutableListOf<MusicSmall>()) }
+    val musicList by musicViewModel.musicSmallList.collectAsState()
     val diaryList = diaryViewModel.diaryList.collectAsState()
     val scope = rememberCoroutineScope()
     var selectedAlbum by remember { mutableStateOf<Album?>(null) }
@@ -195,7 +196,7 @@ fun DiaryTab(
         // Content for each tab
         when (selectedTabIndex) {
             0 -> {
-                GenMusicTab(musicList = musicList,
+                GenMusicTab(musicList = generatedMusicList,
                     onTaoNhacClick = {
                         if (musicViewModel.currentDiary.title == "Chọn") {
                             Toast
@@ -216,8 +217,8 @@ fun DiaryTab(
                                     "Đây là một bài nhạc có giai điệu $selectedGiaiDieu, nhạc cụ $selectedNhacCu và có nội dung là $musicViewModel.currentDiary.content"
                                 val result = musicViewModel.generateMusic(genString)
                                 delay(2_000L)
-                                val size = musicList.size + 1
-                                musicList = musicList
+                                val size = generatedMusicList.size + 1
+                                generatedMusicList = generatedMusicList
                                     .toMutableList()
                                     .apply {
                                         add(
@@ -273,11 +274,24 @@ fun DiaryTab(
         selectedAlbum?.let { album ->
             AlbumDetailScreen(album = album,
                 onClose = { selectedAlbum = null },
+                onAddMusic = { uri ->
+                    Log.d(
+                        "test_uri",
+                        "Current uri: $uri"
+                    )
+                    musicViewModel.insertMusic(
+                        MusicSmall(
+                            title = uri.lastPathSegment.toString(),
+                            url = uri.toString(),
+                            albumId = album.albumId
+                        )
+                    )
+                },
                 selectedMusicSmall = selectedMusicSmall,
                 onSelectedMusicChange = {
                     selectedMusicSmall = it
                 },
-                musicList = musicViewModel.musicSmallList.filter { it.albumId == album.albumId })
+                musicList = musicList.filter { it.albumId == album.albumId })
         }
         if (isAlbumSelectionDialogVisible) {
             AlbumSelectionDialog(albumList = albumList,

@@ -24,7 +24,7 @@ class AlbumRepository(
         return diaryDao.getMusicInAlbum(albumId)
     }
 
-    fun getAllMusic(): List<MusicSmall> {
+    fun getAllMusic(): Flow<List<MusicSmall>> {
         return diaryDao.getAllMusic()
     }
 }

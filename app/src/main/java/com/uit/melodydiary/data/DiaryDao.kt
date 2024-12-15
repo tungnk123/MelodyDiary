@@ -17,7 +17,10 @@ interface DiaryDao {
 
 
     @Query("SELECT * FROM diary_table WHERE created_at >= :startOfDay AND created_at < :endOfDay")
-    fun getDiaryAtDate(startOfDay: String, endOfDay: String): Flow<List<Diary>>
+    fun getDiaryAtDate(
+        startOfDay: String,
+        endOfDay: String,
+    ): Flow<List<Diary>>
 
 
     @Query("SELECT * FROM diary_table WHERE diary_id = :diaryId")
@@ -45,7 +48,7 @@ interface DiaryDao {
     suspend fun insertMusic(music: MusicSmall)
 
     @Query("SELECT * FROM music_table ")
-    fun getAllMusic(): List<MusicSmall>
+    fun getAllMusic(): Flow<List<MusicSmall>>
 
     @Query("SELECT * FROM music_table WHERE emotion = :emotion")
     fun getAllMusicByEmotion(emotion: String): List<MusicSmall>
