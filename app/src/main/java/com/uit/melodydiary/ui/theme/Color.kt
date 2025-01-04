@@ -1,4 +1,5 @@
 package com.uit.melodydiary.ui.theme
+
 import androidx.compose.ui.graphics.Color
 
 val md_theme_light_primary = Color(0xFF5E3AE7)
@@ -75,3 +76,5 @@ val mauDa5 = Color(0xFFdaf7f5)
 val mauDa6 = Color(0xFFebe2fd)
 val mauDa7 = Color(0xFFebe2fd)
 val musicItemColor = Color(0xFFEAE7D6)
+val c_EB7D1B = Color(0xFFEB7D1B)
+
