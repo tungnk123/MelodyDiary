@@ -123,7 +123,6 @@ fun MusicScreen(
 }
 
 @androidx.annotation.OptIn(UnstableApi::class)
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DiaryTab(
     modifier: Modifier = Modifier,

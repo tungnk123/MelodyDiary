@@ -25,6 +25,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -80,19 +81,21 @@ fun DetailDiaryScreen(
     var openDialog by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val diaryStyle = diary?.diaryStyle
+    var diaryStyle = diary?.diaryStyle
     var isShrink by remember { mutableStateOf(false) }
+
+    LaunchedEffect(diary) {
+        diaryStyle = diary?.diaryStyle
+    }
+
     Scaffold(
         modifier = modifier,
         topBar = {
-            CenterAlignedTopAppBar(
-                modifier = Modifier,
+            CenterAlignedTopAppBar(modifier = Modifier,
                 navigationIcon = {
-                    IconButton(
-                        onClick = {
-                            navController.popBackStack()
-                        }
-                    ) {
+                    IconButton(onClick = {
+                        navController.popBackStack()
+                    }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = null
@@ -105,66 +108,57 @@ fun DetailDiaryScreen(
                         style = MaterialTheme.typography.titleLarge
                     )
                 },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = diaryStyle?.colorPalette ?: Color.Transparent
+                ),
                 actions = {
                     Row(
                         modifier = Modifier.padding(end = 20.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        IconButton(
-                            onClick = { showMenu = !showMenu }
-                        ) {
+                        IconButton(onClick = { showMenu = !showMenu }) {
                             Icon(
                                 imageVector = Icons.Default.MoreVert,
                                 contentDescription = null
                             )
                         }
-                        DropdownMenu(
-                            expanded = showMenu,
-                            onDismissRequest = { showMenu = false }
-                        ) {
-                            DropdownMenuItem(
-                                onClick = {
-                                    showMenu = false
-                                    // Implement delete action
-                                    diaryViewModel.deleteDiaryById(diaryId)
-                                    navController.popBackStack()
-                                }
-                            ) {
+                        DropdownMenu(expanded = showMenu,
+                            onDismissRequest = { showMenu = false }) {
+                            DropdownMenuItem(onClick = {
+                                showMenu = false
+                                diaryViewModel.deleteDiaryById(diaryId)
+                                navController.popBackStack()
+                            }) {
                                 Text("Delete")
                             }
-                            DropdownMenuItem(
-                                onClick = {
-                                    showMenu = false
-                                    // Implement share action
-                                    Toast.makeText(
+                            DropdownMenuItem(onClick = {
+                                showMenu = false
+                                Toast
+                                    .makeText(
                                         context,
                                         "Feature is under construction",
                                         Toast.LENGTH_SHORT
                                     )
-                                        .show()
-                                }
-                            ) {
+                                    .show()
+                            }) {
                                 Text("Share")
                             }
                         }
                         Spacer(modifier = Modifier.width(5.dp))
-                        Button(
-                            onClick = {
-                                navController.navigate("${MelodyDiaryApp.EditDiaryScreen.name}/${diaryId}")
-                            }
-                        ) {
+                        Button(onClick = {
+                            navController.navigate("${MelodyDiaryApp.EditDiaryScreen.name}/${diaryId}")
+                        }) {
                             Text(
                                 text = "Edit",
                                 color = Color.White
                             )
                         }
                     }
-                }
-            )
+                })
         },
     ) { paddingValue ->
         diary?.let {
-            val diaryStyle = diary!!.diaryStyle
+            val diaryStyle = it.diaryStyle
             LazyColumn(
                 modifier = modifier
                     .fillMaxSize()
@@ -235,11 +229,12 @@ fun DetailDiaryScreen(
                         ImageContentWrapper(
                             imageByteArray = value,
                             onDeleteClick = {
-                                Toast.makeText(
-                                    context,
-                                    "Please go to Edit mode to delete",
-                                    Toast.LENGTH_LONG
-                                )
+                                Toast
+                                    .makeText(
+                                        context,
+                                        "Please go to Edit mode to delete",
+                                        Toast.LENGTH_LONG
+                                    )
                                     .show()
                             },
                             onShrinkClick = {

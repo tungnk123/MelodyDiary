@@ -7,6 +7,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
+import com.uit.melodydiary.ui.theme.mauDa7
 import com.uit.melodydiary.ui.theme.mygreen
 import java.time.LocalDateTime
 
@@ -23,6 +24,6 @@ data class Diary(
         fontSize = 16.sp,
         fontStyle = "Default",
         color = Color.Black,
-        colorPalette = mygreen
-        )
-    )
+        colorPalette = mauDa7
+    ),
+)
