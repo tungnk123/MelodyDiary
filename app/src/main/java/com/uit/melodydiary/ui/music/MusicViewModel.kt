@@ -2,11 +2,13 @@ package com.uit.melodydiary.ui.music
 
 import MusicHelper
 import android.util.Log
+import androidx.annotation.OptIn
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.media3.common.util.UnstableApi
 import com.google.ai.client.generativeai.GenerativeModel
 import com.uit.melodydiary.BuildConfig
 import com.uit.melodydiary.MelodyDiaryApplication
@@ -26,16 +28,17 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 
-
-private const val FETCH_INTERVAL = 5000L
-
 class MusicViewModel(
     private val musicRepository: MusicRepository,
     private val albumRepository: AlbumRepository,
 ) : ViewModel() {
 
-    var albumList: StateFlow<List<Album>> = MutableStateFlow(mutableListOf())
-    var musicSmallList: List<MusicSmall> = listOf()
+    private val _albumList = MutableStateFlow<List<Album>>(emptyList())
+    val albumList: StateFlow<List<Album>> get() = _albumList
+
+    private val _musicSmallList = MutableStateFlow<List<MusicSmall>>(emptyList())
+    val musicSmallList: StateFlow<List<MusicSmall>> get() = _musicSmallList
+
     var currentDiary: Diary = Diary(
         diaryId = 0,
         title = "Chọn",
@@ -50,6 +53,10 @@ class MusicViewModel(
             modelName = "gemini-1.5-flash",
             apiKey = BuildConfig.GEMINI_API_KEY
         )
+    }
+
+    fun setMusicList(list: List<MusicSmall>) {
+        _musicSmallList.value = list
     }
 
     suspend fun generateMusic(
@@ -73,68 +80,56 @@ class MusicViewModel(
         }
     }
 
+    @OptIn(UnstableApi::class)
     fun populateMusicList(emotion: String) {
-        try {
-            viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
                 val musicList = musicRepository.getAllLocalSmallMusicsByEmotion(emotion)
-                musicList.forEach {
-                    MusicHelper.addSongToEnd(it)
-                }
+                musicList.forEach { MusicHelper.addSongToEnd(it) }
 
-                val musicGroup = musicRepository.getGeneratedMusicList(
-                    emotion = emotion
-                )
-                musicGroup.forEach {
-                    val remoteMusicList = it.musics.map { music ->
-                        music.toMusicSmall()
-                    }
-                    remoteMusicList.forEach {
-                        MusicHelper.addSongToEnd(it)
-                    }
+                val musicGroup = musicRepository.getGeneratedMusicList(emotion)
+                val remoteMusicList = musicGroup.flatMap { group ->
+                    group.musics.map { it.toMusicSmall() }
                 }
+                remoteMusicList.forEach { MusicHelper.addSongToEnd(it) }
+
                 Log.d(
                     "test_song",
                     "Current song queue: ${MusicHelper.songQueue}"
                 )
             }
-        }
-        catch (e: Exception) {
-            Log.e(
-                "fetchMusic",
-                "Error fetching music: ${e.message}",
-                e
-            )
-            throw e
+            catch (e: Exception) {
+                Log.e(
+                    "fetchMusic",
+                    "Error fetching music: ${e.message}",
+                    e
+                )
+            }
         }
     }
 
+    @OptIn(UnstableApi::class)
     fun populateMusicListByLyric(lyric: String) {
-        try {
-            viewModelScope.launch(Dispatchers.IO) {
-                val musicGroup = musicRepository.getGeneratedMusicListByLyric(
-                    lyric = lyric
-                )
-                musicGroup.forEach {
-                    val remoteMusicList = it.musics.map { music ->
-                        music.toMusicSmall()
-                    }
-                    remoteMusicList.forEach {
-                        MusicHelper.addSongToEnd(it)
-                    }
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val musicGroup = musicRepository.getGeneratedMusicListByLyric(lyric)
+                val remoteMusicList = musicGroup.flatMap { group ->
+                    group.musics.map { it.toMusicSmall() }
                 }
+                remoteMusicList.forEach { MusicHelper.addSongToEnd(it) }
+
                 Log.d(
                     "test_song",
                     "Current song queue: ${MusicHelper.songQueue}"
                 )
             }
-        }
-        catch (e: Exception) {
-            Log.e(
-                "fetchMusic",
-                "Error fetching music: ${e.message}",
-                e
-            )
-            throw e
+            catch (e: Exception) {
+                Log.e(
+                    "fetchMusic",
+                    "Error fetching music: ${e.message}",
+                    e
+                )
+            }
         }
     }
 
@@ -149,12 +144,16 @@ class MusicViewModel(
 
     fun getAllAlbum() {
         viewModelScope.launch {
-            albumList = albumRepository.getAlbum()
+            albumRepository
+                .getAlbum()
                 .stateIn(
                     scope = viewModelScope,
-                    initialValue = listOf<Album>(),
-                    started = SharingStarted.WhileSubscribed(1_000)
+                    started = SharingStarted.WhileSubscribed(1_000),
+                    initialValue = emptyList()
                 )
+                .collect { albums ->
+                    _albumList.value = albums
+                }
         }
     }
 
@@ -165,8 +164,17 @@ class MusicViewModel(
     }
 
     fun getAllMusic() {
-        viewModelScope.launch(Dispatchers.IO) {
-            musicSmallList = albumRepository.getAllMusic()
+        viewModelScope.launch {
+            albumRepository
+                .getAllMusic()
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(5_000),
+                    initialValue = emptyList()
+                )
+                .collect { musicList ->
+                    _musicSmallList.value = musicList
+                }
         }
     }
 
@@ -188,7 +196,7 @@ class MusicViewModel(
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val application =
-                    (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as MelodyDiaryApplication)
+                    this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as MelodyDiaryApplication
                 val musicRepository = application.container.musicRepository
                 val albumRepository = application.container.albumRepository
                 MusicViewModel(
@@ -199,3 +207,4 @@ class MusicViewModel(
         }
     }
 }
+
