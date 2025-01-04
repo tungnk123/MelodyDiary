@@ -273,7 +273,10 @@ fun DiaryTab(
 
         selectedAlbum?.let { album ->
             AlbumDetailScreen(album = album,
-                onClose = { selectedAlbum = null },
+                onClose = {
+                    selectedAlbum = null
+                    MusicHelper.pause()
+                },
                 onAddMusic = { uri ->
                     Log.d(
                         "test_uri",
