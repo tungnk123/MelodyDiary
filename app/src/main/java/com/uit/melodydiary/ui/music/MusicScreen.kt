@@ -382,7 +382,6 @@ fun AlbumSelectionDialog(
 }
 
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun GenMusicTab(
     modifier: Modifier = Modifier,

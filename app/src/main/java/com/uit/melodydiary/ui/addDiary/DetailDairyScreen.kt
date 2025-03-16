@@ -1,6 +1,7 @@
 package com.uit.melodydiary.ui.addDiary
 
 import android.os.Build
+import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
@@ -51,15 +52,14 @@ import com.uit.melodydiary.ui.addDiary.components.DiaryTextField
 import com.uit.melodydiary.ui.addDiary.components.ImageContentWrapper
 import com.uit.melodydiary.ui.diary.DiaryViewModel
 import com.uit.melodydiary.utils.DayOfWeekConverter
+import com.uit.melodydiary.utils.ShareHelper
 import com.uit.melodydiary.utils.byteArrayToString
 import com.uit.melodydiary.utils.loadContentListFromFile
 import com.uit.melodydiary.utils.plus
 import java.time.format.DateTimeFormatter
 
-@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(
-    ExperimentalMaterial3Api::class,
-    ExperimentalMaterialApi::class
+    ExperimentalMaterial3Api::class
 )
 @Composable
 fun DetailDiaryScreen(
@@ -133,13 +133,13 @@ fun DetailDiaryScreen(
                             }
                             DropdownMenuItem(onClick = {
                                 showMenu = false
-                                Toast
-                                    .makeText(
-                                        context,
-                                        "Feature is under construction",
-                                        Toast.LENGTH_SHORT
+                                diary?.let {
+                                    Log.d("test_share", "Diary to share: $it ")
+                                    ShareHelper.shareDiary(
+                                        context = context,
+                                        diary = it
                                     )
-                                    .show()
+                                }
                             }) {
                                 Text("Share")
                             }
@@ -166,13 +166,12 @@ fun DetailDiaryScreen(
                 contentPadding = paddingValue
 
             ) {
-
                 item {
                     DateDetailInDiaryWithSelection(
                         date = it.createdAt.format(formatter),
                         time = it.createdAt.format(timeFormatter),
                         thu = DayOfWeekConverter.convertToThu(it.createdAt.dayOfWeek.toString()),
-                        it.logo,
+                        statusLogoRes = it.logo,
                         onPickEmoteClick = {
                             showBottomSheet = !showBottomSheet
                         },

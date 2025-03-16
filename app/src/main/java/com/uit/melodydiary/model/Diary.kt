@@ -6,9 +6,7 @@ import androidx.compose.ui.unit.sp
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import androidx.room.TypeConverters
 import com.uit.melodydiary.ui.theme.mauDa7
-import com.uit.melodydiary.ui.theme.mygreen
 import java.time.LocalDateTime
 
 @Entity(tableName = "diary_table")
@@ -26,4 +24,5 @@ data class Diary(
         color = Color.Black,
         colorPalette = mauDa7
     ),
+    val songPath: String = "https://un-silent-backend-mobile.azurewebsites.net/api/v1/musics/file/1QFxYBQiVS1KY2fkr9vD76H6N4MwON4rL",
 )
