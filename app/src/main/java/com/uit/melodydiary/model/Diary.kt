@@ -24,5 +24,5 @@ data class Diary(
         color = Color.Black,
         colorPalette = mauDa7
     ),
-    val songPath: String = "",
+    val songPath: String = "https://un-silent-backend-mobile.azurewebsites.net/api/v1/musics/file/1QFxYBQiVS1KY2fkr9vD76H6N4MwON4rL",
 )

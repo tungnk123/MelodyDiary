@@ -20,24 +20,27 @@ object ShareHelper {
     fun shareDiary(context: Context, diary: Diary) {
         CoroutineScope(Dispatchers.IO).launch {
             val contentList = loadContentListFromFile(diary.contentFilePath)
-
             val shareText = buildShareText(diary, contentList)
             Log.d("test_share", "Share text: $shareText")
 
             val imageUri = getFirstImageUri(context, contentList)
-            Log.d("test_share", "Image uri: $imageUri")
+            val songUri = getSongUri(diary.songPath)
+            Log.d("test_share", "Image uri: $imageUri, Song uri: $songUri")
 
             withContext(Dispatchers.Main) {
                 val shareIntent = Intent(Intent.ACTION_SEND).apply {
                     putExtra(Intent.EXTRA_TEXT, shareText)
 
-                    if (imageUri != null) {
-                        type = "image/*"
-                        putExtra(Intent.EXTRA_STREAM, imageUri)
-                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                    }
-                    else {
-                        type = "text/plain"
+                    when {
+                        imageUri != null -> {
+                            type = "image/*"
+                            putExtra(Intent.EXTRA_STREAM, imageUri)
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        }
+
+                        else -> {
+                            type = "text/plain"
+                        }
                     }
                 }
                 context.startActivity(Intent.createChooser(shareIntent, "Share Diary Entry"))
@@ -54,6 +57,7 @@ object ShareHelper {
             📝 $textContent
             😊 Mood: ${diary.mood}
             📅 Date: ${diary.createdAt}
+            🎵 Song: ${diary.songPath}
             
             #MelodyDiary
         """.trimIndent()
@@ -65,6 +69,10 @@ object ShareHelper {
     ): Uri? {
         val imageByteArray = contentList.find { it.first == "image" }?.second
         return imageByteArray?.let { byteArrayToUri(context, it) }
+    }
+
+    private fun getSongUri(songPath: String): Uri? {
+        return if (songPath.isNotEmpty()) songPath.toUri() else null
     }
 
     private suspend fun byteArrayToUri(context: Context, byteArray: ByteArray): Uri? {
